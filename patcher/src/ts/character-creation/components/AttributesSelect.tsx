@@ -69,14 +69,16 @@ class AttributesSelect extends React.Component<AttributesSelectProps, Attributes
     let stringValue = info.units == 'units' ?  value : value.toFixed(4);
     return (
       <div key={info.name} className='attribute-row row'>
-        <div className='col s2 attribute-points'>
-          {stringValue}
+        <div className='attribute-points'>
+          <div className='col s10 label'>
+            {info.name} <i>({info.units})</i>
+          </div>
+          <div className='col s2'>
+            {stringValue}
+          </div>
         </div>
-        <div className='col s10'>
-        {info.name} <i>({info.units})</i>
         <div className='attribute-description'>
-        {info.description}
-        </div>
+          {info.description}
         </div>
       </div>
     )
@@ -115,11 +117,13 @@ class AttributesSelect extends React.Component<AttributesSelectProps, Attributes
         </div>
         <div className='view-content row attributes-view'>
           <div className='col s12'>
-            <h4>Primary</h4>
-            {primaries.map((a: AttributeInfo) => {
-              let offsetValue = offset == null ? 0 : typeof offset.attributeOffsets[a.name] === 'undefined' ? 0 : offset.attributeOffsets[a.name];
-              return this.generateAttributeView(a, a.baseValue + a.allocatedPoints + offsetValue);
-            })}
+            <div className='row'>
+              <h4>Primary</h4>
+              {primaries.map((a: AttributeInfo) => {
+                let offsetValue = offset == null ? 0 : typeof offset.attributeOffsets[a.name] === 'undefined' ? 0 : offset.attributeOffsets[a.name];
+                return this.generateAttributeView(a, a.baseValue + a.allocatedPoints + offsetValue);
+              })}
+            </div>
             <div className='row'>
               <h4>Secondary</h4>
               {secondaries.map((a: AttributeInfo) => {
@@ -128,11 +132,11 @@ class AttributesSelect extends React.Component<AttributesSelectProps, Attributes
               })}
             </div>
             <div className='row'>
-            <h4>Derived</h4>
-            {derived.map((a: AttributeInfo) => {
-              return this.generateAttributeView(a, this.calculateDerivedValue(a, offset));
-            })}
-          </div>
+              <h4>Derived</h4>
+              {derived.map((a: AttributeInfo) => {
+                return this.generateAttributeView(a, this.calculateDerivedValue(a, offset));
+              })}
+            </div>
           </div>
         </div>
       </div>

@@ -5,41 +5,44 @@
  */
 
 .rightarrow, .leftarrow {
-    background: url("../images/arrow.png") no-repeat;
-    background-size: contain;
-    border: none;
-    display: inline-block;
-    height: 18px;
-    width: 18px;
-    &:focus{
-        background-color: transparent;
-    }
-    &:hover{
-        filter: brightness(150%);
-        -webkit-filter: brightness(150%);
-    }
+  background: url("../images/arrow.png") no-repeat;
+  background-size: contain;
+  border: none;
+  display: inline-block;
+  height: 18px;
+  width: 18px;
+  &:focus{
+    background-color: transparent;
+  }
+  &:hover{
+    filter: brightness(150%);
+    -webkit-filter: brightness(150%);
+  }
 }
 
 .leftarrow {
-    transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
 .attribute-points {
-    display: inline-block;
-    min-width: 30px;
-    text-align: center;
-    background: rgba(0, 0, 0, 0.5);
+  display: inline-block;
+  min-width: 30px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  .label {
+    text-align: left;
+  }
 }
 
 .attribute-row{
-    width: 100%;
-    display: block;
-    background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.5), transparent);
-    padding-bottom: 10px;
-    &:hover{
-      filter: brightness(150%);
-      -webkit-filter: brightness(150%);
-    }
+  width: 100%;
+  display: block;
+  background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.5), transparent);
+  padding-bottom: 10px;
+  &:hover{
+    filter: brightness(150%);
+    -webkit-filter: brightness(150%);
+  }
 }
 
 .right {
@@ -51,9 +54,9 @@
 }
 
 span.points {
-    font-size: .8em;
-    font-family: 'TitilliumWeb';
-    color: rgb(206, 181, 59);
+  font-size: .8em;
+  font-family: 'TitilliumWeb';
+  color: rgb(206, 181, 59);
 }
 
 .attributes-view {
@@ -113,21 +116,19 @@ span.points {
 }
 
 @media screen and (max-width: 900px) {
-   .attributes-view .attribute-row{
+  .attributes-view .attribute-row{
     max-width: 100%;
   }
 }
 
 @media screen and (min-width: 1300px) {
-   .attributes-view .attribute-row{
+  .attributes-view .attribute-row{
     max-width: calc(33.33% - 10px);
   }
 }
 
-
 @media screen and (min-width: 1600px) {
-   .attributes-view .attribute-row{
+  .attributes-view .attribute-row{
     max-width: calc(25% - 10px);
   }
 }
-
