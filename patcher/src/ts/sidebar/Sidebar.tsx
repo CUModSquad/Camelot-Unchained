@@ -86,6 +86,14 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
     };
   }
 
+   scheduleUpdateServerStatus = () => {
+    const {dispatch} = this.props;
+    setTimeout(() => {
+      dispatch(requestChannels());
+      dispatch(fetchServers());
+    }, 2500);
+  }
+
   onLogIn = () => {
     const {onLogIn, dispatch} = this.props;
 
@@ -97,6 +105,8 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
     dispatch(requestChannels(lastChannel));
     dispatch(fetchServers(lastServer));
     this.fetchCharacters(lastCharacterID);
+
+    this.scheduleUpdateServerStatus()
   }
 
   onLogOut = () => {

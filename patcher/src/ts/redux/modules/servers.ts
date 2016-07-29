@@ -119,7 +119,8 @@ export function fetchServers(selectedServerName?: string) {
               dispatch(updateServer(s));
             })
             .catch((error: ResponseError) => {/*ignore error*/});
-        })
+        })    
+
         let selectedServer: Server = null;
         if (selectedServerName) {
           for (let i = 0; i < servers.length; i++) {

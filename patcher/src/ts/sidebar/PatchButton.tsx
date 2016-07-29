@@ -16,11 +16,9 @@ import Animate from '../../lib/Animate';
 import EualaModal from './EualaModal';
 import CommandLineArgsModal from './CommandLineArgsModal';
 import UninstallButton from './UninstallButton';
-import {ServersState} from '../redux/modules/servers';
-import {ChannelState} from '../redux/modules/channels';
+import {ServersState, fetchServers} from '../redux/modules/servers';
+import {ChannelState, requestChannels} from '../redux/modules/channels';
 import {CharactersState} from '../redux/modules/characters';
-
-
 
 export class Progress {
   constructor(public rate: number = 0, public dataCompleted: number = 0, public totalDataSize: number = 0) { }

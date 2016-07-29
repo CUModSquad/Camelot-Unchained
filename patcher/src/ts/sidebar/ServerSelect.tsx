@@ -15,7 +15,6 @@ import * as events from '../../../../shared/lib/events';
 import {fetchCharacters, selectCharacter} from '../redux/modules/characters';
 import QuickSelect from '../../lib/QuickSelect';
 
-
 export enum ServerStatus {
   OFFLINE,
   ONLINE,
@@ -113,7 +112,7 @@ class ServerSelect extends React.Component<ServerSelectProps, ServerSelectState>
   }
 
   onSelectedServerChanged = (server: IServerOption) => {
-    const { dispatch } = this.props;
+    const {dispatch} = this.props;
 
     events.fire('play-sound', 'select');
 
@@ -182,6 +181,7 @@ class ServerSelect extends React.Component<ServerSelectProps, ServerSelectState>
     return this.listAsArray.indexOf(this.listAsArray.find(i => {
       if (i.serverInfo && currentServer) return i.serverInfo.channelID == currentServer.channelID
       else if (i.channelInfo && selectedChannel) return i.channelInfo.channelID == selectedChannel.channelID
+      
       return false;
     }));
   }
