@@ -119,7 +119,6 @@ class ServerSelect extends React.Component<ServerSelectProps, ServerSelectState>
     //is there a required order here?
     dispatch(changeChannel(server.channelInfo));
     dispatch(changeServer(server.serverInfo));
-    dispatch(fetchCharacters());
     dispatch(selectCharacter(null));
     dispatch(fetchServers());
     dispatch(requestChannels());
@@ -181,7 +180,7 @@ class ServerSelect extends React.Component<ServerSelectProps, ServerSelectState>
     return this.listAsArray.indexOf(this.listAsArray.find(i => {
       if (i.serverInfo && currentServer) return i.serverInfo.channelID == currentServer.channelID
       else if (i.channelInfo && selectedChannel) return i.channelInfo.channelID == selectedChannel.channelID
-      
+
       return false;
     }));
   }
