@@ -16,8 +16,8 @@ import Animate from '../../lib/Animate';
 import EualaModal from './EualaModal';
 import CommandLineArgsModal from './CommandLineArgsModal';
 import UninstallButton from './UninstallButton';
-import {ServersState, fetchServers} from '../redux/modules/servers';
-import {ChannelState, requestChannels} from '../redux/modules/channels';
+import {ServersState} from '../redux/modules/servers';
+import {ChannelState} from '../redux/modules/channels';
 import {CharactersState} from '../redux/modules/characters';
 
 export class Progress {

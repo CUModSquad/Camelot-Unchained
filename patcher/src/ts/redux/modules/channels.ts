@@ -19,7 +19,6 @@ export function changeChannel(channel: Channel): any {
 }
 
 export function requestChannels(selectedChannelID?: number): any {
-  //let selectedChannel: Channel = null;
   let channels = patcher.getAllChannels();
   if (channels == null || typeof(channels) == 'undefined') channels = <Array<Channel>>[];
   
@@ -54,8 +53,6 @@ export default function reducer(state: ChannelState = initialState, action: any 
       } else if (state.selectedChannel) {
         selectedChannel = action.channels.find((c:Channel) => c.channelID == state.selectedChannel.channelID);
       }
-       
-      console.log(selectedChannel);
       
       return Object.assign({}, state, {
         channels: action.channels,
