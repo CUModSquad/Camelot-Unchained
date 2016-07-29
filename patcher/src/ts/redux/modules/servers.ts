@@ -119,7 +119,8 @@ export function fetchServers(selectedServerName?: string) {
               dispatch(updateServer(s));
             })
             .catch((error: ResponseError) => {/*ignore error*/});
-        })
+        })    
+
         let selectedServer: Server = null;
         if (selectedServerName) {
           for (let i = 0; i < servers.length; i++) {
@@ -158,11 +159,18 @@ export default function reducer(state: ServersState = initialState, action: any 
         isFetching: true
       });
     case FETCH_SERVERS_SUCCESS:
+      let selectedServer:Server;
+      if (action.selectedServer) {
+        selectedServer = action.servers.find((s:Server) => s.channelID == action.selectedServer.channelID);
+      } else if (state.currentServer) {
+        selectedServer = action.servers.find((s:Server) => s.channelID == state.currentServer.channelID);
+      }
+
       return Object.assign({}, state, {
         isFetching: false,
         lastUpdated: action.receivedAt,
         servers: action.servers,
-        currentServer: action.selectedServer || state.currentServer || action.servers[0]
+        currentServer: selectedServer
       });
     case FETCH_SERVERS_FAILED:
       return Object.assign({}, state, {
