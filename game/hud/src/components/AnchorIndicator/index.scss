@@ -1,0 +1,51 @@
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+ $indicator-radius: 8px;
+ $grid-size: 60px;
+
+.AnchorIndicator-main {
+  position: absolute;
+  z-index: 10000;
+  left: calc(50% - #{$grid-size / 2});
+  top: calc(50% - #{$grid-size / 2});
+  height: $grid-size;
+  width: $grid-size;
+
+  >div.anchor {
+    width: $indicator-radius * 2;
+    height: $indicator-radius * 2;
+    border-radius: $indicator-radius;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    cursor: pointer;
+    &.x-axis-start {
+      left: 0;
+    }
+    &.x-axis-center {
+      left: calc(50% - #{$indicator-radius});
+    }
+    &.x-axis-end {
+      right: 0;
+    }
+    &.y-axis-start {
+      top: 0;
+    }
+    &.y-axis-center {
+      top: calc(50% - #{$indicator-radius});
+    }
+    &.y-axis-end {
+      bottom: 0;
+    }
+
+    &.current {
+      background-color: limegreen;
+    }
+    &.locked {
+      background-color: magenta;
+    }
+  }
+}

@@ -45,13 +45,8 @@ export interface LayoutAction {
 export interface Anchor {
   x: AxisAnchorRelativeTo;
   y: AxisAnchorRelativeTo;
+  locked: boolean;
 }
-
-const TOP_LEFT: Anchor = { x: AxisAnchorRelativeTo.START, y: AxisAnchorRelativeTo.START };
-const BOTTOM_LEFT: Anchor = { x: AxisAnchorRelativeTo.START, y: AxisAnchorRelativeTo.END };
-const TOP_RIGHT: Anchor = { x: AxisAnchorRelativeTo.END, y: AxisAnchorRelativeTo.START };
-const BOTTOM_RIGHT: Anchor = { x: AxisAnchorRelativeTo.END, y: AxisAnchorRelativeTo.END };
-const MIDDLE_OF_WINDOW: Anchor = { x: AxisAnchorRelativeTo.CENTER, y: AxisAnchorRelativeTo.CENTER };
 
 export interface Position {
   x: number;
@@ -147,11 +142,11 @@ const initialState = () => {
     reset: FORCE_RESET_CODE,
     locked: true,
     widgets: {
-      Chat:{x:{anchor:-1,px:0},y:{anchor:1,px:302},size:{width:480,height:240},scale:1},
-      PlayerHealth:{x:{anchor:0,px:-294},y:{anchor:1,px:315},size:{width:350,height:200},scale:0.6},
-      EnemyTargetHealth:{x:{anchor:0,px:-18},y:{anchor:1,px:315},size:{width:350,height:200},scale:0.6},
-      FriendlyTargetHealth:{x:{anchor:0,px:-18},y:{anchor:1,px:195},size:{width:350,height:200},scale:0.6},
-      Respawn:{x:{anchor:0,px:-100},y:{anchor:0,px:-100},size:{width:200,height:200},scale:1},
+      Chat:{x:{anchor:-1,px:0},y:{anchor:1,px:302},locked:false,size:{width:480,height:240},scale:1},
+      PlayerHealth:{x:{anchor:0,px:-294},y:{anchor:1,px:315},locked:false,size:{width:350,height:200},scale:0.6},
+      EnemyTargetHealth:{x:{anchor:0,px:-18},y:{anchor:1,px:315},locked:false,size:{width:350,height:200},scale:0.6},
+      FriendlyTargetHealth:{x:{anchor:0,px:-18},y:{anchor:1,px:195},locked:false,size:{width:350,height:200},scale:0.6},
+      Respawn:{x:{anchor:0,px:-100},y:{anchor:0,px:-100},locked:false,size:{width:200,height:200},scale:1},
     },
     version: MIN_STATE_VERSION_ANCHORED
   }
@@ -169,6 +164,7 @@ interface AnchoredAxis {
 interface AnchoredPosition {
   x: AnchoredAxis;
   y: AnchoredAxis;
+  locked: boolean;
   size: Size;
   scale: number;
 }
@@ -187,6 +183,7 @@ function position2anchor(current: Position, screen: Size) : AnchoredPosition {
   const position: AnchoredPosition = {
     x: axis2anchor(current.anchor.x, current.x, screen.width),
     y: axis2anchor(current.anchor.y, current.y, screen.height),
+    locked: current.anchor.locked,
     size: {
       width: current.width,
       height: current.height
@@ -211,7 +208,7 @@ function anchored2position(anchored: AnchoredPosition, screen: Size) : Position 
   const position = {
     x: anchor2axis(anchored.x, screen.width),
     y: anchor2axis(anchored.y, screen.height),
-    anchor: { x: anchored.x.anchor, y: anchored.y.anchor },
+    anchor: { x: anchored.x.anchor, y: anchored.y.anchor, locked: anchored.locked },
     width: anchored.size.width,
     height: anchored.size.height,
     scale: anchored.scale
@@ -240,8 +237,10 @@ function chooseAnchorForAxis(pos: number, extent: number, range: number) : AxisA
 
 function anchorPosition(current: Position, screen: Size) : Position {
   const anchored: Position = Object.assign({}, current);
-  anchored.anchor.x = chooseAnchorForAxis(anchored.x, anchored.width, screen.width);
-  anchored.anchor.y = chooseAnchorForAxis(anchored.y, anchored.height, screen.height);
+  if (!anchored.anchor.locked) {
+    anchored.anchor.x = chooseAnchorForAxis(anchored.x, anchored.width, screen.width);
+    anchored.anchor.y = chooseAnchorForAxis(anchored.y, anchored.height, screen.height);
+  }
   return anchored;
 }
 

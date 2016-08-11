@@ -20,6 +20,7 @@ import FriendlyTargetHealth from '../../widgets/FriendlyTargetHealth';
 import Warband from '../../widgets/Warband';
 import Respawn from '../../widgets/Respawn';
 import InviteAlert from '../InviteAlert';
+import AnchorIndicator from '../AnchorIndicator';
 
 function select(state: HUDSessionState): HUDProps {
   return {
@@ -133,12 +134,18 @@ class HUD extends React.Component<HUDProps, HUDState> {
     }
   }
 
+  private setAnchor = (name: string, pos: Position) => {
+    this.props.dispatch(savePosition(name, pos));
+  }
+
   draggableWidget = (name: string, widgets: any, Widget: any, containerClass: string, props?: any) => {
     const pos: Position = widgets[name];
 
     let dragHandle: any = null;
+    let anchor: JSX.Element = null;
     if (!this.props.layout.locked) {
       dragHandle = <div className={`drag-handle`}><h1>{name}</h1></div>;
+      anchor = <AnchorIndicator name={name} pos={pos} setAnchor={this.setAnchor}/>
     }
 
     return (
@@ -164,6 +171,7 @@ class HUD extends React.Component<HUDProps, HUDState> {
                onWheel={(e: any) => this.onWheel(name, e)}>
             <Widget {...props} />
             {dragHandle}
+            {anchor}
           </div>
         </div>
       </Draggable>
