@@ -14,7 +14,6 @@ const SAY_SOMETHING = 'hud/layout/SAY_SOMETHING';
 
 const LOCK_HUD = 'hud/layout/LOCK_HUD';
 const UNLOCK_HUD = 'hud/layout/UNLOCK_HUD';
-const SET_POSITION = 'hud/layout/SET_POSITION';
 const SAVE_POSITION = 'hud/layout/SAVE_POSITION';
 const RESET_HUD = 'hud/layout/RESET_HUD';
 
@@ -76,14 +75,6 @@ export function resetHUD(): LayoutAction {
   return {
     type: RESET_HUD
   };
-}
-
-export function setPosition(name: string, pos: Position): LayoutAction {
-  return {
-    type: SET_POSITION,
-    widget: name,
-    position: pos
-  }
 }
 
 export function savePosition(name: string, pos: Position): LayoutAction {
@@ -343,13 +334,6 @@ export default function reducer(state: LayoutState = getInitialState(),
       outState = Object.assign({}, loadState(clone(initialState())));
       break;
     }
-    case SET_POSITION:
-      widgets = state.widgets;
-      widgets[action.widget] = action.position;
-      outState = Object.assign({}, state, {
-        widgets: widgets
-      });
-      break;
     case SAVE_POSITION:
       widgets = state.widgets;
       screen = { width: window.innerWidth, height: window.innerHeight };
