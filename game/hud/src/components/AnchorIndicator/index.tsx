@@ -54,7 +54,7 @@ class AnchorIndicator extends React.Component<AnchorIndicatorProps, AnchorIndica
         const classNames: string[] = [ 'anchor' ];
         classNames.push(x < 0 ? 'x-axis-start' : x > 0 ? 'x-axis-end' : 'x-axis-center');
         classNames.push(y < 0 ? 'y-axis-start' : y > 0 ? 'y-axis-end' : 'y-axis-center');
-        if (pos.anchor.x === x && pos.anchor.y === y) {
+        if (pos && pos.anchor && pos.anchor.x === x && pos.anchor.y === y) {
           classNames.push('current');
           if (pos.anchor.locked) classNames.push('locked');
         }
