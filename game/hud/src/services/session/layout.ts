@@ -78,6 +78,9 @@ export function resetHUD(): LayoutAction {
 }
 
 export function savePosition(name: string, pos: Position): LayoutAction {
+  DEBUG_ASSERT(name, 'savePosition: name argument required');
+  DEBUG_ASSERT(pos, 'savePosition: pos argument required');
+  DEBUG_ASSERT(pos.anchor, 'savePosition: pos missing anchor');
   return {
     type: SAVE_POSITION,
     widget: name,
