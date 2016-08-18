@@ -43,7 +43,7 @@ export interface SelectServerState {
 
 class SelectServer extends React.Component<SelectServerProps, SelectServerState> {
 
-  private mergedServerList: {[key:string]: any } = {};
+  private mergedServerList: {[key:string]: any} = {};
   
   private listAsArray: any[] = null;
   

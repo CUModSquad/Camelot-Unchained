@@ -12,7 +12,6 @@ const REQUEST_CHANNELS = 'cse-patcher/locations/REQUEST_CHANNELS';
 
 // sync actions
 export function changeChannel(channel: Channel): any {
-  const name = (channel) ? channel.channelID : "null";
   return {
     type: CHANGE_CHANNEL,
     channel: channel

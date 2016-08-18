@@ -104,12 +104,10 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
     const {onLogIn, dispatch} = this.props;
 
     const lastCharacterID = lastPlay && lastPlay.characterID ? lastPlay.characterID : null;
-    //const lastServer = lastPlay && lastPlay.serverName ? lastPlay.serverName : null;
     const lastChannel = lastPlay && lastPlay.channelID ? lastPlay.channelID : null;
 
     onLogIn();
     dispatch(requestChannels(lastChannel));
-    //dispatch(fetchServers(lastServer));
     const initialServer = this.getInitialServer();
     console.log('inital server: ' + JSON.stringify(initialServer));
     dispatch(changeServer(initialServer));
