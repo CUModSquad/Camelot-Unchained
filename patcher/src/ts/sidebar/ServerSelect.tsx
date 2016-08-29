@@ -7,7 +7,7 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {Channel, ChannelStatus, patcher} from '../api/patcherAPI';
-import {Server, AccessType} from '../redux/modules/servers';
+import {Server, AccessType, ServerPopulation} from '../redux/modules/servers';
 import * as events from '../../lib/events';
 
 import {changeChannel, requestChannels, ChannelState} from '../redux/modules/channels';
@@ -80,16 +80,23 @@ class SelectServer extends React.Component<SelectServerProps, SelectServerState>
     dispatch(changeServer(server.serverInfo));
     if(server && server.shardID) this.trySelectCharacter(server.shardID);
     else dispatch(selectCharacter(null));
-    dispatch(fetchServers());
-    dispatch(requestChannels());
     this.setState({
       showList: false
     } as any);
   }
 
+  getTotalPopulation = (server:Server):ServerPopulation => {
+    if (!server || !server.channelID || !this.props.serversState || !this.props.serversState.serverPopulations) return { serverName: '', arthurians: 0, vikings: 0, tuathaDeDanann: 0};; 
+    
+    const serverPop = this.props.serversState.serverPopulations[server.name];
+    if (serverPop) return serverPop;
+    
+    return { serverName: '', arthurians: 0, vikings: 0, tuathaDeDanann: 0};; 
+  } 
+
   renderItem(item: any, hideSelected:boolean) {
-    if (item.serverInfo && !(hideSelected && this.props.serversState.currentServer && this.props.serversState.currentServer.channelID == item.serverInfo.channelID)) {
-      const totalPlayers = (item.serverInfo.arthurians|0) + (item.serverInfo.tuathaDeDanann|0) + (item.serverInfo.vikings|0);
+    if (item.serverInfo && !(hideSelected && this.props.serversState.currentServer && this.props.serversState.currentServer.name == item.serverInfo.name)) {
+      const totalPlayers = this.getTotalPopulation(this.props.serversState.currentServer); //BUG: displaying the current server pop for every server in the list
       const status = item.serverInfo.playerMaximum > 0 ? 'online' : 'offline';
       const accessLevel = AccessType[item.serverInfo.accessLevel];
 
@@ -97,13 +104,13 @@ class SelectServer extends React.Component<SelectServerProps, SelectServerState>
         <div className='server-select' onClick={() => this.onSelectedServerChanged(item)}>
           <div className='server-details'>
             <h5 className='server'>{item.displayName} ({accessLevel})</h5>
-            <h6 className='server-players'>Players Online: {totalPlayers}/{item.serverInfo.playerMaximum}</h6>
+            <h6 className='server-players'>Players Online: {totalPlayers.arthurians + totalPlayers.tuathaDeDanann + totalPlayers.vikings}/{item.serverInfo.playerMaximum}</h6>
           </div>
           <div className='server-status'><div className={'indicator ' + status} data-position='right'
             data-delay='150' data-tooltip={status} /></div>
         </div>
       );
-    } else if(!(hideSelected && this.props.channelsState.selectedChannel && this.props.channelsState.selectedChannel.channelID == item.channelInfo.channelID)) {
+    } else if(!(hideSelected && this.props.channelsState.selectedChannel && this.props.channelsState.selectedChannel.channelName == item.channelInfo.channelName)) {
       return (
         <div className='server-select' onClick={() => this.onSelectedServerChanged(item)}>
           <div className='server-details'>
@@ -114,20 +121,36 @@ class SelectServer extends React.Component<SelectServerProps, SelectServerState>
     }    
   }
 
+  //TODO: take care of this at the store level
   mergeServerChannelLists(servers:Array<Server>, channels:Array<Channel>) : any {
 
     let filteredServers:Array<Server> = servers.filter((s) => { return s.name != 'localhost'; });
 
     filteredServers.forEach(s => {
-      this.mergedServerList[s.channelID] = this.mergedServerList[s.channelID] || { displayName: s.name, serverInfo: null, channelInfo:null };
-      this.mergedServerList[s.channelID].serverInfo = s;
-      this.mergedServerList[s.channelID].displayName = s.name;
+      this.mergedServerList[s.name] = this.mergedServerList[s.name] || { displayName: s.name, serverInfo: null, channelInfo:null };
+      this.mergedServerList[s.name].serverInfo = s;
+      this.mergedServerList[s.name].displayName = s.name;
     });
 
     channels.forEach(c => {
-      this.mergedServerList[c.channelID] = this.mergedServerList[c.channelID] || { displayName: c.channelName, serverInfo: null, channelInfo:null };
-      this.mergedServerList[c.channelID].channelInfo = c;
-      this.mergedServerList[c.channelID].displayName = c.channelName;
+      let channelFound = false;
+      for (var key in this.mergedServerList) {
+          let channelId =  -1
+          
+          if (this.mergedServerList[key].serverInfo && this.mergedServerList[key].serverInfo.channelID) channelId = this.mergedServerList[key].serverInfo.channelID;
+          else if (this.mergedServerList[key].channelInfo && this.mergedServerList[key].channelInfo.channelID) channelId = this.mergedServerList[key].channelInfo.channelID;
+          
+          if (channelId === c.channelID) {
+            channelFound = true;
+            this.mergedServerList[key].channelInfo = c;
+          }
+      }
+
+      if(!channelFound) {
+        this.mergedServerList[c.channelName] = this.mergedServerList[c.channelName] || { displayName: c.channelName, serverInfo: null, channelInfo:null };
+        this.mergedServerList[c.channelName].channelInfo = c;
+        this.mergedServerList[c.channelName].displayName = c.channelName;
+      }
     });
 
     let dictToArray:any[] = [];
@@ -141,8 +164,8 @@ class SelectServer extends React.Component<SelectServerProps, SelectServerState>
     if (!currentServer && !selectedChannel) return 0;
 
     return this.listAsArray.indexOf(this.listAsArray.find((i: any) => {
-      if (i.serverInfo && currentServer) return i.serverInfo.channelID == currentServer.channelID;
-      else if (i.channelInfo && selectedChannel) return i.channelInfo.channelID == selectedChannel.channelID;
+      if (i.serverInfo && currentServer) return i.serverInfo.name == currentServer.name;
+      else if (i.channelInfo && selectedChannel) return i.channelInfo.channelName == selectedChannel.channelName;
       return false;
     }));
   }

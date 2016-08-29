@@ -32,7 +32,7 @@ import {fetchAlerts, validateAlerts, PatcherAlertsState} from '../redux/modules/
 import {changeChannel, requestChannels, ChannelState} from '../redux/modules/channels';
 import {muteSounds, unMuteSounds} from '../redux/modules/sounds';
 import {muteMusic, unMuteMusic} from '../redux/modules/music';
-import {fetchServers, changeServer, ServersState} from '../redux/modules/servers';
+import {fetchServers, changeServer, ServersState, fetchServerPopulation, ServerPopulation} from '../redux/modules/servers';
 import {fetchCharacters, selectCharacter, characterCreated, CharactersState} from '../redux/modules/characters';
 
 const lastPlay: any = JSON.parse(localStorage.getItem('cse-patcher-lastplay'));
@@ -44,7 +44,7 @@ function select(state: any): any {
     soundMuted: state.soundMuted,
     musicMuted: state.musicMuted,
     serversState: state.servers,
-    charactersState: state.characters,
+    charactersState: state.characters
   }
 }
 
@@ -72,6 +72,7 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
   private alertsInterval: any = null;
   private channelsInterval: any = null;
   private serversInterval: any = null;
+  private serverPopInterval: any = null;
 
   static propTypes = {
     alerts: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
@@ -87,18 +88,30 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
     };
   }
 
+  getInitialServer = ():Server => {
+    if (!this.props.serversState || !this.props.serversState.servers || this.props.serversState.servers.length === 0 ) return null; //no server to select
+
+    const lastServer = lastPlay && lastPlay.serverName ? lastPlay.serverName : null;
+    if (lastServer) {
+      const lServer =  this.props.serversState.servers.find(s => s.name === lastServer);
+      if(lServer) return lServer;
+    }
+
+    return this.props.serversState.servers[0]; //couldn't find the last server, default to the top one in the list
+  }
+
   onLogIn = () => {
     const {onLogIn, dispatch} = this.props;
 
     const lastCharacterID = lastPlay && lastPlay.characterID ? lastPlay.characterID : null;
-    const lastServer = lastPlay && lastPlay.serverName ? lastPlay.serverName : null;
     const lastChannel = lastPlay && lastPlay.channelID ? lastPlay.channelID : null;
 
     onLogIn();
     dispatch(requestChannels(lastChannel));
-    dispatch(fetchServers(lastServer));
+    const initialServer = this.getInitialServer();
+    console.log('inital server: ' + JSON.stringify(initialServer));
+    dispatch(changeServer(initialServer));
     this.fetchCharacters();
-    this.scheduleUpdateServerStatus();
   }
 
   onLogOut = () => {
@@ -222,6 +235,11 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
     if (!this.props.serversState.isFetching) dispatch(fetchServers());
     this.serversInterval = setInterval(() => {
       if (!this.props.serversState.isFetching) dispatch(fetchServers()); 
+    }, 60000);
+
+    dispatch(requestChannels());
+    this.serverPopInterval = setInterval(() => {
+      if (this.props.serversState.currentServer) dispatch(fetchServerPopulation(this.props.serversState.currentServer));
     }, 30000);
   }
 
@@ -230,14 +248,15 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
     clearInterval(this.alertsInterval);
     clearInterval(this.channelsInterval);
     clearInterval(this.serversInterval);
+    clearInterval(this.serverPopInterval);
   }
-
-  scheduleUpdateServerStatus = () => {
-    const {dispatch} = this.props;
-    setTimeout(() => {
-      dispatch(requestChannels());
-      dispatch(fetchServers());
-    }, 500);
+  
+  getServerPops = ():ServerPopulation => {
+    if (!this.props.serversState || !this.props.serversState.currentServer) return { serverName: '', arthurians: 0, vikings: 0, tuathaDeDanann: 0}; 
+    
+    const serverPop = this.props.serversState.serverPopulations[this.props.serversState.currentServer.name];
+    if (serverPop) return serverPop;
+    else return { serverName: '', arthurians: 0, vikings: 0, tuathaDeDanann: 0}; 
   }
 
   render() {
@@ -254,14 +273,16 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
 
     if (this.props.serversState.currentServer) {
       //todo: redux up ServerCounts, componentize character buttons
+      const serverPop = this.getServerPops();
+
       renderServerSection = (
         <div>
           <ServerSelect/>
           <CharacterSelect/>
           { this.generateCharacterButtons(this.props.serversState.currentServer.shardID, this.props.charactersState.selectedCharacter) }
-          <ServerCounts artCount={this.props.serversState.currentServer.arthurians}
-                        tddCount={this.props.serversState.currentServer.tuathaDeDanann}
-                        vikCount={this.props.serversState.currentServer.vikings} />
+          <ServerCounts artCount={serverPop.arthurians}
+                        tddCount={serverPop.tuathaDeDanann}
+                        vikCount={serverPop.vikings} />
         </div>
       );
     } else {

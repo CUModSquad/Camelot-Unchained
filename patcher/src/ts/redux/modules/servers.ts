@@ -32,12 +32,17 @@ export interface Server {
   playerMaximum: number,
   channelID: number,
   shardID: number,
-  arthurians?: number,
-  tuathaDeDanann?: number,
-  vikings?: number,
   max?: number,
 }
 
+export interface ServerPopulationDict { [id: string] : ServerPopulation };
+
+export interface ServerPopulation {
+  serverName: string,
+  arthurians?: number,
+  tuathaDeDanann?: number,
+  vikings?: number,
+}
 
 function OfflineServer(name: string, channel: number, shardID: number) :Server {
   return {
@@ -47,9 +52,6 @@ function OfflineServer(name: string, channel: number, shardID: number) :Server {
     playerMaximum: 0,
     channelID: channel,
     shardID: shardID,
-    arthurians: 0,
-    tuathaDeDanann: 0,
-    vikings: 0,
     max: 0,
   } as Server;
 }
@@ -59,7 +61,7 @@ const FETCH_SERVERS = 'cse-patcher/servers/FETCH_SERVERS';
 const FETCH_SERVERS_SUCCESS = 'cse-patcher/servers/FETCH_SERVERS_SUCCESS';
 const FETCH_SERVERS_FAILED = 'cse-patcher/servers/FETCH_SERVERS_FAILED';
 const CHANGE_SERVER = 'cse-patcher/servers/CHANGE_SERVER';
-const UPDATE_SERVER = 'cse-patcher/servers/UPDATE_SERVER';
+const UPDATE_SERVER_POPULATION = 'cse-patcher/servers/UPDATE_SERVER_POPULATION';
 
 // sync actions
 export function requestServers() {
@@ -73,6 +75,9 @@ export function fetchServersSuccess(servers: Array<Server>, selectedServer?: Ser
   let wyrmling = servers.find(s => s.name === 'Wyrmling');
   if (!hatchery) servers.unshift(OfflineServer('Hatchery', 4, 1))
   if (!wyrmling) servers.unshift(OfflineServer('Wyrmling', 10, 1))
+  
+  if (selectedServer) fetchServerPopulation(selectedServer);
+
   return {
     type: FETCH_SERVERS_SUCCESS,
     servers: servers.sort(function(a,b) {
@@ -90,18 +95,35 @@ export function fetchServersFailed(error: ResponseError) {
   };
 }
 
-export function changeServer(server: Server): any {
+export function changeServerInternal(server: Server): any {
   return {
     type: CHANGE_SERVER,
     server: server
   };
 }
 
-export function updateServer(server: Server) {
+export function changeServer(server: Server): any {
+  return (dispatch: (action: any) => any) => {
+    dispatch(changeServerInternal(server));
+    if(server) dispatch(fetchServerPopulation(server));
+  }
+}
+
+export function updateServerPopulation(serverPop: ServerPopulation) {
   return {
-    type: UPDATE_SERVER,
-    server: server
+    type: UPDATE_SERVER_POPULATION,
+    serverPop: serverPop
   };
+}
+
+export function fetchServerPopulation(server: Server) {
+  return (dispatch: (action: any) => any) => {
+    fetchJSON(`http://${server.host}:8000/api/game/players`)
+      .then((players: any) => {
+        dispatch(updateServerPopulation({ serverName: server.name, arthurians: players.arthurians, vikings: players.vikings, tuathaDeDanann: players.tuathaDeDanann}));
+      })
+      .catch((error: ResponseError) => {/*ignore error*/});
+  }
 }
 
 // async actions
@@ -110,16 +132,6 @@ export function fetchServers(selectedServerName?: string) {
     dispatch(requestServers());
     return fetchJSON(serversUrl)
       .then((servers: Array<Server>) => {
-        servers.forEach((s: Server) => {
-          fetchJSON(`http://${s.host}:8000/api/game/players`)
-            .then((players: any) => {
-              s.arthurians = players.arthurians;
-              s.vikings = players.vikings;
-              s.tuathaDeDanann = players.tuathaDeDanann;
-              dispatch(updateServer(s));
-            })
-            .catch((error: ResponseError) => {/*ignore error*/});
-        })
         let selectedServer: Server = null;
         if (selectedServerName) {
           for (let i = 0; i < servers.length; i++) {
@@ -142,6 +154,7 @@ export interface ServersState {
   servers?: Array<Server>;
   currentServer?: Server;
   error?: string;
+  serverPopulations: ServerPopulationDict;
 }
 
 const initialState: ServersState = {
@@ -149,6 +162,7 @@ const initialState: ServersState = {
   lastUpdated: <Date>null,
   servers: <Array<Server>>[],
   currentServer: null,
+  serverPopulations: {}
 }
 
 export default function reducer(state: ServersState = initialState, action: any = {}) {
@@ -180,14 +194,12 @@ export default function reducer(state: ServersState = initialState, action: any 
       return Object.assign({}, state, {
         currentServer: action.server
       });
-    case UPDATE_SERVER:
-      let servers = state.servers;
-      const index = servers.findIndex((s: Server) => s.name == action.server.name);
-      if (index > -1) servers[index] = action.server;
-      else servers.push(action.server);
+    case UPDATE_SERVER_POPULATION:
+      state.serverPopulations[action.serverPop.serverName] = action.serverPop;
       return Object.assign({}, state, {
-        servers: servers
+        serverPopulations: state.serverPopulations
       });
+
     default: return state;
   }
 }
