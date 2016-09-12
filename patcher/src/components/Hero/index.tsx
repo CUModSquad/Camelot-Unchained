@@ -22,18 +22,30 @@ export interface HeroProps {
 
 export interface HeroState {
   currentItem: number;
+  firstLoad: boolean;
 }
 
 class Hero extends React.Component<HeroProps, HeroState> {
   public name:string = 'cse-patcher-hero';
   private timeout: any = null;
-    
+
   constructor(props: HeroProps) {
     super(props);
-    this.state = {currentItem: 0};
-    this.timeNext(1);
+    this.state = {currentItem: -1, firstLoad: true};
+    setTimeout(() => {
+      this.setState({currentItem: 0, firstLoad: false});
+      this.timeNext(1);
+    }, 10000);
   }
-  
+
+  renderLogo = () => {
+    return (
+      <div className='cse-patcher-hero-item' key='logoKey1'>
+        <div dangerouslySetInnerHTML={{__html: `<style> .logo-reveal-vid {position: fixed;top: 50%;left: 50%;min-width: 100%;min-height: 100%;width: auto;height: auto;transform: translateX(-50%) translateY(-50%);background-size: cover;}</style><video class='logo-reveal-vid' src='./videos/logo-reveal.webm' autoplay></video>`}}></div>
+      </div>
+    )
+  }
+
   renderHeroItem = (item: HeroContentItem) => {
     return (
       <div className='cse-patcher-hero-item' key={item.id}>
@@ -41,28 +53,29 @@ class Hero extends React.Component<HeroProps, HeroState> {
       </div>
     )
   }
-  
+
   selectIndex = (index: number) => {
     clearTimeout(this.timeout);
     this.timeout = null;
     this.setState({
-      currentItem: index
+      currentItem: index,
+      firstLoad: false
     });
     this.timeNext(index++);
   }
-  
+
   timeNext = (index: number) => {
     let next = this.state.currentItem+1;
     if (next >= this.props.items.length) next = 0;
     this.timeout = setTimeout(() => this.selectIndex(next), 30000);
   }
-  
+
   componentWillUnmount() {
     clearInterval(this.timeout);
   }
 
   render() {
-    var currentItem = this.props.items.length > 0 ? this.renderHeroItem(this.props.items[this.state.currentItem]) : null;
+    const currentItem = this.state.firstLoad ? this.renderLogo() : this.props.items.length > 0 ? this.renderHeroItem(this.props.items[this.state.currentItem]) : null;
     return (
       <div id={this.name} className='main-content'>
         <Animate animationEnter='fadeIn' animationLeave='fadeOut'

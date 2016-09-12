@@ -67,7 +67,14 @@ export function fetchHeroContent() {
   return (dispatch: (action: any) => any) => {
     dispatch(requestHeroContent());
     return fetchJSON(HeroContentUrl)
-      .then((items: HeroContentItem[]) => dispatch(fetchHeroContentSuccess(items)))
+      .then((items: HeroContentItem[]) => {
+        items.sort(function(a, b) {
+          const aDate = new Date(a.utcDateStart);
+          const bDate = new Date(b.utcDateStart);
+          return aDate > bDate ? -1 : aDate < bDate ? 1 : 0;
+        });
+        dispatch(fetchHeroContentSuccess(items))
+      })
       .catch((error: ResponseError) => dispatch(fetchHeroContentFailed(error)));
   }
 }
