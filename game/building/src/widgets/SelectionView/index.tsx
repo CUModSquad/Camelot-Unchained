@@ -28,6 +28,7 @@ class SelectionView extends React.Component<SelectionViewProps, SelectionViewSta
      <SavedDraggable saveName="building/selectionview" 
         defaultX={[-100, Anchor.TO_CENTER]} 
         defaultY={[150, Anchor.TO_END]} 
+        scaleOnWheel={true}
  >
       <div className='building__selection-view dragHandle'>
         <div className='preview'>

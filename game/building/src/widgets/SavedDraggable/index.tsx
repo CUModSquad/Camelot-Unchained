@@ -11,8 +11,8 @@ const ResizableBox = require('react-resizable').ResizableBox;
 const Draggable = require('react-draggable');
 const DraggableCore = Draggable.DraggableCore;
 
-const CURRENT_STATE_VERSION: number = 3;
-const MIN_STATE_VERSION_PERCENT: number = 3;
+const CURRENT_STATE_VERSION: number = 5;
+const MIN_STATE_VERSION_PERCENT: number = 5;
 
 export enum Anchor {
   TO_START = -1,
@@ -29,13 +29,14 @@ interface AnchoredPosition {
   x: AnchoredAxis;
   y: AnchoredAxis;
   size: Size;
-  scale?: number;
+  scale: number;
 }
 
 export interface AbsolutePosition {
   x: number,
   y: number,
   size: Size
+  scale: number;
 }
 
 export interface Size {
@@ -53,14 +54,19 @@ export interface SavedDraggableProps {
   defaultX: [number, Anchor];
   defaultY: [number, Anchor];
   defaultSize?: [number, number];
+  defaultScale?: number;
+  scaleOnWheel?: boolean;
 }
 
 export interface SavedDraggableState {
   absolutePosition: AbsolutePosition;
   resizable: boolean;
+  scaleOnWheel: boolean;
 }
 
 const SAVE_PREFIX = "cu/game/draggable/";
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 4.0;
 
 class SavedDraggable extends React.Component<SavedDraggableProps, SavedDraggableState> {
 
@@ -77,28 +83,31 @@ class SavedDraggable extends React.Component<SavedDraggableProps, SavedDraggable
 
   loadLayoutState(): SavedDraggableState {
     const screen: Size = this.getScreenSize();
-    const pos: AnchoredPosition = {
-      x: {px: this.props.defaultX[0], anchor: this.props.defaultX[1] },
-      y: {px: this.props.defaultY[0], anchor: this.props.defaultY[1] },
-      size: null
+    const defaultPos: AnchoredPosition = {
+      x: { px: this.props.defaultX[0], anchor: this.props.defaultX[1] },
+      y: { px: this.props.defaultY[0], anchor: this.props.defaultY[1] },
+      size: { width: 0, height: 0 },
+      scale: 1
     };
 
-    let resizable = true;
-    if (this.props.defaultSize == null) {
-      pos.size = { width: 0, height: 0 };
-      resizable = false;
-    } else {
-      pos.size = {
+    let resizable = false;
+    if (this.props.defaultSize != null) {
+      resizable = true;
+      defaultPos.size = {
         width: this.props.defaultSize[0],
         height: this.props.defaultSize[1]
       };
     }
 
-    const absPosition: AbsolutePosition = this.loadLayout(this.anchored2position(pos, screen), screen);
+    if (this.props.defaultScale != null)
+      defaultPos.scale = this.props.defaultScale;
+
+    const absPosition: AbsolutePosition = this.loadLayout(this.anchored2position(defaultPos, screen), screen);
 
     return {
-      absolutePosition: this.forceOnScreen(absPosition, screen),
-      resizable: resizable
+      absolutePosition: absPosition,
+      resizable: resizable,
+      scaleOnWheel: this.props.scaleOnWheel
     }
   }
 
@@ -117,7 +126,7 @@ class SavedDraggable extends React.Component<SavedDraggableProps, SavedDraggable
         width: current.size.width,
         height: current.size.height
       },
-      scale: 1
+      scale: current.scale
     };
   }
 
@@ -137,11 +146,20 @@ class SavedDraggable extends React.Component<SavedDraggableProps, SavedDraggable
       x: this.anchor2axis(anchored.x, screen.width),
       y: this.anchor2axis(anchored.y, screen.height),
       size: anchored.size,
+      scale: anchored.scale
     };
   }
 
   forceOnScreen(pos: AbsolutePosition, screen: Size): AbsolutePosition {
-    const size = pos.size;
+    //const size = pos.size;
+    const size = { width: pos.size.width * pos.scale, height: pos.size.height * pos.scale };
+
+    while (size.width > screen.width || size.height > screen.height) {
+      pos.scale -= 0.1;
+      size.width = pos.size.width * pos.scale,
+        size.height = pos.size.height * pos.scale
+    }
+
     if (pos.x < 0) pos.x = 0;
     if (pos.y < 0) pos.y = 0;
     if (pos.x + size.width > screen.width) pos.x = screen.width - size.width;
@@ -168,17 +186,18 @@ class SavedDraggable extends React.Component<SavedDraggableProps, SavedDraggable
     //const state: LayoutState = null;
 
     if (state && ((state.version | 0) >= MIN_STATE_VERSION_PERCENT)) {
-      return this.anchored2position(state.position, screen);
+      defaultPosition = this.anchored2position(state.position, screen);
     }
 
-    return defaultPosition;
+    return this.forceOnScreen(defaultPosition, screen);
   }
 
   saveLayout = (event: Event, dragPosition: { x: number, y: number }) => {
     let position: AbsolutePosition = {
       x: dragPosition.x,
       y: dragPosition.y,
-      size: this.state.absolutePosition.size
+      size: this.state.absolutePosition.size,
+      scale: this.state.absolutePosition.scale
     };
     this.savePositionAndSize(position);
     this.setState({ absolutePosition: position } as SavedDraggableState);
@@ -186,26 +205,84 @@ class SavedDraggable extends React.Component<SavedDraggableProps, SavedDraggable
   }
 
   saveResize = (event: Event, resize: { element: any, size: Size }) => {
-    const styleSize = resize.size;
     let position: AbsolutePosition = {
       x: this.state.absolutePosition.x,
       y: this.state.absolutePosition.y,
-      size: this.state.absolutePosition.size
+      size: this.state.absolutePosition.size,
+      scale: this.state.absolutePosition.scale
     };
 
 
     this.savePositionAndSize(position);
+
     this.setState({ absolutePosition: position } as SavedDraggableState);
     this.stopDrag();
   }
 
-  handleResize = (event: Event, resize: { element: any, size: any }) => {
+  trimDigits(value: number, digitsAfterDecimal: number) {
+    let precision: number = 1;
+    if (digitsAfterDecimal > 0)
+      precision = digitsAfterDecimal * 10;
+    if (digitsAfterDecimal < 0)
+      precision = 1 / digitsAfterDecimal * 10;
+
+    return Math.floor(value * precision) / precision;
+  }
+
+  handleResize = (event: any, resize: { element: any, size: any }) => {
+
+    let scale = this.state.absolutePosition.scale;
+    let size = this.state.absolutePosition.size;
+
+    //drag = rescale
+    //ALT+drag = resize
+    if (event.altKey) {
+      size = { width: this.trimDigits(resize.size.width / scale, 1), height: this.trimDigits(resize.size.height / scale, 1) }
+    } else {
+      scale = this.trimDigits(resize.size.width / this.state.absolutePosition.size.width, 1);
+
+      if (scale < MIN_SCALE)
+        scale = MIN_SCALE;
+      if (scale > MAX_SCALE)
+        scale = MAX_SCALE;
+    }
+
     let position: AbsolutePosition = {
       x: this.state.absolutePosition.x,
       y: this.state.absolutePosition.y,
-      size: resize.size
+      size: size,
+      scale: scale
     };
 
+    this.setState({ absolutePosition: position } as SavedDraggableState);
+  }
+
+  handleWheel = (e: any) => {
+    if (!this.state.scaleOnWheel)
+      return;
+
+    const factor = 0.10;
+    let scale = this.state.absolutePosition.scale;
+
+    if (e.nativeEvent.deltaY < 0) {
+      scale -= factor;
+    } else {
+      scale += factor;
+    }
+
+    if (scale < MIN_SCALE)
+      scale = MIN_SCALE;
+    if (scale > MAX_SCALE)
+      scale = MAX_SCALE;
+
+    let position: AbsolutePosition = {
+      x: this.state.absolutePosition.x,
+      y: this.state.absolutePosition.y,
+      size: this.state.absolutePosition.size,
+      scale: scale
+    };
+
+    this.savePositionAndSize(position);
     this.setState({ absolutePosition: position } as SavedDraggableState);
   }
 
@@ -236,29 +313,41 @@ class SavedDraggable extends React.Component<SavedDraggableProps, SavedDraggable
 
   render() {
     const screen: Size = this.getScreenSize();
+    const pos = this.state.absolutePosition;
     const grid = [10, 10];
 
-    let resizeable: any = this.props.children;
+    let content: JSX.Element = (<div style={{
+      transform: `scale(${pos.scale})`,
+      '-webkit-transform': `scale(${pos.scale})`,
+      'transform-origin': 'top left',
+      '-webkit-transform-origin': 'top left',
+      width: pos.size.width + 'px',
+      height: (pos.size.height) + 'px'
+    }}
+      onWheel={this.handleWheel}>
+      {this.props.children}
+    </div>);
+
     if (this.state.resizable) {
-      resizeable = (
-        <Resizable width={this.state.absolutePosition.size.width} height={this.state.absolutePosition.size.height}
+      content = (
+        <Resizable width={pos.size.width * pos.scale} height={pos.size.height * pos.scale}
           draggableOpts={{ grid: grid }}
           onResizeStart={this.startDrag}
           onResize={this.handleResize}
           onResizeStop={this.saveResize} >
-          <div style={{ width: this.state.absolutePosition.size.width + 'px', height: (this.state.absolutePosition.size.height) + 'px' }}>
-            {this.props.children}
-          </div>
+          {content}
         </Resizable>
       );
     }
 
     return (
       <Draggable handle=".dragHandle"
-        position={this.state.absolutePosition} grid={grid} zIndex={100}
+        position={pos} grid={grid} zIndex={100}
         onStart={this.startDrag}
         onStop={this.saveLayout} >
-        {resizeable}
+        <div className="building__saveddraggable">
+          {content}
+        </div>
       </Draggable >
     )
   }

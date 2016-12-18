@@ -55,7 +55,7 @@ class TabbedPane extends React.Component<TabbedPaneProps, TabbedPaneState> {
         <div className={'row ' + rootClass}>
           {extraContent}
           <div className='tabs'>
-            <div className="dragHandle"></div>
+            <div className="dragHandle grabHandle"></div>
             { this.props.tabs.map((tab: string, index: number) => {
               return (<div key={index} onClick={() => this.onTabSelect(index) } className={this.state.selectedTabIndex == index ? 'tab active' : 'tab'} >{tab}</div>);
             }) }

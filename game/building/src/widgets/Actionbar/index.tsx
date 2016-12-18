@@ -95,11 +95,12 @@ class ActionBar extends React.Component<ActionBarProps, ActionBarState> {
      <SavedDraggable saveName="building/actionbar" 
         defaultX={[0, Anchor.TO_START]} 
         defaultY={[-200, Anchor.TO_CENTER]} 
+        scaleOnWheel={true}
  >
 
       <div className='action-bar'>
         <header>
-            <div className="dragHandle"></div>
+            <div className="dragHandle grabHandle"></div>
         </header>
         <ul>
 

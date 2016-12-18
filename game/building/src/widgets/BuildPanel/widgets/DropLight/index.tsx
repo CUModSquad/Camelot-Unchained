@@ -37,7 +37,7 @@ class Container extends React.Component<BuildPaneProps, ContainerState> {
         <TabbedPane name="droplights" className="drop-light" tabs={[this.props.minimized ? 'Light' : 'Drop Light']}
           defaultX={[0, Anchor.TO_END]}
           defaultY={[600, Anchor.TO_START]}
-          defaultSize={[200, 200]}
+          defaultSize={[200, 160]}
           >
           <DroplightPane minimized={this.props.minimized} />
           <LightSelector />

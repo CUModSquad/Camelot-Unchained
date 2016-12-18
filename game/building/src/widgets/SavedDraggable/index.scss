@@ -7,45 +7,52 @@
   position:relative;
 }
 
-.react-draggable,  .react-resizable{
-  top: 0px;
-  left: 0px;
-  position: absolute;
+.building__saveddraggable {
 
-  .dragHandle {
-    display: inline-block;
-    width: 24px;
-    height: 16px;
-    padding: 0px;
-    position: relative;
-    top: 3px;
-    left: 3px;
-    background: url("../images/drag-icon.png");
-    background-size: 16px;
-    background-repeat: no-repeat;
-    cursor: move;
-
-    &:hover {
-      background-position: 0px -18px;
-    }
-  }
-
-  
-  .resizeHandle, .react-resizable-handle {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    padding: 0px;
+  &.react-draggable,  .react-resizable{
+    top: 0px;
+    left: 0px;
     position: absolute;
-    bottom: 0px;
-    right: 0px;
-    background: url("../images/resize-icon.png");
-    background-size: 16px;
-    background-repeat: no-repeat;
-    cursor: se-resize;
+    
+    .dragHandle {
+      cursor: move;
+    }
 
-    &:hover {
-      background-position: 0px -18px;
+    .grabHandle {
+      display: inline-block;
+      width: 24px;
+      height: 16px;
+      padding: 0px;
+      position: relative;
+      top: 3px;
+      left: 3px;
+      background: url("../images/drag-icon.png");
+      background-size: 16px;
+      background-repeat: no-repeat;
+      cursor: move;
+
+      &:hover {
+        background-position: 0px -18px;
+      }
+    }
+
+    
+    .resizeHandle, .react-resizable-handle {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      padding: 0px;
+      position: absolute;
+      bottom: 0px;
+      right: 0px;
+      background: url("../images/resize-icon.png");
+      background-size: 16px;
+      background-repeat: no-repeat;
+      cursor: se-resize;
+
+      &:hover {
+        background-position: 0px -18px;
+      }
     }
   }
 }

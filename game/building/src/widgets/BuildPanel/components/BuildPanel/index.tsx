@@ -74,11 +74,11 @@ class BuildPanel extends React.Component<BuildPanelProps, BuildPanelState> {
 
     return (
       <div className={`build-panel ${this.state.minimized ? 'minimized' : ''}`} >
-        {matSelector}
         <Blocks minimized={this.state.minimized} />
         <RecentSelections minimized={this.state.minimized} />
         <Blueprints minimized={this.state.minimized} />
         <DropLight minimized={this.state.minimized} />
+        {matSelector}
       </div>
     )
   }
