@@ -31,6 +31,7 @@ class ChatInput extends React.Component<ChatInputProps, ChatInputState> {
   tabUserIndex: number = null;
   sentMessages: string[] = [];
   sentMessageIndex: number = null;
+  unsentMessageCache: string = null;
   constructor(props: ChatInputProps) {
     super(props);
     this.state = this.initialState();
@@ -71,9 +72,48 @@ class ChatInput extends React.Component<ChatInputProps, ChatInputState> {
     input.focus();
     this.setState({ atUsers: [], atUsersIndex: 0 } as any);
   }
+
+  addToTempHistory(message:string) {
+    // add message to temporary history
+    this.sentMessageIndex = -1;
+    if (message) {
+      this.sentMessages.push(message);
+      if (this.sentMessages.length > 25) this.sentMessages.shift();
+    }
+  }
+
   getInputNode(): HTMLInputElement {
     return this.refs['new-text'] as HTMLInputElement;
   }
+
+  handleArrowKey(textArea: HTMLTextAreaElement, isDownArrow: boolean) {
+      const offset:number = isDownArrow ? 1 : -1;
+
+      if (this.state.atUsers.length > 0) {
+        // If list of @users is displayed, arrow keys should navigate that list
+        let newIndex:number = this.state.atUsersIndex + offset;
+        newIndex = -1 >= newIndex ? this.state.atUsers.length - 1 : newIndex >= this.state.atUsers.length ? 0 : newIndex;
+        this.setState({ atUsers: this.state.atUsers, atUsersIndex: newIndex  } as any);
+      } else {
+        // No lists are visible, arrow keys should navigate sent message history
+        if (this.sentMessages.length > 0) {
+          if (this.sentMessageIndex === null) {
+            this.sentMessageIndex = isDownArrow ? 0 : this.sentMessages.length - 1;
+          } else {
+            this.sentMessageIndex = this.sentMessageIndex + offset;
+            this.sentMessageIndex = -2 >= this.sentMessageIndex ? this.sentMessages.length - 1 : this.sentMessageIndex >= this.sentMessages.length ? this.unsentMessageCache && this.unsentMessageCache.length > 0 ? -1 : 0 : this.sentMessageIndex;
+          }
+          
+          //if we haven't sent or cached this message yet cache it and treat it as index -1
+          if(textArea.value && textArea.value.length > 0 && this.sentMessages.filter(str => textArea.value === str).length === 0) {
+            this.unsentMessageCache = textArea.value;
+          }
+
+          textArea.value = -1 === this.sentMessageIndex ? this.unsentMessageCache : this.sentMessages[this.sentMessageIndex];
+        }
+      }
+  }
+
   keyDown(e: React.KeyboardEvent): void {
     // current input field value
     const textArea: HTMLTextAreaElement = e.target as HTMLTextAreaElement;
@@ -114,37 +154,13 @@ class ChatInput extends React.Component<ChatInputProps, ChatInputState> {
     // Handle up-arrow (38)
     if (e.keyCode === 38) {
       e.preventDefault();
-      if (this.state.atUsers.length > 0) {
-        // If list of @users is displayed, arrow keys should navigate that list
-        const newIndex: number = this.state.atUsersIndex - 1 === -1 ? this.state.atUsers.length - 1 : this.state.atUsersIndex - 1;
-        this.setState({ atUsers: this.state.atUsers, atUsersIndex: newIndex  } as any);
-      } else {
-        // No lists are visible, arrow keys should navigate sent message history
-        if (this.sentMessages.length > 0) {
-          if (this.sentMessageIndex === null) {
-            this.sentMessageIndex = this.sentMessages.length - 1;
-          } else {
-            this.sentMessageIndex = this.sentMessageIndex - 1 === -1 ? 0 : this.sentMessageIndex - 1;
-          }
-          textArea.value = this.sentMessages[this.sentMessageIndex];
-        }
-      }
+      this.handleArrowKey(textArea, false);
     }
 
     // Handle down-arrow (40)
     if (e.keyCode === 40) {
       e.preventDefault();
-      if (this.state.atUsers.length > 0) {
-        // If list of @users is displayed, arrow keys should navigate that list
-        const newIndex: number = this.state.atUsersIndex + 1 > this.state.atUsers.length - 1 ? 0 : this.state.atUsersIndex + 1;
-        this.setState({ atUsers: this.state.atUsers, atUsersIndex: newIndex } as any);
-      } else {
-        // No lists are visible, arrow keys should navigate sent message history
-        if (this.sentMessageIndex !== null) {
-          this.sentMessageIndex = this.sentMessageIndex + 1 > this.sentMessages.length - 1 ? null : this.sentMessageIndex + 1;
-        }
-        textArea.value = this.sentMessageIndex ? this.sentMessages[this.sentMessageIndex] : '';
-      }
+      this.handleArrowKey(textArea, true);
     }
 
     // Send message on enter key (13 = enter)
@@ -226,11 +242,8 @@ class ChatInput extends React.Component<ChatInputProps, ChatInputState> {
     }
 
     // add message to temporary history
-    this.sentMessageIndex = null;
-    if (value) {
-      this.sentMessages.push(value);
-      if (this.sentMessages.length > 25) this.sentMessages.shift();
-    }
+    this.addToTempHistory(value);
+    this.unsentMessageCache = null;
 
     // reset input field after sending message
     input.value = '';
