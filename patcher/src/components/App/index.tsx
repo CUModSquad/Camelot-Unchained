@@ -61,6 +61,8 @@ export class PatcherApp extends React.Component<PatcherAppProps, {}> {
   public name = 'cse-patcher';
   private heroContentInterval: any = null;
 
+  props: PatcherAppProps;
+
   onRouteChanged = (route: Routes) => {
     if (route === Routes.HERO) {
      events.fire('view-content', view.NONE, null);
