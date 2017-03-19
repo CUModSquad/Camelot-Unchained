@@ -78,7 +78,7 @@ class OverlayView extends React.Component<OverlayViewProps, OverlayViewState> {
     });
   }
 
-  componentDidUnmount() {
+  componentWillUnmount() {
     events.off('view-content');
   }
 

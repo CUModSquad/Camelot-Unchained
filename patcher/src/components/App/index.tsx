@@ -126,7 +126,7 @@ export class PatcherApp extends React.Component<PatcherAppProps, {}> {
     });
   }
 
-  componentDidUnMount() {
+  componentWillUnmount() {
     // unregister intervals
     clearInterval(this.heroContentInterval);
   }

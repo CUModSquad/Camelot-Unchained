@@ -104,7 +104,7 @@ class ControllerDisplay extends React.Component<ControllerDisplayProps, Controll
   componentDidMount() {
   }
 
-  componentDidUnMount() {
+  componentWillUnmount() {
   }
 
   queueStateChange = (obj: any) => {

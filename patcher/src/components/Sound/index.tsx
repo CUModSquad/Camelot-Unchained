@@ -62,7 +62,7 @@ export class Sound extends React.Component<SoundProps, SoundState> {
     events.on('play-sound', (info: any) => this.playSound('sound-' + info));
   }
 
-  componentDidUnMount() {
+  componentWillUnmount() {
     events.off('play-sound');
   }
 
