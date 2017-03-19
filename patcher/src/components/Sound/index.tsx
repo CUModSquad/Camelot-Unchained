@@ -16,13 +16,16 @@ import {SoundsState} from '../../services/session/sounds';
 
 export interface SoundProps {
   soundsState: SoundsState;
+  onPlayMusic: Function;
 }
 
 export interface SoundState { };
 
+const DEFAULT_SOUND_VOLUME = 0.75;
+const DEFAULT_MUSIC_VOLUME = 0.5;
+
 export class Sound extends React.Component<SoundProps, SoundState> {
   public name = 'cse-patcher-sound';
-  private playOnce = false;
 
   getSound(name: string): HTMLAudioElement {
     return this.refs[name] as HTMLAudioElement;
@@ -33,33 +36,45 @@ export class Sound extends React.Component<SoundProps, SoundState> {
       let sound = this.getSound(name);
       if (sound) {
         sound.play();
-        sound.volume = 0.75;
+        sound.volume = DEFAULT_SOUND_VOLUME;
       }
     }
   }
 
-  componentDidUpdate() {
-    let soundBg = this.getSound('sound-bg');
-    if (soundBg) {
-      if (!this.props.soundsState.playMusic && !soundBg.paused) {
-        soundBg.pause();
-      } else if (this.props.soundsState.playMusic && soundBg.paused && !this.playOnce) {
-        soundBg.play();
-        soundBg.volume = 0.5;
+  handleFinishIntro = () => {
+    // play bg music after intro music is done
+    this.props.onPlayMusic('sound-bg');
+  }
+
+  componentDidUpdate(prevProps: SoundProps) {
+    const {
+      playMusic,
+      activeMusicName,
+    } = this.props.soundsState;
+
+    if (activeMusicName) {
+      const currentSound = this.getSound(activeMusicName);
+
+      if (currentSound) {
+        if (!playMusic && !currentSound.paused) {
+          currentSound.pause();
+        } else if (playMusic && currentSound.paused) {
+          currentSound.play();
+          currentSound.volume = DEFAULT_MUSIC_VOLUME;
+        }
+      }
+    } else if (prevProps.soundsState.activeMusicName) {
+      // no activeMusicName here, means stop playing music but not necessarily mute
+      const currentSound = this.getSound(prevProps.soundsState.activeMusicName);
+      if (!currentSound.paused) {
+        currentSound.pause();
       }
     }
   }
 
   componentDidMount() {
-    let soundBg = this.getSound('sound-bg');
-    if (soundBg) {
-      if (this.props.soundsState.playMusic) {
-        soundBg.play();
-        soundBg.volume = 0.5;
-      }
-      soundBg.onended = () => this.playOnce = true;
-    }
-    events.on('play-sound', (info: any) => this.playSound('sound-' + info));
+    this.props.onPlayMusic('sound-intro');
+    events.on('play-sound', (info: string) => this.playSound('sound-' + info));
   }
 
   componentWillUnmount() {
@@ -72,7 +87,9 @@ export class Sound extends React.Component<SoundProps, SoundState> {
         <audio src='sounds/select.ogg' ref='sound-select' />
         <audio src='sounds/launch-game.ogg' ref='sound-launch-game' />
         <audio src='sounds/patch-complete.ogg' ref='sound-patch-complete' />
-        <audio src='sounds/patcher-theme-v0.1.ogg' ref='sound-bg' />
+        <audio src='sounds/patch-complete.ogg' ref='sound-patch-complete' />
+        <audio src='sounds/patcher-theme-v0.1.ogg' ref='sound-intro' onEnded={this.handleFinishIntro} />
+        <audio src='sounds/Music_MainMenu_Amb_BaseLoops_Main_v1.ogg' ref='sound-bg' loop />
       </div>
     );
   }

@@ -24,7 +24,7 @@ import reducer, {GlobalState} from '../../services/session';
 import {changeRoute, Routes} from '../../services/session/routes';
 import {HeroContentState, fetchHeroContent, validateHeroContent} from '../../services/session/heroContent';
 import {NewsState, fetchPage} from '../../services/session/news';
-import {SoundsState, muteMusic, unMuteMusic, muteSounds, unMuteSounds} from '../../services/session/sounds';
+import {SoundsState, playMusic, muteMusic, unMuteMusic, muteSounds, unMuteSounds} from '../../services/session/sounds';
 import {ChatState, showChat, hideChat} from '../../services/session/chat';
 
 // Components
@@ -104,6 +104,10 @@ export class PatcherApp extends React.Component<PatcherAppProps, {}> {
     setTimeout(() => this.setState({}), 500);
   }
 
+  onPlayMusic = (name: string) => {
+    this.props.dispatch(playMusic(name));
+  }
+
   componentDidUpdate() {
   }
 
@@ -159,7 +163,9 @@ export class PatcherApp extends React.Component<PatcherAppProps, {}> {
         </div>
         
         <Controller onLogIn={this.onLogIn} />        
-        <Sound soundsState={this.props.soundsState} />
+        <Sound soundsState={this.props.soundsState}
+          onPlayMusic={this.onPlayMusic}
+        />
         <OverlayView />
       </div>
     );
