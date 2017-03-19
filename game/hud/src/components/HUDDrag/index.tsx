@@ -377,7 +377,7 @@ class HUDDrag extends React.Component<HUDDragProps, HUDDragState> {
     window.addEventListener('mousemove', this.onMouseMove);
   }
 
-  componentDidUnMount() {
+  componentWillUnmount() {
     window.removeEventListener('mouseup', this.onMouseUp)
     window.addEventListener('mousemove', this.onMouseMove);
   }

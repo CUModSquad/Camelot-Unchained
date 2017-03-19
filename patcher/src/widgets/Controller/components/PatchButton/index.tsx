@@ -16,6 +16,7 @@ import * as moment from 'moment';
 
 
 import {patcher, Channel, ChannelStatus, PatchPermissions} from '../../../../services/patcher';
+import {playMusic} from '../../../../services/session/sounds';
 import {CSENormalizeString} from '../../../../lib/CSENormalizeString';
 
 import Animate from '../../../../lib/Animate';
@@ -29,6 +30,7 @@ import {ServerType, PatcherServer} from '../../services/session/controller';
 import {Progress} from '../../lib/Progress';
 
 export interface PatchButtonProps {
+  dispatch?: (action: any) => void;
   servers: utils.Dictionary<PatcherServer>;
   selectedServer: PatcherServer;
   selectedCharacter: webAPI.SimpleCharacter;
@@ -127,8 +129,12 @@ class PatchButton extends React.Component<PatchButtonProps, PatchButtonState> {
       if (!launchString.includes('webapihost=') && !launchString.includes('webapihost =')) launchString += ` webapihost=${apiHost}`;
       launchString += ' autoconnect=1';
     }
+
     patcher.launchChannelfunction(selectedServer.channelID | 0, launchString);
     this.playSound('launch-game');
+
+    // Stop music
+    this.props.dispatch(playMusic(''));
   }
 
   install = () => {
@@ -268,4 +274,4 @@ class PatchButton extends React.Component<PatchButtonProps, PatchButtonState> {
   }
 }
 
-export default PatchButton;
+export default connect()(PatchButton);

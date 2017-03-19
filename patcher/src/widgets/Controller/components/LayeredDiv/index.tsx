@@ -18,12 +18,9 @@ export interface LayeredDivProps extends React.HTMLProps<HTMLDivElement> {
 
 class LayeredDiv extends React.Component<LayeredDivProps, {}> {
   render() {
-    const {className, renderLayers} = this.props;
-    const props = Object.assign({}, this.props);
-    delete props.className;
-    delete props.renderLayers;
+    const {className, renderLayers, ...otherProps} = this.props;
     return (
-      <div className={`LayeredDiv ${className || ''}`} {...props} >
+      <div className={`LayeredDiv ${className || ''}`} {...otherProps} >
         {renderLayers.map((layerRender, index) => <div key={index} className='LayeredDiv__Layer'>{layerRender()}</div>)}
       </div>
     );

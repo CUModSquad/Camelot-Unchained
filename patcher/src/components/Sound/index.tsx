@@ -15,13 +15,18 @@ import { generateID } from 'redux-typed-modules';
 
 import { SoundsState } from '../../services/session/sounds';
 
+import Audio from './Audio';
+
 export interface SoundProps {
   soundsState: SoundsState;
+  onPlayMusic: Function;
 }
 
 export interface SoundState {
   sounds: { [id: string]: string };
  };
+
+const DEFAULT_MUSIC_VOLUME = 0.5;
 
 export class Sound extends React.Component<SoundProps, SoundState> {
   constructor(props: SoundProps) {
@@ -40,104 +45,129 @@ export class Sound extends React.Component<SoundProps, SoundState> {
     }
   }
 
-  private onEnded = (id: string) => {
-    const sounds = {...this.state.sounds};
-    delete sounds[id];
-    delete this.audioRefs[id];
-    this.setState({
-      sounds,
-    });
+  private onEnded = (e: React.SyntheticEvent<HTMLAudioElement>, id: string) => {
+    if (id) {
+      if (id === 'intro') {
+        this.props.onPlayMusic('bg');
+      } else {
+        const sounds = {...this.state.sounds}
+        delete sounds[id];
+        delete this.audioRefs[id];
+        this.setState({
+          sounds,
+        });
+      }
+    }
   }
 
   private bgRef: HTMLAudioElement = null;
   private audioRefs: { [id: string]: HTMLAudioElement } = {};
 
-  private generateAudioElement = (sound: string, id: string) => {
-    switch(sound) {
-      case 'select':
-        return <audio key={id}
-                      autoPlay
-                      onEnded={() => this.onEnded(id)}
-                      src='sounds/UI_Menu_GenericSelect_v1_02.ogg'
-                      ref={r => this.audioRefs[id] = r }/>
-      case 'launch-game': 
-        return <audio key={id}
-                      autoPlay
-                      onEnded={() => this.onEnded(id)}
-                      src='sounds/UI_Patcher_PlayButton_v3.ogg'
-                      ref={r => this.audioRefs[id] = r }/>
-      case 'patch-complete': 
-        return <audio key={id}
-                      autoPlay
-                      onEnded={() => this.onEnded(id)}
-                      src='sounds/patch-complete.ogg'
-                      ref={r => this.audioRefs[id] = r }/>
-      case 'select-change': 
-        return <audio key={id}
-                      autoPlay
-                      onEnded={() => this.onEnded(id)}
-                      src='sounds/UI_Menu_CharacterSelect_Change_v1_01.ogg'
-                      ref={r => this.audioRefs[id] = r }/>
-      case 'create-character': 
-        return <audio key={id}
-                      autoPlay
-                      onEnded={() => this.onEnded(id)}
-                      src='sounds/UI_Menu_CreateNewCharacter_v1_01.ogg'
-                      ref={r => this.audioRefs[id] = r }/>
-      case 'realm-select': 
-        return <audio key={id}
-                      autoPlay
-                      onEnded={() => this.onEnded(id)}
-                      src='sounds/UI_Menu_SelectRealm_v1_01.ogg'
-                      ref={r => this.audioRefs[id] = r }/>
-      case 'server-select': 
-        return <audio key={id}
-                      autoPlay
-                      onEnded={() => this.onEnded(id)}
-                      src='sounds/UI_Menu_ServerSelect_v1_01.ogg'
-                      ref={r => this.audioRefs[id] = r }/>
-      default: return null;
+  private soundsMapping: {[id: string]: React.HTMLProps<HTMLAudioElement>} = {
+    'select': {
+      src: 'sounds/UI_Menu_GenericSelect_v1_02.ogg',
+    },
+    'launch-game': { 
+      src: 'sounds/UI_Patcher_PlayButton_v3.ogg'
+    },
+    'patch-complete': {
+      src: 'sounds/patch-complete.ogg'
+    },
+    'select-change': {
+      src: 'sounds/UI_Menu_CharacterSelect_Change_v1_01.ogg'
+    },
+    'create-character': { 
+      src: 'sounds/UI_Menu_CreateNewCharacter_v1_01.ogg'
+    },
+    'realm-select': { 
+      src: 'sounds/UI_Menu_SelectRealm_v1_01.ogg'
+    },
+    'server-select': { 
+      src: 'sounds/UI_Menu_ServerSelect_v1_01.ogg'
+    },
+    'intro': {
+      src: 'sounds/patcher-theme.ogg',
+    },
+    'bg': {
+      src: 'sounds/Music_MainMenu_Amb_BaseLoops_Main_v1.ogg',
+      loop: true,
+    },
+  }
+
+
+  private handleMusicRef = (ref: HTMLAudioElement) => {
+    this.bgRef = ref;
+    this.handleMusicState();
+  }
+
+  private handleMusicState = () => {
+    const {
+      playMusic,
+      activeMusicName,
+    } = this.props.soundsState;
+
+    const currentSound = this.bgRef;
+
+    if (activeMusicName && currentSound) {
+      if (!playMusic && !currentSound.paused) {
+        currentSound.pause();
+      } else if (playMusic && currentSound.paused) {
+        currentSound.play();
+        currentSound.volume = DEFAULT_MUSIC_VOLUME;
+      }
     }
   }
 
-  public componentDidUpdate() {
-    if (this.bgRef) {
-      if (!this.props.soundsState.playMusic && !this.bgRef.paused) {
+  public componentDidUpdate(prevProps: SoundProps) {
+    this.handleMusicState();
+    if (prevProps.soundsState.activeMusicName && !this.props.soundsState.activeMusicName) {
+      // no activeMusicName here, means stop playing music but not necessarily mute
+      if (this.bgRef && !this.bgRef.paused) {
         this.bgRef.pause();
-      } else if (this.props.soundsState.playMusic && this.bgRef.paused) {
-        this.bgRef.play();
-        this.bgRef.volume = 0.5;
       }
     }
   }
 
   public componentDidMount() {
-    if (this.bgRef) {
-      if (this.props.soundsState.playMusic) {
-        this.bgRef.play();
-        this.bgRef.volume = 0.5;
-      }
-    }
+    this.props.onPlayMusic('intro');
     events.on('play-sound', (name: string) => this.playSound(name));
   }
 
-  public componentDidUnMount() {
+  public componentWillUnmount() {
     events.off('play-sound');
   }
   
-  private renderAudioElements = () => {
-    const elements = [];
-    for (const key in this.state.sounds) {
-      elements.push(this.generateAudioElement(this.state.sounds[key], key));
-    }
-    return elements;
-  }
-
   public render() {
+    const {
+      activeMusicName,
+    } = this.props.soundsState;
+
+    const musicProps = activeMusicName && this.soundsMapping[activeMusicName];
     return (
       <div>
-        <audio src='sounds/patcher-theme.ogg' ref={r => this.bgRef = r }/>
-        {this.renderAudioElements()}     
+        {Object.keys(this.state.sounds).map((id: string) => {
+          const sound = this.state.sounds[id];
+          const props = this.soundsMapping[sound];
+          return (
+            <Audio
+              key={id}
+              id={id}
+              onEnded={this.onEnded}
+              onRefCallback={r => this.audioRefs[id]}
+              {...props}
+            />
+          );
+        })}
+
+        {musicProps && (
+          <Audio
+            key={activeMusicName}
+            id={activeMusicName}
+            onEnded={this.onEnded}
+            onRefCallback={this.handleMusicRef}
+            {...musicProps}
+          />
+        )}
       </div>
     );
   }

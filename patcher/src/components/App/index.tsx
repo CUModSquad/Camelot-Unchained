@@ -24,7 +24,7 @@ import reducer, {GlobalState} from '../../services/session';
 import {changeRoute, Routes} from '../../services/session/routes';
 import {HeroContentState, fetchHeroContent, validateHeroContent} from '../../services/session/heroContent';
 import {NewsState, fetchPage} from '../../services/session/news';
-import {SoundsState, muteMusic, unMuteMusic, muteSounds, unMuteSounds} from '../../services/session/sounds';
+import {SoundsState, playMusic, muteMusic, unMuteMusic, muteSounds, unMuteSounds} from '../../services/session/sounds';
 import {ChatState, showChat, hideChat} from '../../services/session/chat';
 
 // Components
@@ -60,6 +60,8 @@ export interface PatcherAppProps {
 export class PatcherApp extends React.Component<PatcherAppProps, {}> {
   public name = 'cse-patcher';
   private heroContentInterval: any = null;
+
+  props: PatcherAppProps;
 
   onRouteChanged = (route: Routes) => {
     if (route === Routes.HERO) {
@@ -100,6 +102,10 @@ export class PatcherApp extends React.Component<PatcherAppProps, {}> {
 
   onLogIn = () => {
     setTimeout(() => this.setState({}), 500);
+  }
+
+  onPlayMusic = (name: string) => {
+    this.props.dispatch(playMusic(name));
   }
 
   componentDidUpdate() {
@@ -155,9 +161,10 @@ export class PatcherApp extends React.Component<PatcherAppProps, {}> {
                 lastUpdated={this.props.heroContentState.lastFetchSuccess}
                 items={this.props.heroContentState.items} />
         </div>
-
         <Controller onLogIn={this.onLogIn} />
-        <Sound soundsState={this.props.soundsState} />
+        <Sound soundsState={this.props.soundsState}
+          onPlayMusic={this.onPlayMusic}
+        />
         <OverlayView />
       </div>
     );
@@ -165,7 +172,6 @@ export class PatcherApp extends React.Component<PatcherAppProps, {}> {
 };
 
 export default connect(select)(PatcherApp);
-
 
           // <Animate animationEnter='slideInRight' animationLeave='slideOutRight'
           //   durationEnter={400} durationLeave={500}>
