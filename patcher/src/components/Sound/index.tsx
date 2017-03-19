@@ -66,7 +66,7 @@ export class Sound extends React.Component<SoundProps, SoundState> {
     } else if (prevProps.soundsState.activeMusicName) {
       // no activeMusicName here, means stop playing music but not necessarily mute
       const currentSound = this.getSound(prevProps.soundsState.activeMusicName);
-      if (!currentSound.paused) {
+      if (currentSound && !currentSound.paused) {
         currentSound.pause();
       }
     }
