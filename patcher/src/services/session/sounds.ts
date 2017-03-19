@@ -17,13 +17,25 @@ const MUTE_SOUNDS = 'cse-patcher/sounds/MUTE_SOUNDS';
 const UNMUTE_SOUNDS = 'cse-patcher/sounds/UNMUTE_SOUNDS';
 const MUTE_MUSIC = 'cse-patcher/sounds/MUTE_MUSIC';
 const UNMUTE_MUSIC = 'cse-patcher/sounds/UNMUTE_MUSIC';
+const PLAY_MUSIC = 'cse-patcher/sounds/PLAY_MUSIC';
 
-export interface SoundsAction extends BaseAction {}
+export interface SoundsAction extends BaseAction {
+  activeMusicName?: string;
+}
 
 export interface SoundsState {
   playMusic: boolean;
   playSound: boolean;
+  activeMusicName: string;
 }
+
+export function playMusic(activeMusicName: string): SoundsAction {
+  return {
+    type: PLAY_MUSIC,
+    activeMusicName,
+    when: new Date(),
+  }
+} 
 
 export function muteSounds(state: SoundsState): SoundsAction {
   localStorage.setItem(localStorageKey, JSON.stringify(merge(state, {playSound: false})));
@@ -59,6 +71,7 @@ export function unMuteMusic(state: SoundsState): SoundsAction {
 
 function getInitialState(): SoundsState {
   let initialState: SoundsState = {
+    activeMusicName: '',
     playMusic: true,
     playSound: true
   };
@@ -75,6 +88,8 @@ function getInitialState(): SoundsState {
 export default function reducer(state: SoundsState = getInitialState(), action: SoundsAction = defaultAction): SoundsState {
   switch(action.type) {
     default: return state;
+    case PLAY_MUSIC:
+      return merge(state, {activeMusicName: action.activeMusicName});
     case MUTE_SOUNDS:
       return merge(state, {playSound: false});
     case UNMUTE_SOUNDS:
