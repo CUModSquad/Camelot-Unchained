@@ -10,15 +10,16 @@ export interface ArchetypeInfo {
  
 
 
-export interface UnspecifiedRequestError {
+export interface BadRequestFieldCode {
   code: FieldCodes;
   message: string; 
 }
 
+export interface UnspecifiedRequestError { 
+}
+
 export interface InvalidModel {
-  modelErrors: ModelError[];
-  code: FieldCodes;
-  message: string; 
+  modelErrors: ModelError[]; 
 }
 
 export interface ModelError {
@@ -63,8 +64,7 @@ export interface SimpleCharacter {
 export interface Character { 
   archetype: Archetype;
   attributes: { [key: string]: number; };
-  banes: { [key: string]: number; };
-  boons: { [key: string]: number; };
+  traitIDs: string[];
   faction: Faction;
   gender: Gender;
   id: string;
@@ -100,31 +100,26 @@ export interface ControlPoint {
  
 
 
-export interface UnspecifiedExecutionError {
+export interface ExecutionErrorFieldCode {
   code: FieldCodes;
   message: string; 
+}
+
+export interface UnspecifiedExecutionError { 
 }
 
 export interface UnhandledExecutionException {
-  exception: string;
-  code: FieldCodes;
-  message: string; 
+  exception: string; 
 }
 
-export interface DoesNotExist {
-  code: FieldCodes;
-  message: string; 
+export interface DoesNotExist { 
 }
 
-export interface UserStateConflict {
-  code: FieldCodes;
-  message: string; 
+export interface UserStateConflict { 
 }
 
 export interface InsufficientResource {
-  resources: ResourceRequirement[];
-  code: FieldCodes;
-  message: string; 
+  resources: ResourceRequirement[]; 
 }
 
 export interface ResourceRequirement {
@@ -153,6 +148,11 @@ export interface GroupInvite {
 
 
  
+
+
+export interface FieldCodeHelper { 
+}
+ 
 export interface MessageOfTheDay { 
   id: string;
   message: string;
@@ -163,20 +163,19 @@ export interface MessageOfTheDay {
  
 
 
-export interface UnspecifiedNotAllowed {
+export interface NotAllowedFieldCode {
   code: FieldCodes;
   message: string; 
+}
+
+export interface UnspecifiedNotAllowed { 
 }
 
 export interface RateLimitExceeded {
-  retry: number;
-  code: FieldCodes;
-  message: string; 
+  retry: number; 
 }
 
-export interface InternalAction {
-  code: FieldCodes;
-  message: string; 
+export interface InternalAction { 
 }
  
 export interface Order { 
@@ -276,6 +275,7 @@ export interface ServerModel {
   playerMaximum: number;
   shardID: number;
   status: ServerStatus;
+  apiHost: string;
 }
 
 
@@ -310,51 +310,43 @@ export interface PlayerCounts {
  
 
 
-export interface UnspecifiedServiceUnavailable {
+export interface ServiceUnavailableFieldCode {
   code: FieldCodes;
   message: string; 
 }
 
-export interface DatabaseUnavailable {
-  code: FieldCodes;
-  message: string; 
+export interface UnspecifiedServiceUnavailable { 
 }
 
-export interface GroupServiceUnavailable {
-  code: FieldCodes;
-  message: string; 
+export interface DatabaseUnavailable { 
 }
 
-export interface GameServiceUnavailable {
-  code: FieldCodes;
-  message: string; 
+export interface GroupServiceUnavailable { 
 }
 
-export interface PresenceServiceUnavailable {
-  code: FieldCodes;
-  message: string; 
+export interface GameServiceUnavailable { 
+}
+
+export interface PresenceServiceUnavailable { 
 }
  
 
 
-export interface UnspecifiedAuthorizationDenied {
+export interface UnauthorizedFieldCode {
   code: FieldCodes;
   message: string; 
 }
 
-export interface APIKeyAuthorizationFailed {
-  code: FieldCodes;
-  message: string; 
+export interface UnspecifiedAuthorizationDenied { 
 }
 
-export interface LoginTokenAuthorizationFailed {
-  code: FieldCodes;
-  message: string; 
+export interface APIKeyAuthorizationFailed { 
 }
 
-export interface RealmRestricted {
-  code: FieldCodes;
-  message: string; 
+export interface LoginTokenAuthorizationFailed { 
+}
+
+export interface RealmRestricted { 
 }
  
 export interface Warband { 
@@ -1136,7 +1128,7 @@ export enum MemberActionType {
   GroupInvited = 9,
   CharacterAcceptedInvite = 10,
   ChangedRole = 11,
-  ChangedRank = 12,
+  AssignRank = 12,
   UpdatedRolePermissions = 13,
   UpdatedRankPermissions = 14,
   ChangedName = 15,
@@ -1147,27 +1139,28 @@ export enum MemberActionType {
   RenameRank = 20,
   AddRankPermissions = 21,
   RemoveRankPermissions = 22,
-  ChangeRankLevel = 23,
-  TransferedOwnership = 24,
-  SharedCount = 25,
-  Abandonded = 25,
-  WarbandCount = 26,
-  ChangeDisplayOrder = 27,
-  SetLeader = 28,
-  DepositedItemInStash = 25,
-  WithdrewItemFromStash = 26,
-  DepositedCurrencyInStash = 27,
-  WithdrewCurrencyFromStash = 28,
-  OrderCount = 29,
-  InvitedOrder = 25,
-  OrderAcceptedInvite = 26,
-  AllianceSharedCount = 27,
-  AllianceCount = 27,
-  InvitedAlliance = 27,
-  AllianceAcceptedInvite = 28,
-  InvitedWarband = 29,
-  WarbandAcceptedInvite = 30,
-  CampaignCount = 31
+  SetRankPermissions = 23,
+  ChangeRankLevel = 24,
+  TransferedOwnership = 25,
+  SharedCount = 26,
+  Abandonded = 26,
+  WarbandCount = 27,
+  ChangeDisplayOrder = 28,
+  SetLeader = 29,
+  DepositedItemInStash = 26,
+  WithdrewItemFromStash = 27,
+  DepositedCurrencyInStash = 28,
+  WithdrewCurrencyFromStash = 29,
+  OrderCount = 30,
+  InvitedOrder = 26,
+  OrderAcceptedInvite = 27,
+  AllianceSharedCount = 28,
+  AllianceCount = 28,
+  InvitedAlliance = 28,
+  AllianceAcceptedInvite = 29,
+  InvitedWarband = 30,
+  WarbandAcceptedInvite = 31,
+  CampaignCount = 32
 }
  
   

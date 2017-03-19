@@ -6,9 +6,9 @@
  * @Author: JB (jb@codecorsair.com)
  * @Date: 2016-08-30 14:26:25
  * @Last Modified by: JB (jb@codecorsair.com)
- * @Last Modified time: 2017-02-07 16:48:53
+ * @Last Modified time: 2017-02-20 17:27:34
  */
-import {race, gender, archetype, faction, Player} from 'camelot-unchained';
+import {Race, Gender, Archetype, Faction, Player} from 'camelot-unchained';
 
 import {PlayerStatus, BodyParts} from './PlayerStatus';
 import {clone, BaseAction} from './reduxUtils';
@@ -18,20 +18,22 @@ export interface HealthAction extends BaseAction {
   max?: number;
   part?: BodyParts;
   text?: string;
-  race?: race;
-  faction?: faction;
+  race?: Race;
+  faction?: Faction;
   player?: Player;
   avatar?: string;
+  distance?: number;
 }
 
 export function fakePlayer(): PlayerStatus {
   return {
     name: 'CSE-JB',
     avatar: 'http://camelotunchained.com/upload/jb.png',
-    race: race.HUMANMALEV,
-    gender: gender.MALE,
-    archetype: archetype.WINTERSSHADOW,
+    race: Race.HumanMaleV,
+    gender: Gender.Male,
+    archetype: Archetype.WintersShadow,
     characterID: '',
+    distance: 0,
     health: [{
       current: 10000,
       maximum: 10000,
@@ -123,6 +125,12 @@ export function raceChanged(status: PlayerStatus, action: HealthAction) {
 export function avatarChanged(status: PlayerStatus, action: HealthAction) {
   let playerStatus = clone(status);
   playerStatus.avatar = action.avatar;
+  return {playerStatus: playerStatus};
+}
+
+export function distanceChanged(status: PlayerStatus, action: HealthAction) {
+  let playerStatus = clone(status);
+  playerStatus.distance = action.distance;
   return {playerStatus: playerStatus};
 }
 

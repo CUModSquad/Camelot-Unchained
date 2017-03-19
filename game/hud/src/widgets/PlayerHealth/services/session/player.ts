@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import {client, events, race, gender, archetype, faction, hasClientAPI, Player} from 'camelot-unchained';
+import {client, events, Race, Faction, Gender, hasClientAPI, Player} from 'camelot-unchained';
 import {PlayerStatus, BodyParts} from '../../../../lib/PlayerStatus';
 
 import {fakePlayer, fakeHealthEvents, HealthAction, staminaUpdated, healthUpdated, playerUpdate, nameChanged, raceChanged, healtEmulationTest, avatarChanged} from '../../../../lib/reduxHealth';
@@ -36,7 +36,7 @@ const characterImages = {
   humanmaletF: 'https://s3.amazonaws.com/camelot-unchained/character-creation/character/icons/icon_humans-f-tdd.png'
 };
 
-function getAvatar(gender: gender, race: race) {
+function getAvatar(gender: Gender, race: Race) {
   if (gender === 1) { // MALE
     switch (race) {
       case 2: return characterImages.luchorpanM; // Luchorpan
@@ -44,6 +44,7 @@ function getAvatar(gender: gender, race: race) {
       case 15: return characterImages.humanmalevM; // Humanmalev
       case 16: return characterImages.humanmaleaM; // Humanmalea
       case 17: return characterImages.humanmaletM; // Humanmalet
+      case 18: return characterImages.humanM; // Pict
     }
   } else {
     switch (race) {
@@ -52,6 +53,7 @@ function getAvatar(gender: gender, race: race) {
       case 15: return characterImages.humanmalevF; // Humanmalev
       case 16: return characterImages.humanmaleaF; // Humanmalea
       case 17: return characterImages.humanmaletF; // Humanmalet
+      case 18: return characterImages.humanF; // Pict
     }
   }
 }
@@ -94,7 +96,7 @@ function onNameChanged(name: string): PlayerAction {
 }
 
 
-function onRaceChanged(race: race): PlayerAction {
+function onRaceChanged(race: Race): PlayerAction {
   return {
     type: RACE_CHANGED,
     when: new Date(),
@@ -102,7 +104,7 @@ function onRaceChanged(race: race): PlayerAction {
   };
 }
 
-function onFactionChanged(faction: faction): PlayerAction {
+function onFactionChanged(faction: Faction): PlayerAction {
   return {
     type: FACTION_CHANGED,
     when: new Date(),
@@ -118,7 +120,7 @@ function onCharacterUpdate(player: Player): PlayerAction {
   }
 }
 
-function onAvatarChanged(avatar: string) {
+function onAvatarChanged(avatar: string): PlayerAction {
   return {
     type: AVATAR_CHANGED,
     when: new Date(),
@@ -140,15 +142,14 @@ export function initializePlayerSession() {
     // init handlers / events
     client.OnCharacterStaminaChanged((current: number, max: number) => dispatch(onStaminaChanged(current, max)));
     client.OnCharacterHealthChanged((current: number, max: number) => dispatch(onHealthChanged(current, max, BodyParts.Torso)));
-    
     client.OnCharacterInjuriesChanged((part: number, health: number, maxHealth: number) => dispatch(onHealthChanged(health, maxHealth, part)));
-
     client.OnCharacterNameChanged((name: string) => dispatch(onNameChanged(name)));
-    client.OnCharacterRaceChanged((race: race) => {
+
+    client.OnCharacterFactionChanged((faction: Faction) => dispatch(onFactionChanged(faction)));
+    client.OnCharacterRaceChanged((race: Race) => {
       dispatch(onRaceChanged(race));
-      dispatch(onAvatarChanged(getAvatar(gender.MALE, race)))
+      client.OnCharacterGenderChanged((gender: Gender) => dispatch(onAvatarChanged(getAvatar(gender, race))))
     });
-    client.OnCharacterFactionChanged((faction: faction) => dispatch(onFactionChanged(faction)));
 
     events.on(events.clientEventTopics.handlesCharacter, (player: Player) => dispatch(onCharacterUpdate(player)));
 

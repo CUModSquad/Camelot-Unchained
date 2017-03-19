@@ -6,7 +6,7 @@
  * @Author: JB (jb@codecorsair.com)
  * @Date: 2016-09-07 12:15:34
  * @Last Modified by: JB (jb@codecorsair.com)
- * @Last Modified time: 2016-10-28 17:34:08
+ * @Last Modified time: 2017-03-07 15:15:25
  */
 
 import * as React from 'react';
@@ -56,7 +56,7 @@ class CharacterListView extends React.Component<CharacterListViewProps, Characte
 
   deleteCharacter = () => {
     const {character} = this.props;
-    webAPI.CharactersAPI.deleteCharacterV1(character.shardID, character.id);
+    webAPI.CharactersAPI.deleteCharacterV1(Number(character.shardID), character.id);
     this.showDeleteConfirmation(false);
   }
 
@@ -83,7 +83,7 @@ class CharacterListView extends React.Component<CharacterListViewProps, Characte
             <CharacterDeleteModal
               character={character}
               closeModal={() => this.showDeleteConfirmation(false)}
-              deleteCharacter={this.deleteCharacter}/>
+              onSuccess={() => this.showDeleteConfirmation(false)}/>
           </div>
         ) : null}
       </div>
@@ -126,6 +126,13 @@ class CharacterSelect extends React.Component<CharacterSelectProps, CharacterSel
     events.off('character-created');
   }
 
+  componentWillReceiveProps(nextProps: CharacterSelectProps) {
+    if (!this.state.selectedCharacter || !this.props.selectedServer) return;
+    if (this.props.selectedServer.shardID !== nextProps.selectedServer.shardID) {
+      this.selectCharacter(nextProps.characters[0]);
+    }
+  }
+
   selectCharacter = (character: webAPI.SimpleCharacter) => {
     this.props.selectCharacter(character);
     this.setState({selectedCharacter: character} as any);
@@ -149,7 +156,7 @@ class CharacterSelect extends React.Component<CharacterSelectProps, CharacterSel
 
     let serverCharacters: webAPI.SimpleCharacter[] = [];
     for (const key in characters) {
-      if (characters[key].shardID === selectedServer.shardID) serverCharacters.push(characters[key]);
+      if (characters[key].shardID.toString() === selectedServer.shardID.toString()) serverCharacters.push(characters[key]);
     }
 
     if (serverCharacters.length == 0) {
@@ -185,7 +192,7 @@ class CharacterSelect extends React.Component<CharacterSelectProps, CharacterSel
         }
       }
     }
-    if (!selectedCharacter || selectedCharacter === null || !this.props.characters[selectedCharacter.id] || selectedCharacter.shardID != selectedServer.shardID) {
+    if (!selectedCharacter || selectedCharacter === null || !this.props.characters[selectedCharacter.id] || selectedCharacter.shardID.toString() != selectedServer.shardID.toString()) {
       // get from local storage or use the first in the list.
       selectedCharacter = serverCharacters[0];
       this.props.selectCharacter(selectedCharacter);

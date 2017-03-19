@@ -6,7 +6,7 @@
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {race, archetype, faction, utils, webAPI} from 'camelot-unchained';
+import {Race, Archetype, Faction, utils, webAPI} from 'camelot-unchained';
 import {CharacterCreationModel} from '../../../CharacterCreation';
 
 import Login from '../Login';
@@ -150,7 +150,7 @@ class ControllerDisplay extends React.Component<ControllerDisplayProps, Controll
             <GameSelect selectType={this.selectServerType} servers={this.props.ControllerState.servers} />
             <i>Select your game</i>&nbsp;
           </div>
-          
+
           <div className='ControllerDisplay__selections__server'>
             <ServerSelect selectServer={this.selectServer}
                           initialServer={selectedServer}
@@ -191,7 +191,7 @@ class ControllerDisplay extends React.Component<ControllerDisplayProps, Controll
             <GameSelect selectType={this.selectServerType} servers={this.props.ControllerState.servers} />
             <i>Select your game</i>&nbsp;
           </div>
-          
+
           <div className='ControllerDisplay__selections__server'>
             <ServerSelect initialServer={selectedServer}
                           selectServer={this.selectServer}

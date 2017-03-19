@@ -7,8 +7,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 let Draggable = require('react-draggable');
-import { client, GroupInvite, groupType, hasClientAPI } from 'camelot-unchained';
+import { client, GroupInvite, groupType, hasClientAPI, Tooltip, ql, events } from 'camelot-unchained';
 import Chat from 'cu-xmpp-chat';
+import { graphql, InjectedGraphQLProps } from 'react-apollo';
 
 import { LayoutState, lockHUD, unlockHUD, setPosition, initialize, resetHUD, setVisibility, Widget } from '../../services/session/layout';
 import { SessionState } from '../../services/session/reducer';
@@ -17,7 +18,6 @@ import HUDDrag, { HUDDragState, HUDDragOptions } from '../HUDDrag';
 
 import InteractiveAlert, { Alert } from '../InteractiveAlert';
 import Watermark from '../Watermark';
-import Tooltip from '../Tooltip';
 import Social from '../../widgets/Social';
 
 import { BodyParts } from '../../lib/PlayerStatus';
@@ -25,23 +25,20 @@ import { BodyParts } from '../../lib/PlayerStatus';
 // TEMP -- Disable this being movable/editable
 import HUDNav from '../../services/session/layoutItems/HUDNav';
 
-function select(state: SessionState): HUDProps {
-  return {
-    layout: state.layout,
-    invitesState: state.invites,
-  }
-}
+import Console from '../Console';
 
-export interface HUDProps {
+
+export interface HUDProps extends InjectedGraphQLProps<ql.MySocialQuery> {
   dispatch?: (action: any) => void;
   layout?: LayoutState;
-  invitesState?: InvitesState;
+  invites?: InvitesState;
 }
 
 export interface HUDState {
   activeDrags: number;
   deltaPosition: { x: number, y: number };
   controlledPosition: { x: number, y: number };
+  orderName: string;
 }
 
 class HUD extends React.Component<HUDProps, HUDState> {
@@ -54,6 +51,24 @@ class HUD extends React.Component<HUDProps, HUDState> {
       activeDrags: 0,
       deltaPosition: { x: 0, y: 0 },
       controlledPosition: { x: 100, y: 100 },
+      orderName: '',
+    }
+  }
+
+  componentWillReceiveProps(props: HUDProps) {
+    if (props.data && props.data.myOrder && props.data.myOrder.name !== this.state.orderName) {
+      
+        events.fire('chat-leave-room', this.state.orderName);
+      
+      // we either are just loading up, or we've changed order.
+      if (props.data.myOrder.id) {
+        // we left our order, leave chat room
+        events.fire('chat-show-room', props.data.myOrder.name);
+      }
+      
+      this.setState({
+        orderName: props.data.myOrder.name,
+      });
     }
   }
 
@@ -84,7 +99,6 @@ class HUD extends React.Component<HUDProps, HUDState> {
     } catch (error) {
       console.log(error);
     }
-
   }
 
   setVisibility = (widgetName: string, vis: boolean) => {
@@ -109,6 +123,7 @@ class HUD extends React.Component<HUDProps, HUDState> {
       save={(s: HUDDragState) => {
         this.props.dispatch(setPosition({
           name: type,
+          widget: widget,
           position: {
             x: { anchor: s.xAnchor, offset: s.x },
             y: { anchor: s.yAnchor, offset: s.y },
@@ -150,12 +165,14 @@ class HUD extends React.Component<HUDProps, HUDState> {
       <div className='HUD' style={locked ? {} : { backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
         {orderedWidgets.map(c => c)}
 
+        <Console />
+
         <div style={{ position: 'fixed', left: '2px', top: '2px', width: '900px', height: '200px', pointerEvents: 'none' }}>
           <HUDNav.component {...HUDNav.props} />
         </div>
 
         <InteractiveAlert dispatch={this.props.dispatch}
-          invites={this.props.invitesState.invites} />
+          invites={this.props.invites.invites} />
         <Social />
         <Watermark />
       </div>
@@ -165,4 +182,5 @@ class HUD extends React.Component<HUDProps, HUDState> {
 
 
 
-export default connect(select)(HUD);
+const HUDWithQL = graphql(ql.queries.MySocial)(HUD);
+export default connect(s => s)(HUDWithQL);

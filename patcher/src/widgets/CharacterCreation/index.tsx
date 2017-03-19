@@ -10,14 +10,14 @@ import * as React from 'react';
 import {createStore, applyMiddleware} from 'redux';
 import {connect, Provider} from 'react-redux';
 const thunk = require('redux-thunk').default;
-import {events} from 'camelot-unchained';
 
-import {gender} from 'camelot-unchained';
+import {events, Gender, Archetype, Faction, Race, webAPI, client} from 'camelot-unchained';
 
 import FactionSelect from './components/FactionSelect';
 import PlayerClassSelect from './components/PlayerClassSelect';
 import RaceSelect from './components/RaceSelect';
 import AttributesSelect from './components/AttributesSelect';
+import BanesAndBoonsContainer from './components/BanesAndBoonsContainer';
 const Animate = require('react-animate.css');
 
 import reducer from './services/session/reducer';
@@ -28,6 +28,10 @@ import {AttributesState, fetchAttributes, allocateAttributePoint, AttributeInfo,
 import {AttributeOffsetsState, fetchAttributeOffsets, AttributeOffsetInfo, resetAttributeOffsets} from './services/session/attributeOffsets';
 import {CharacterState, createCharacter, CharacterCreationModel, resetCharacter} from './services/session/character';
 import {selectGender, resetGender} from './services/session/genders';
+import {
+  BanesAndBoonsState,
+  resetBanesAndBoons,
+} from './services/session/banesAndBoons';
 
 export {CharacterCreationModel} from './services/session/character';
 
@@ -44,6 +48,7 @@ function select(state: any): any {
     attributeOffsetsState: state.attributeOffsets,
     gender: state.gender,
     characterState: state.character,
+    banesAndBoonsState: state.banesAndBoons
   }
 }
 
@@ -51,6 +56,7 @@ export enum pages {
   FACTION_SELECT,
   RACE_SELECT,
   CLASS_SELECT,
+  BANES_AND_BOONS,
   ATTRIBUTES
 }
 
@@ -66,8 +72,9 @@ export interface CharacterCreationProps {
   factionsState?: FactionsState;
   attributesState?: AttributesState;
   attributeOffsetsState?: AttributeOffsetsState;
-  gender?: gender;
+  gender?: Gender;
   characterState?: CharacterState;
+  banesAndBoonsState: BanesAndBoonsState;
 }
 
 declare var toastr: any;
@@ -80,17 +87,32 @@ class CharacterCreation extends React.Component<CharacterCreationProps, any> {
   }
 
   create = () => {
+    events.fire('play-sound', 'create-character');
     // validate name
     const modelName = (this.refs['name-input'] as any).value.trim();
     const normalName = modelName.replace(/[^a-zA-Z]/g, '').toLowerCase();
     let errors: any = [];
-    if (normalName.length < 2 || modelName.length > 20) errors.push('A character name must be between 2 and 20 characters in length.');
-    if (modelName.search(/^[a-zA-Z]/) === -1) errors.push('A character name must begin with a letter.');
-    if (modelName.search(/[\-'][\-']/) > -1) errors.push('A character name must not contain two or more consecutive hyphens (-) or apostrophes (\').');
-    if (modelName.search(/^[a-zA-Z\-']+$/) === -1) errors.push('A character name must only contain the letters A-Z, hyphens (-), and apostrophes (\').');
+    if (normalName.length < 2 || modelName.length > 20)
+      errors.push('A character name must be between 2 and 20 characters in length.');
+    if (modelName.search(/^[a-zA-Z]/) === -1)
+      errors.push('A character name must begin with a letter.');
+    if (modelName.search(/[\-'][\-']/) > -1)
+      errors.push('A character name must not contain two or more consecutive hyphens (-) or apostrophes (\').');
+    if (modelName.search(/^[a-zA-Z\-']+$/) === -1)
+      errors.push('A character name must only contain the letters A-Z, hyphens (-), and apostrophes (\').');
+    if (this.props.banesAndBoonsState.totalPoints !== 0)
+      errors.push('You must equally distribute points into your Boons and Banes');
+    if (!webAPI.TraitsAPI.getTraitsV1(client.shardID).then((res) => res.ok))
+      errors.push(
+        'We are having technical difficulties. You will not be able to create a character until they have been fixed.'
+      )
     if (errors.length > 0) {
       errors.forEach((e: string) => toastr.error(e, 'Oh No!!', {timeOut: 5000}));
     } else {
+      const traitIDs = [
+        ...Object.keys(this.props.banesAndBoonsState.addedBanes),
+        ...Object.keys(this.props.banesAndBoonsState.addedBoons)
+      ]
       // try to create...
       let model: CharacterCreationModel = {
         name: modelName,
@@ -114,15 +136,15 @@ class CharacterCreation extends React.Component<CharacterCreationProps, any> {
           }
           return acc;
         }),
-      }
+        traitIDs: traitIDs
+      };
       this.props.dispatch(createCharacter(model,
         this.props.apiKey,
         this.props.apiHost,
         this.props.shard,
         this.props.apiVersion));
-      events.fire('play-sound', 'select');
     }
-  }
+  };
 
   factionSelect = (selected: FactionInfo) => {
     this.props.dispatch(selectFaction(selected));
@@ -138,57 +160,62 @@ class CharacterCreation extends React.Component<CharacterCreationProps, any> {
       this.props.dispatch(selectPlayerClass(null));
     }
     events.fire('play-sound', 'select');
-  }
+  };
 
   factionNext = () => {
     if (this.props.factionsState.selected == null) {
-      Materialize.toast('Choose a faction to continue.', 3000)
+      Materialize.toast('Choose a faction to continue.', 3000);
       return;
     }
     let factionRaces = this.props.racesState.races.filter((r: RaceInfo) => r.faction == this.props.factionsState.selected.id);
     let factionClasses = this.props.playerClassesState.playerClasses.filter((c: PlayerClassInfo) => c.faction == this.props.factionsState.selected.id);
-    this.props.dispatch(selectPlayerClass(factionClasses[0]))
-    this.props.dispatch(selectRace(factionRaces[0]))
+    this.props.dispatch(selectPlayerClass(factionClasses[0]));
+    this.props.dispatch(selectRace(factionRaces[0]));
     this.setState({ page: this.state.page + 1 });
-    events.fire('play-sound', 'select');
+    events.fire('play-sound', 'realm-select');
   }
 
   raceSelect = (selected: RaceInfo) => {
     this.props.dispatch(selectRace(selected));
     events.fire('play-sound', 'select');
-  }
+  };
 
   raceNext = () => {
     if (this.props.racesState.selected == null) {
-      Materialize.toast('Choose a race to continue.', 3000)
+      Materialize.toast('Choose a race to continue.', 3000);
       return;
     }
     if (this.props.gender == 0) {
-      Materialize.toast('Choose a gender to continue.', 3000)
-      return;
-    }
-    this.setState({ page: this.state.page + 1 })
-    events.fire('play-sound', 'select');
-  }
-
-  classSelect = (selected: PlayerClassInfo) => {
-    this.props.dispatch(selectPlayerClass(selected))
-    events.fire('play-sound', 'select');
-  }
-
-  classNext = () => {
-    if (this.props.playerClassesState.selected == null) {
-      Materialize.toast('Choose a class to continue.', 3000)
+      Materialize.toast('Choose a gender to continue.', 3000);
       return;
     }
     this.setState({ page: this.state.page + 1 });
     events.fire('play-sound', 'select');
-  }
+  };
+
+  classSelect = (selected: PlayerClassInfo) => {
+    this.props.dispatch(selectPlayerClass(selected));
+    events.fire('play-sound', 'select');
+  };
+
+  classNext = () => {
+    if (this.props.playerClassesState.selected == null) {
+      Materialize.toast('Choose a class to continue.', 3000);
+      return;
+    }
+    this.setState({ page: this.state.page + 1 });
+    events.fire('play-sound', 'select');
+  };
+
+  banesAndBoonsNext = () => {
+    this.setState({page: this.state.page + 1});
+    events.fire('play-sound', 'select');
+  };
 
   previousPage = () => {
     this.setState({ page: this.state.page - 1 });
     events.fire('play-sound', 'select');
-  }
+  };
 
   resetAndInit = () => {
     this.props.dispatch(resetFaction());
@@ -204,10 +231,16 @@ class CharacterCreation extends React.Component<CharacterCreationProps, any> {
     this.props.dispatch(fetchAttributes(this.props.apiHost, this.props.shard, this.props.apiVersion));
     this.props.dispatch(fetchAttributeOffsets(this.props.apiHost, this.props.shard, this.props.apiVersion));
     this.setState({page: pages.FACTION_SELECT});
-  }
+  };
 
   componentWillReceiveProps(nextProps: CharacterCreationProps) {
     if (this.props && nextProps && this.props.shard !== nextProps.shard) this.resetAndInit();
+    if (this.props.factionsState !== nextProps.factionsState ||
+        this.props.playerClassesState !== nextProps.playerClassesState ||
+        this.props.racesState !== nextProps.racesState)
+    {
+      this.props.dispatch(resetBanesAndBoons());
+    }
   }
 
 
@@ -246,7 +279,7 @@ class CharacterCreation extends React.Component<CharacterCreationProps, any> {
             selectedRace={this.props.racesState.selected}
             selectRace={this.raceSelect}
             selectedGender={this.props.gender}
-            selectGender={(selected: gender) => this.props.dispatch(selectGender(selected)) }
+            selectGender={(selected: Gender) => this.props.dispatch(selectGender(selected)) }
             selectedFaction={this.props.factionsState.selected} />
         );
         back = (
@@ -280,12 +313,38 @@ class CharacterCreation extends React.Component<CharacterCreationProps, any> {
         next = (
           <a className='cu-btn right'
             onClick={this.classNext}
-            disabled={this.state.page == pages.ATTRIBUTES} >Next</a>
+            disabled={this.state.page == pages.BANES_AND_BOONS} >Next</a>
         );
         name = (
           <div className='cu-character-creation__name'>
             <input type='text' ref='name-input' placeholder='Character Name'/>
           </div>
+        );
+        break;
+      case pages.BANES_AND_BOONS:
+        const { dispatch, racesState, factionsState, playerClassesState, banesAndBoonsState } = this.props;
+        content = (
+          <BanesAndBoonsContainer
+            race={racesState}
+            faction={factionsState}
+            playerClass={playerClassesState}
+            banesAndBoons={banesAndBoonsState}
+            dispatch={dispatch}
+            baneStyles={{}}
+            boonStyles={{}}
+            styles={{}}
+            traitSummaryStyles={{}}
+          />
+        );
+        back = (
+          <a className='cu-btn left'
+             onClick={this.previousPage}
+             disabled={this.state.page == pages.CLASS_SELECT}>Back</a>
+        );
+        next = (
+          <a className='cu-btn right'
+             onClick={this.banesAndBoonsNext}
+             disabled={this.state.page == pages.ATTRIBUTES}>Next</a>
         );
         break;
       case pages.ATTRIBUTES:
@@ -319,10 +378,8 @@ class CharacterCreation extends React.Component<CharacterCreationProps, any> {
           {content}
         </div>
         {name}
-        <div className='cu-character-creation__navigation'>
-          {back}
-          {next}
-        </div>
+        <div className="cu-character-creation__back">{back}</div>
+        <div className="cu-character-creation__next">{next}</div>
       </div>
     )
   }
