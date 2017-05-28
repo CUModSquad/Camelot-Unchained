@@ -1160,7 +1160,7 @@ camelcase@^4.0.0:
   version "4.1.0"
   resolved "http://registry.camelotunchained.com:4873/camelcase/-/camelcase-4.1.0.tgz#d545635be1e33c542649c69173e5de6acfae34dd"
 
-camelot-unchained@^0.8.11, camelot-unchained@^0.8.13:
+camelot-unchained@^0.8.13:
   version "0.8.13"
   resolved "http://registry.camelotunchained.com:4873/camelot-unchained/-/camelot-unchained-0.8.13.tgz#2599707246646722db51d21eca3a5e59aa73d9d5"
   dependencies:
@@ -1583,7 +1583,7 @@ cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   dependencies:
     cssom "0.3.x"
 
-cu-xmpp-chat@^0.3.0:
+cu-xmpp-chat@^0.3.2:
   version "0.3.2"
   resolved "http://registry.camelotunchained.com:4873/cu-xmpp-chat/-/cu-xmpp-chat-0.3.2.tgz#03093b923eb05fac82e06e460c2bd297be813ae9"
   dependencies:

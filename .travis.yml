@@ -5,7 +5,7 @@ cache:
   yarn: true
 install:
   - "yarn"
-  - "cd $TRAVIS_BUILD_DIR/game/hud && yarn --verbose"
+  - "cd $TRAVIS_BUILD_DIR/game/hud && yarn"
   - "cd $TRAVIS_BUILD_DIR/library && yarn"
   - "cd $TRAVIS_BUILD_DIR/patcher && yarn"
 script:
