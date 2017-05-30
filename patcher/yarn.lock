@@ -968,9 +968,9 @@ camelcase@^4.0.0:
   version "4.1.0"
   resolved "http://registry.camelotunchained.com:4873/camelcase/-/camelcase-4.1.0.tgz#d545635be1e33c542649c69173e5de6acfae34dd"
 
-camelot-unchained@^0.8.13:
-  version "0.8.13"
-  resolved "http://registry.camelotunchained.com:4873/camelot-unchained/-/camelot-unchained-0.8.13.tgz#2599707246646722db51d21eca3a5e59aa73d9d5"
+camelot-unchained@^0.8.13, camelot-unchained@^0.8.14:
+  version "0.8.14"
+  resolved "http://registry.camelotunchained.com:4873/camelot-unchained/-/camelot-unchained-0.8.14.tgz#f0e97363c7a54e275353c6937bdc8c567b93cab9"
   dependencies:
     aphrodite "^1.1.0"
     axios "^0.15.3"
@@ -1305,9 +1305,9 @@ css-in-js-utils@^1.0.3:
   dependencies:
     hyphenate-style-name "^1.0.2"
 
-cu-xmpp-chat@^0.3.2:
-  version "0.3.2"
-  resolved "http://registry.camelotunchained.com:4873/cu-xmpp-chat/-/cu-xmpp-chat-0.3.2.tgz#03093b923eb05fac82e06e460c2bd297be813ae9"
+cu-xmpp-chat@^0.3.3:
+  version "0.3.3"
+  resolved "http://registry.camelotunchained.com:4873/cu-xmpp-chat/-/cu-xmpp-chat-0.3.3.tgz#a06205361d0eba1c22bd816060674a04fd00b9c7"
   dependencies:
     camelot-unchained "^0.8.13"
     cwd-in-node-modules "^1.0.1"

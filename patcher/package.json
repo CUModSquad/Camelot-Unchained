@@ -32,8 +32,8 @@
   "dependencies": {
     "aphrodite": "^1.1.0",
     "apisauce": "^0.3.1",
-    "camelot-unchained": "^0.8.13",
-    "cu-xmpp-chat": "^0.3.2",
+    "camelot-unchained": "^0.8.14",
+    "cu-xmpp-chat": "^0.3.3",
     "es6-promise": "^3.0.2",
     "eventemitter3": "^1.1.1",
     "isomorphic-fetch": "^2.2.1",
