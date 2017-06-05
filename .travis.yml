@@ -1,6 +1,6 @@
 language: node_js
 node_js:
- - "7"
+ - "8"
 before_install:
  - "cd $TRAVIS_BUILD_DIR/game/hud && npm install"
  - "cd $TRAVIS_BUILD_DIR/library && npm install"
