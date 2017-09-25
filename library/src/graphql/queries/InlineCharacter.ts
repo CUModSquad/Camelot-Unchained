@@ -18,10 +18,10 @@ query InlineCharacter($id: String!, $shard: Int!) {
   character(id: $id, shard: $shard) {
     id
     name
-    race 
-    gender 
+    race
+    gender
     realm
-    class 
+    class
   }
 }
 `;

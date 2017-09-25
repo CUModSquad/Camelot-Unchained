@@ -76,7 +76,7 @@ export class SignalRHub {
   // Raised when the underlying transport has reconnected
   public onReconnected: (hub: SignalRHub) => void;
 
-  // Raised when the connection state changes. Provides the old state and the new state 
+  // Raised when the connection state changes. Provides the old state and the new state
   // (Connecting, Connected, Reconnecting, or Disconnect)
   public onStateChanged: (hub: SignalRHub, state: { oldState: ConnectionState, newState: ConnectionState }) => void;
 
@@ -107,7 +107,7 @@ export class SignalRHub {
     this.hub = this.conn.createHubProxy(this.hubName);
 
 
-    // hook up lifetime events 
+    // hook up lifetime events
     this.conn.starting(this.internalOnStarting);
     this.conn.received(this.internalOnReceived);
     this.conn.connectionSlow(this.internalOnConnectionSlow);

@@ -12,13 +12,13 @@ export interface WithGraphQLOptions extends QueryOptions {
   // if set to a number greater than 0, in ms, the component will poll the server on an interval
   // skipping the cache (default: 0)
   pollInterval: number;
-  
+
   // No cache support yet
   // Should we use the GraphQL cache? (default: true)
   // useCache: boolean;
 }
 
-const defaultWithGraphQLOptions : WithGraphQLOptions = {
+const defaultWithGraphQLOptions: WithGraphQLOptions = {
   ...defaultQueryOpts,
   pollInterval: 0,
   // useCache: true,
@@ -94,16 +94,16 @@ export function useConfig(config: Partial<GraphQLConfig>) {
 
 export function withGraphQL<PropsType extends GraphQLInjectedProps<QueryDataType | null>,
     QueryDataType = any>(query: string | Partial<QuickQLQuery>, options?: Partial<WithGraphQLOptions>) {
-  
+
   return (WrappedComponent: React.ComponentClass<PropsType> | React.StatelessComponent<PropsType>) => {
     return class extends React.Component<Omit<PropsType, keyof GraphQLInjectedProps<QueryDataType>>,
       GraphQLData<QueryDataType | null>> {
-      
+
       public client: GraphQLClient;
       public query: QuickQLQuery;
       public opts: WithGraphQLOptions;
       public pollingTimeout: number | null = null;
-      
+
       constructor(props: Omit<PropsType, keyof GraphQLInjectedProps<QueryDataType>>) {
         super(props);
         this.state = {
@@ -112,7 +112,7 @@ export function withGraphQL<PropsType extends GraphQLInjectedProps<QueryDataType
           lastError: '',
         };
 
-        this.query = withDefaults(typeof query === 'string' ? {query} : query, defaultQuickQLQuery);
+        this.query = withDefaults(typeof query === 'string' ? { query } : query, defaultQuickQLQuery);
         this.opts = withDefaults(options, getOptions());
 
         this.client = new GraphQLClient({

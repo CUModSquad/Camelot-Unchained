@@ -9,7 +9,7 @@ export function checkStatus(response: any) {
     return response;
   } else {
     const error = new Error(response.statusText);
-    (<any>error).response = response;
+    (<any> error).response = response;
     throw error;
   }
 }

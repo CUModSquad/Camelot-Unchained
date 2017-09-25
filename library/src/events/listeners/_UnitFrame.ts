@@ -48,7 +48,7 @@ function run(emitter: EventEmitter, topic: string) {
   // Hook up event receivers to the relevant cuAPI methods
   switch (topic) {
     case 'character':
-      instance = new Player(<Player>{});
+      instance = new Player(<Player> {});
       client.OnCharacterNameChanged(nameChanged);
       client.OnCharacterRaceChanged(raceChanged);
       client.OnCharacterHealthChanged(healthChanged);
@@ -56,14 +56,14 @@ function run(emitter: EventEmitter, topic: string) {
       client.OnCharacterInjuriesChanged(injuriesChanged);
       break;
     case 'enemytarget':
-      instance = new Combatant(<Combatant>{});
+      instance = new Combatant(<Combatant> {});
       client.OnEnemyTargetNameChanged(nameChanged);
       client.OnEnemyTargetHealthChanged(healthChanged);
       client.OnEnemyTargetStaminaChanged(staminaChanged);
       client.OnEnemyTargetInjuriesChanged(injuriesChanged);
       break;
     case 'friendlytarget':
-      instance = new Combatant(<Combatant>{});
+      instance = new Combatant(<Combatant> {});
       client.OnFriendlyTargetNameChanged(nameChanged);
       client.OnFriendlyTargetHealthChanged(healthChanged);
       client.OnFriendlyTargetStaminaChanged(staminaChanged);
