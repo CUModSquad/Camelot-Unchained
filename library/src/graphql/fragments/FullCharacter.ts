@@ -20,11 +20,11 @@ fragment FullCharacter on Character {
   name
   kills
   race
-  gender 
-  realm 
-  class 
-  lastLogin 
-  deleted 
+  gender
+  realm
+  class
+  lastLogin
+  deleted
   order {
     ...FullOrder
   }

@@ -58,13 +58,13 @@ export function parseQuery(query: string | { definitions: GraphQLQueryDefinition
     queryString = `${queryString} ${definition.loc.source.body}`;
     return;
   });
-  
+
   return queryString;
 }
 
 function errorResult(msg: string) {
   return {
-    data: <null>null,
+    data: <null> null,
     ok: false,
     statusText: msg,
   };
@@ -76,8 +76,8 @@ export async function query<T>(query: QuickQLQuery, options?: Partial<QueryOptio
   const opts = withDefaults(options, defaultQueryOpts);
 
   try {
-    
-    const response = await httpRequest('post', 
+
+    const response = await httpRequest('post',
       opts.url,
       {},
       {
@@ -92,8 +92,8 @@ export async function query<T>(query: QuickQLQuery, options?: Partial<QueryOptio
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-    });
-    
+      });
+
     if (response.ok) {
       return {
         data: JSON.parse(response.data).data as T,

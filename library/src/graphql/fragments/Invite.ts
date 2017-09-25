@@ -16,15 +16,15 @@ import { Invite } from '../schema';
 
 export default gql`
 fragment Invite on InviteInterface {
-  id 
+  id
   inviteCode
-  groupID 
-  groupType 
-  memberID 
+  groupID
+  groupType
+  memberID
   member {
     ...FullCharacter
-  } 
-  inviteeID 
+  }
+  inviteeID
   status
 }
 ${FullCharacterFragment}
