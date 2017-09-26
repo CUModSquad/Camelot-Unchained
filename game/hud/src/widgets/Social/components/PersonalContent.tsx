@@ -10,7 +10,7 @@
  */
 
 import * as React from 'react';
-import { ql } from 'camelot-unchained';
+import { CUCharacter } from 'camelot-unchained/lib/graphql/fragments/CUCharacter';
 import { LinkAddress } from '../services/session/nav/navTypes';
 
 import InvitesList from './InvitesList';
@@ -19,7 +19,7 @@ export interface PersonalContentProps {
   dispatch: (action: any) => any;
   address: LinkAddress;
   refetch: () => void;
-  myCharacter: ql.CUCharacter;
+  myCharacter: CUCharacter;
 }
 
 /* tslint:disable */

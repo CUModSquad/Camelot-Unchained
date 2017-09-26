@@ -1271,8 +1271,8 @@ camelot-unchained@^0.8.13:
     redux-typed-modules "^2.2.1"
 
 camelot-unchained@^0.9.7:
-  version "0.9.8"
-  resolved "http://registry.camelotunchained.com/camelot-unchained/-/camelot-unchained-0.9.8.tgz#46751382bb6a02c79dfbd6f4e200c037a664dfef"
+  version "0.9.13"
+  resolved "http://registry.camelotunchained.com/camelot-unchained/-/camelot-unchained-0.9.13.tgz#84ca30b7ae32231c0f6e323997c2e65ef0d49572"
   dependencies:
     aphrodite "^1.2.3"
     cwd-in-node-modules "^1.0.1"
