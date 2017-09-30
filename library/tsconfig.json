@@ -12,7 +12,8 @@
     "lib": [
       "esnext",
       "dom"
-    ]
+    ],
+    "allowSyntheticDefaultImports": true
   },
   "compileOnSave": false,
   "buildOnSave": false,

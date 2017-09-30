@@ -16,7 +16,8 @@
     "experimentalDecorators": true,
     "plugins": [
       { "name": "tslint-language-service"}
-    ]
+    ],
+    "allowSyntheticDefaultImports": true
   },
   "compileOnSave": false,
   "buildOnSave": false,

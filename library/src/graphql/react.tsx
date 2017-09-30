@@ -124,6 +124,8 @@ export function withGraphQL<
           url: this.opts.url,
           requestOptions: this.opts.requestOptions,
           stringifyVariables: this.opts.stringifyVariables,
+          useCache: this.opts.useCache,
+          setToCache: this.opts.setToCache,
         });
       }
 
