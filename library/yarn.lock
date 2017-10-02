@@ -20,6 +20,14 @@
   version "4.14.56"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.56.tgz#e7ed952ca250c5bdfbf6e75598c137785c41170e"
 
+"@types/lru-cache@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@types/lru-cache/-/lru-cache-4.1.0.tgz#ef69ce9c3ebb46bd146f0d80f0c1ce38b0508eae"
+
+"@types/object-hash@^0.5.29":
+  version "0.5.29"
+  resolved "https://registry.yarnpkg.com/@types/object-hash/-/object-hash-0.5.29.tgz#fe913ebb000bb7e72a5cb6bafbefb09552d49872"
+
 "@types/react-dom@^15.5.4":
   version "15.5.4"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-15.5.4.tgz#3f75ba86a2ce9a7d1d9e7d1ee3f186f3a9652d8f"
@@ -3478,7 +3486,7 @@ lowercase-keys@^1.0.0:
   version "1.0.0"
   resolved "http://registry.camelotunchained.com/lowercase-keys/-/lowercase-keys-1.0.0.tgz#4e3366b39e7f5457e35f1324bdf6f88d0bfc7306"
 
-lru-cache@^4.0.1:
+lru-cache@^4.0.1, lru-cache@^4.1.1:
   version "4.1.1"
   resolved "http://registry.camelotunchained.com/lru-cache/-/lru-cache-4.1.1.tgz#622e32e82488b49279114a4f9ecf45e7cd6bba55"
   dependencies:
@@ -3877,6 +3885,10 @@ object-assign@^3.0.0:
 object-assign@^4.0.1, object-assign@^4.1.0, object-assign@^4.1.1:
   version "4.1.1"
   resolved "http://registry.camelotunchained.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
+
+object-hash@^1.1.8:
+  version "1.1.8"
+  resolved "http://registry.camelotunchained.com/object-hash/-/object-hash-1.1.8.tgz#28a659cf987d96a4dabe7860289f3b5326c4a03c"
 
 object.omit@^2.0.0:
   version "2.0.1"

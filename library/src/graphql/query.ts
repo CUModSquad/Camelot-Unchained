@@ -7,6 +7,7 @@
 import * as _ from 'lodash';
 import { request as httpRequest, RequestOptions } from '../util/request';
 import { ObjectMap, withDefaults } from './utils';
+import Cache from './cache';
 
 // Query Definition as defined by apollo-codegen
 export interface GraphQLQueryDefinition {
@@ -25,6 +26,8 @@ export interface QueryOptions {
   url: string;
   requestOptions: RequestOptions;
   stringifyVariables: boolean;
+  useCache: boolean; // should result be retrieved from cache?
+  setToCache: boolean; // should new result be set to cache?
 }
 
 export const defaultQueryOpts: QueryOptions = {
@@ -35,6 +38,8 @@ export const defaultQueryOpts: QueryOptions = {
     timeout: 5000,
   },
   stringifyVariables: false,
+  useCache: true,
+  setToCache: true,
 };
 
 export interface QuickQLQuery {
@@ -76,13 +81,28 @@ export async function query<T>(query: QuickQLQuery, options?: Partial<QueryOptio
   const opts = withDefaults(options, defaultQueryOpts);
 
   try {
+
+    const parsedQuery = parseQuery(q.query);
+
+    const cacheKey = JSON.stringify({query: parsedQuery, variables: q.variables});
+
+    if (opts.useCache) {
+      const cachedResponse = await Cache.getItem(cacheKey);
+      if (cachedResponse.isHit) {
+        return {
+          data: cachedResponse.data,
+          ok: true,
+          statusText: 'OK',
+        };
+      }
+    }
     
     const response = await httpRequest('post', 
       opts.url,
       {},
       {
         ...q,
-        query: parseQuery(q.query),
+        query: parsedQuery,
         variables: opts.stringifyVariables ? JSON.stringify(q.variables) : q.variables,
       },
       {
@@ -95,8 +115,12 @@ export async function query<T>(query: QuickQLQuery, options?: Partial<QueryOptio
     });
     
     if (response.ok) {
+      const data: T = JSON.parse(response.data).data as T;
+      if (opts.setToCache) {
+        await Cache.setItem(cacheKey, data);
+      }
       return {
-        data: JSON.parse(response.data).data as T,
+        data,
         ok: true,
         statusText: 'OK',
       };
