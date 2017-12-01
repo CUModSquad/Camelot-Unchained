@@ -32,6 +32,18 @@ module.exports = {
         script: 'nps clean,build.browserify.lib,build.dev,dev.livereload,dev.watch,dev.serve',
         description: 'Development mode will start an http server with live reload that will watch and build whenever a file change is detected.'
       },
+      webpack: {
+        script: 'nps clean,build.devWebpack && nps -p dev.watch.graphqlWebpack,dev.watch.sass,dev.watch.misc,dev.webpackDevServer',
+        description: 'Development mode will start an http server with live reload that will watch and build whenever a file change is detected.'
+      },
+      webpackDevServer: {
+        script: 'cross-env NODE_ENV=development webpack-dev-server --config webpack.config.dev.js',
+        hiddenFromHelp: true,
+      },
+      webpackBundleAnalyzer: {
+        script: 'webpack-bundle-analyzer build/asset-stats.json build',
+        hiddenFromHelp: true,
+      },
       start: {
 
       },
@@ -53,8 +65,12 @@ module.exports = {
           script: 'watch -p "src/**/*.ts" -p "src/**/*.tsx" -c "nps build.dev"',
           hiddenFromHelp: true,
         },
+        graphqlWebpack: {
+          script: 'watch -p "src/**/*.graphql" -c "nps gql.codegen && nps gql.collectAndConcat"',
+          hiddenFromHelp: true,
+        },
         graphql: {
-          script: 'watch -p "src/**/*.graphql -c "nps build.dev"',
+          script: 'watch -p "src/**/*.graphql" -c "nps build.dev"',
           hiddenFromHelp: true,
         },
         sass: {
@@ -182,8 +198,17 @@ module.exports = {
         script: 'nps report.start && nps report.gql && nps gql && tsc && nps lint && nps report.lint && nps report.tsc,copy,report.copy,build.babel,report.babel,build.browserify.lib,build.browserify,report.browserify,build.sass,copy.dist,clean.temps,report.success',
         description: 'Build the module.',
       },
+      webpack: {
+        script: 'nps report.start && nps report.gql && nps gql && nps copy,report.copy && cross-env NODE_ENV=production webpack --config webpack.config.prod.js && nps build.sass,copy.dist,clean.temps,report.success',
+        description: 'Build the module.',
+      },
       dev: {
         script: 'nps report.start && nps report.gql && nps gql && tsc && nps report.tsc,copy,report.copy,build.babel,report.babel,build.browserify,report.browserify,build.sass,clean.temps,report.success,copy.dev',
+        description: 'build for dev watcher, skips the browserify lib & sass',
+        hiddenFromHelp: true,
+      },
+      devWebpack: {
+        script: 'nps report.start && nps report.gql && nps gql,copy,report.copy,build.sass,clean.temps,report.success,copy.dev',
         description: 'build for dev watcher, skips the browserify lib & sass',
         hiddenFromHelp: true,
       },

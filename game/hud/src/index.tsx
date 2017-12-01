@@ -10,6 +10,7 @@ import 'core-js/es6/set';
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import { client } from 'camelot-unchained';
+import { AppContainer } from 'react-hot-loader';
 
 import initialize from './services/initialization';
 import HUD from './components/HUD';
@@ -42,20 +43,38 @@ interface WindowInterface extends Window {
 // declare window implements WindowInterface
 declare const window: WindowInterface;
 
+const render = (Component: any) => {
+  if (!process || process.env.NODE_ENV === 'development') {
+    ReactDom.render(
+      <AppContainer>
+        <ApolloProvider store={store} client={apollo}>
+          <Component />
+        </ApolloProvider>
+      </AppContainer>,
+      root,
+    );
+  } else {
+    ReactDom.render(
+      <ApolloProvider store={store} client={apollo}>
+        <Component />
+      </ApolloProvider>,
+      root,
+    );
+  }
+};
+
 if ((window.opener && window.opener.cuAPI) || window.cuAPI) {
   client.OnInitialized(() => {
     initialize();
-    ReactDom.render(
-      <ApolloProvider store={store} client={apollo}>
-        <HUD />
-      </ApolloProvider>,
-      root);
+    render(HUD);
   });
 } else {
   initialize();
-  ReactDom.render(
-    <ApolloProvider store={store} client={apollo}>
-      <HUD />
-    </ApolloProvider>,
-    root);
+  render(HUD);
+}
+
+if (module && module.hot) {
+  module.hot.accept('./components/HUD', () => {
+    render(require('./components/HUD').default);
+  });
 }

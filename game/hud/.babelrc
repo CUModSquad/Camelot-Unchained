@@ -1,4 +1,14 @@
 {
-  "presets": ["es2015"],
-  "plugins": ["transform-runtime"]
+  "presets": [
+    ["env", {
+      "targets": {
+        "browsers": ["last 2 versions"]
+      }
+    }]
+  ],
+  "plugins": [
+    "syntax-dynamic-import",
+    "transform-runtime",
+    "react-hot-loader/babel"
+  ]
 }
