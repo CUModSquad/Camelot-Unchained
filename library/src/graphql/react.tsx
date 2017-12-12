@@ -84,7 +84,7 @@ export interface GraphQLProps<T> extends GraphQLData<T> {
 }
 
 export interface GraphQLInjectedProps<T> {
-  graphql: GraphQLProps<T>;
+  graphql?: GraphQLProps<T>;
 }
 
 export function useConfig(config: Partial<GraphQLConfig>) {
