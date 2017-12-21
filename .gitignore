@@ -42,6 +42,7 @@ widgets/cu-character-creation/lib/
 library/docs/
 .idea/
 *.config.js
+!webpack.config.*.js
 dev.config
 **__snapshots__
 **/schema.ts
@@ -51,3 +52,5 @@ game/hud/gql/
 game/hud/src/gqlDocuments\.ts
 game/hud/src/gqlInterfaces\.ts
 **/*.code-workspace
+.cache-loader
+yarn-error.log
