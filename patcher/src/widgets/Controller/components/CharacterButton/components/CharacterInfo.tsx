@@ -13,6 +13,8 @@ import { events, webAPI, Gender, Archetype, Race, Spinner } from '@csegames/came
 import CharacterImages, { shouldFlipCharImage } from '../../../../../lib/characterImages';
 import { PatcherServer } from '../../../services/session/controller';
 
+import PlayerCounts from './PlayerCounts';
+
 declare const toastr: any;
 
 const shine = keyframes`
@@ -180,7 +182,7 @@ const CharMask = styled('div')`
 `;
 
 const InitialCharMaskAnim = css`
-  
+
 `;
 
 const InfoContainer = styled('div')`
@@ -191,7 +193,7 @@ const InfoContainer = styled('div')`
 `;
 
 const CharacterInfoContainer = styled('div')`
-  
+
 `;
 
 const CharacterName = styled('div')`
@@ -229,10 +231,13 @@ const ServerInfoContainer = styled('div')`
 `;
 
 const ServerName = styled('div')`
+  display: inline;
   margin-left: -20px;
 `;
 
 const AccessLevel = styled('div')`
+  display: inline;
+  margin-left: 30px;
   font-size: 12px;
   color: gray;
 `;
@@ -319,6 +324,7 @@ class CharacterInfo extends React.Component<CharacterInfoProps, CharacterInfoSta
                   <AccessLevel>
                     {selectedServer.accessLevel && `Accessible to ${webAPI.accessLevelString(selectedServer.accessLevel)}`}
                   </AccessLevel>
+                  <PlayerCounts server={selectedServer.name} />
                 </ServerInfoContainer>
               }
             </InfoContainer>
@@ -340,7 +346,7 @@ class CharacterInfo extends React.Component<CharacterInfoProps, CharacterInfoSta
             image={'images/controller/no-character-shadow.png'}>
             {!this.state.isLoading &&
               <InfoContainer className='character-button-info'>
-                
+
                 <CharacterInfoContainer>
                 <CharacterName>
                   {this.props.hasAccessToServers ? 'No Character Selected' : 'There are no servers available'}
@@ -357,6 +363,7 @@ class CharacterInfo extends React.Component<CharacterInfoProps, CharacterInfoSta
                       </ServerActiveIcon>
                       {selectedServer.name}
                     </ServerName>
+                    <PlayerCounts server={selectedServer.name} />
                     <AccessLevel>
                       {selectedServer.accessLevel && `Accessible to ${webAPI.accessLevelString(selectedServer.accessLevel)}`}
                     </AccessLevel>
