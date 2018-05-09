@@ -7,12 +7,16 @@
 
 import * as React from 'react';
 import styled from 'react-emotion';
+import { Faction } from '@csegames/camelot-unchained';
 import { MetricsData } from '@csegames/camelot-unchained/lib/graphql/schema';
 import { GraphQL, GraphQLResult } from '@csegames/camelot-unchained/lib/graphql/react';
 
 const PlayerCount = styled('span')`
   font-size: 12px;
-  color: ${props => props.faction === 'arthurian' ? '#FF8080' : props.faction === 'viking' ? '#6DB9D9' : '#92E989'};
+  padding-right: ${props => props.faction === Faction.Viking ? '0px' : '10px'};
+  color: ${props => props.faction === Faction.Arthurian ? '#FF8080'
+    : props.faction === Faction.Viking ? '#6DB9D9'
+    : '#92E989'};
 `;
 
 function query(server: string) {
@@ -26,7 +30,7 @@ function query(server: string) {
           }
         }
       }
-    `
+    `;
 }
 
 type QueryType = {
@@ -43,7 +47,7 @@ export interface PlayerCountsState {
   playerCountV: number;
 }
 
-class PlayerCounts extends React.Component<PlayerCountsProps, PlayerCountsState> {
+class PlayerCounts extends React.PureComponent<PlayerCountsProps, PlayerCountsState> {
   constructor(props: PlayerCountsProps) {
     super(props);
     this.state = {
@@ -53,7 +57,21 @@ class PlayerCounts extends React.Component<PlayerCountsProps, PlayerCountsState>
     };
   }
 
-  handleQueryResult = (graphql: GraphQLResult<QueryType>) => {
+  public render() {
+    return (
+      <div>
+        <PlayerCount faction={Faction.Arthurian}>{this.state.playerCountA} A</PlayerCount>
+        <PlayerCount faction={Faction.TDD}>{this.state.playerCountT} T</PlayerCount>
+        <PlayerCount faction={Faction.Viking}>{this.state.playerCountV} V</PlayerCount>
+        <GraphQL query={{
+        query: query(this.props.server),
+        pollInterval: 30000,
+        }} onQueryResult={this.handleQueryResult} />
+      </div>
+    );
+  }
+
+  private handleQueryResult = (graphql: GraphQLResult<QueryType>) => {
     if (graphql.data) {
       const currentPlayerCount = graphql.data.metrics.currentPlayerCount;
       if (currentPlayerCount.arthurian !== this.state.playerCountA) {
@@ -66,28 +84,6 @@ class PlayerCounts extends React.Component<PlayerCountsProps, PlayerCountsState>
         this.setState({playerCountV: currentPlayerCount.viking});
       }
     }
-  }
-
-  public render() {
-    return (
-      <div>
-        <PlayerCount faction='arthurian'>{this.state.playerCountA} A</PlayerCount> &nbsp; <PlayerCount faction='tuatha'>{this.state.playerCountT} T</PlayerCount> &nbsp; <PlayerCount faction='viking'>{this.state.playerCountV} V</PlayerCount>
-        <GraphQL query={{
-        query: query(this.props.server),
-        pollInterval: 30000
-        }} onQueryResult={this.handleQueryResult} />
-      </div>
-    );
-  }
-
-  public shouldComponentUpdate(nextProps: PlayerCountsProps, nextState: PlayerCountsState) {
-    if (this.props.server !== nextProps.server ||
-        this.state.playerCountA !== nextState.playerCountA ||
-        this.state.playerCountT !== nextState.playerCountT ||
-        this.state.playerCountV !== nextState.playerCountV) {
-          return true;
-        }
-    return false;
   }
 }
 
