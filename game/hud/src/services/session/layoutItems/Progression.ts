@@ -19,7 +19,7 @@ export default {
       offset: -400,
     },
     size: {
-      width: 500,
+      width: 800,
       height: 400,
     },
     scale: 1,
