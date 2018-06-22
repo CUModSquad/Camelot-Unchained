@@ -4,13 +4,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { utils, client } from 'camelot-unchained';
 import * as React from 'react';
-import { css, StyleSheet, StyleDeclaration } from 'aphrodite';
-import { withGraphQL, GraphQLInjectedProps } from 'camelot-unchained/lib/graphql/react';
-import { CUQuery } from 'camelot-unchained/lib/graphql/schema';
+import styled from 'react-emotion';
+import { ql, utils, client } from '@csegames/camelot-unchained';
+import { GraphQL, GraphQLResult } from '@csegames/camelot-unchained/lib/graphql/react';
 
-export interface WelcomeStyles extends StyleDeclaration {
+const query = {
+  namedQuery: 'motd',
+  variables: {
+    channel: client.patchResourceChannel,
+  },
+};
+
+export interface WelcomeStyles {
   Welcome: React.CSSProperties;
   welcomeHeader: React.CSSProperties;
   welcomeContent: React.CSSProperties;
@@ -19,62 +25,60 @@ export interface WelcomeStyles extends StyleDeclaration {
   close: React.CSSProperties;
 }
 
-export const defaultWelcomeStyles: WelcomeStyles = {
-  Welcome: {
-    pointerEvents: 'all',
-    userSelect: 'none',
-    webkitUserSelect: 'none',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    height: '450px',
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    border: `1px solid ${utils.lightenColor('#202020', 30)}`,
-  },
+const Container = styled('div')`
+  pointer-events: all;
+  user-select: none;
+  -webkit-user-select: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 450px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 1px solid ${utils.lightenColor('#202020', 30)};
+`;
 
-  welcomeHeader: {
-    width: '100%',
-    padding: '5px 0',
-    textAlign: 'center',
-    color: 'white',
-    backgroundColor: '#202020',
-    borderBottom: `1px solid ${utils.lightenColor('#202020', 30)}`,
-  },
+const Header = styled('div')`
+  width: 100%;
+  padding: 5px 0;
+  text-align: center;
+  color: white;
+  background-color: #202020;
+  border-bottom: 1px solid ${utils.lightenColor('#202020', 30)};
+`;
 
-  welcomeContent: {
-    flex: 1,
-    color: 'white',
-    padding: '5px',
-    overflow: 'auto',
-  },
+const Content = styled('div')`
+  flex: 1;
+  color: white;
+  padding: 5px;
+  overflow: auto;
+`;
 
-  welcomeFooter: {
-    padding: '5px 0',
-    backgroundColor: '#202020',
-    textAlign: 'center',
-    borderTop: `1px solid ${utils.lightenColor('#202020', 30)}`,
-  },
+const Footer = styled('div')`
+  padding: 5px 0;
+  background-color: #202020;
+  text-align: center;
+  border-top: 1px solid ${utils.lightenColor('#202020', 30)};
+`;
 
-  dismissButton: {
-    cursor: 'pointer',
-  },
+const DismissButton = styled('a')`
+  cursor: pointer;
+`;
 
-  close: {
-    position: 'absolute',
-    top: 2,
-    right: 5,
-    color: '#cdcdcd',
-    fontSize: '20px',
-    marginRight: '5px',
-    cursor: 'pointer',
-    userSelect: 'none',
-    ':hover': {
-      color: '#bbb',
-    },
-  },
-};
+const Close = styled('div')`
+  position: absolute;
+  top: 2px;
+  right: 5px;
+  color: #CDCDCD;
+  font-size: 20px;
+  margin-right: 5px;
+  cursor: pointer;
+  user-select: none;
+  &:hover {
+    color: #BBB;
+  }
+`;
 
-export interface WelcomeProps extends GraphQLInjectedProps<Pick<CUQuery, 'motd'>> {
+export interface WelcomeProps {
   styles?: Partial<WelcomeStyles>;
   setVisibility: (vis: boolean) => void;
 }
@@ -99,33 +103,39 @@ class Welcome extends React.Component<WelcomeProps, WelcomeState> {
   }
 
   public render() {
-    const ss = StyleSheet.create(defaultWelcomeStyles);
-    const custom = StyleSheet.create(this.props.styles || {});
-
     return (
-      <div className={css(ss.Welcome, custom.Welcome)}>
-        <div className={css(ss.welcomeHeader, custom.welcomeHeader)}>
-          <div className=''>
-            { this.props.graphql.data && this.props.graphql.data.motd && this.props.graphql.data.motd[0]
-              ? this.props.graphql.data.motd[0].title
-              : 'Welcome to Camelot Unchained'
-            }
-          </div>
-          <div className={css(ss.close, custom.close)} onClick={this.hide}>
-            <i className='fa fa-times click-effect'></i>
-          </div>
-        </div>
-        <div className={css(ss.welcomeContent, custom.welcomeContent)}>
-        {
-          this.props.graphql.data && this.props.graphql.data.motd && this.props.graphql.data.motd[0]
-          ? <div key='100' dangerouslySetInnerHTML={{ __html: this.props.graphql.data.motd[0].htmlContent }} />
-          : this.defaultMessage
-        }
-        </div>
-        <div className={css(ss.welcomeFooter, custom.welcomeFooter)}>
-          <a className={css(ss.dismissButton, custom.dismissButton)} onClick={this.hideDelay}>Dismiss For 24h</a>
-        </div>
-      </div>
+      <GraphQL query={query}>
+        {(graphql: GraphQLResult<{ motd: ql.schema.MessageOfTheDay }>) => {
+          const gqlData = typeof graphql.data === 'string' ? JSON.parse(graphql.data) : graphql.data;
+          if (graphql.loading || !gqlData) return null;
+
+          return (
+            <Container>
+              <Header>
+                <div className=''>
+                  { gqlData && gqlData.motd && gqlData.motd[0]
+                    ? gqlData.motd[0].title
+                    : 'Welcome to Camelot Unchained'
+                  }
+                </div>
+                <Close onClick={this.hide}>
+                  <i className='fa fa-times click-effect'></i>
+                </Close>
+              </Header>
+              <Content>
+              {
+                gqlData && gqlData.motd && gqlData.motd[0]
+                ? <div key='100' dangerouslySetInnerHTML={{ __html: gqlData.motd[0].htmlContent }} />
+                : this.defaultMessage
+              }
+              </Content>
+              <Footer>
+                <DismissButton onClick={this.hideDelay}>Dismiss For 24h</DismissButton>
+              </Footer>
+            </Container>
+          );
+        }}
+      </GraphQL>
     );
   }
   private hide = (): void => {
@@ -139,12 +149,4 @@ class Welcome extends React.Component<WelcomeProps, WelcomeState> {
   }
 }
 
-export default withGraphQL({
-  query: `query {
-    motd(channel: ${client.patchResourceChannel}) {
-      id
-      title
-      htmlContent
-    }
-  }`,
-})(Welcome);
+export default Welcome;
