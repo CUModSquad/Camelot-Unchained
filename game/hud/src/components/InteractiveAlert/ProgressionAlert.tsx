@@ -22,23 +22,69 @@ export function removeProgressionAlert(alertsList: IInteractiveAlert[], toRemove
 }
 
 const Container = styled('div')`
-  background: #646464;
+  position: relative;
 `;
 
-const Button = styled('div')`
+const AlertText = styled('div')`
+  background: url(images/alert/text-background.png) no-repeat;
+  width: 504px;
+  height: 59px;
+  margin: 0 auto;
+`;
+
+const AlterTextInner = styled('div')`
+  width: 340px;
+  height: 59px;
+  max-height: 59px;
+  margin: 0 auto;
+  padding: 10px 0 0;
+  overflow: hidden;
+  text-align: center;
+  color: #baa892;
+  font-family: 'Caudex', serif;
+  font-size: 14px;
+`;
+
+const AlertButton = styled('div')`
+  background: url(images/alert/button-background.png) no-repeat;
+  width: 420px;
+  height: 49px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+`;
+
+const AlertButtonContainer = styled('div')`
+  width: 50%;
+`;
+
+const AlertLeftButton = styled('div')`
+  background: url(images/alert/button-off.png) no-repeat;
+  width: 82px;
+  height: 27px;
+  float: right;
+  margin: 10px 10px 0 0;
+  text-align: center;
+  color: #828282;
   cursor: pointer;
-  display: inline-block;
-  position: relative;
-  width: 120px;
-  height: 32px;
-  line-height: 32px;
-  border-radius: 2px;
-  font-size: 0.9em;
-  background-color: #fff;
-  color: #646464;
-  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  transition-delay: 0.2s;
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+  &:hover {
+    background: url(images/alert/button-on.png) no-repeat;
+    color: #968876;
+  }
+`;
+
+const AlertRightButton = styled('div')`
+  background: url(images/alert/button-off.png) no-repeat;
+  width: 82px;
+  height: 27px;
+  margin: 10px 0 0 10px;
+  text-align: center;
+  color: #828282;
+  cursor: pointer;
+  &:hover {
+    background: url(images/alert/button-on.png) no-repeat;
+    color: #968876;
+  }
 `;
 
 export interface Props {
@@ -54,9 +100,15 @@ export class ProgressionAlertView extends React.Component<Props, State> {
   public render() {
     return (
       <Container>
-        <h6>A new progression report is available!  Would you like to view it now and collect your rewards?</h6>
-        <Button onClick={this.onOpenProgressionClick}>Yes</Button>
-        <Button onClick={this.onDismissClick}>No</Button>
+        <AlertText>
+            <AlterTextInner>
+                A new progression report is available! Would you like to view it now and collect your rewards?
+            </AlterTextInner>
+        </AlertText>
+        <AlertButton>
+            <AlertButtonContainer><AlertLeftButton onClick={this.onOpenProgressionClick}>Yes</AlertLeftButton></AlertButtonContainer>
+            <AlertButtonContainer><AlertRightButton onClick={this.onDismissClick}>Later</AlertRightButton></AlertButtonContainer>
+        </AlertButton>
       </Container>
     );
   }
