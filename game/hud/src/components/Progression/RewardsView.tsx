@@ -197,7 +197,7 @@ class RewardsView extends React.Component<Props, State> {
       adjustmentsElement.push(<li key='noreward'><div className='NoReward'>No new rewards.</div></li>);
     } else {
       let keyCounter = 0;
-      progressionData.adjustmentsByDayLogID.map((adjustment: CharacterAdjustmentDBModel, adjustmentID: number) => {
+      progressionData.adjustmentsByDayLogID.forEach((adjustment: CharacterAdjustmentDBModel, adjustmentID: number) => {
         const { addItem, playerStat, skillNode, skillPart } = adjustment.adjustment;
         const { skillPartLevel, useSkillPart, useSkills, adminGrant } = adjustment.reason;
         let reasonDescription: JSX.Element = null;
@@ -302,7 +302,7 @@ class RewardsView extends React.Component<Props, State> {
           }
         }
 
-        adjustmentDescription.map((adjustment) => {
+        adjustmentDescription.forEach((adjustment) => {
           adjustmentsElement.push(adjustment);
         });
 

@@ -215,8 +215,8 @@ class ProgressionView extends React.Component<Props, State> {
             const { secondsActive, distanceMoved, skillPartsUsed, damage, plots, crafting, scenarios } = uncollectedDay;
 
             const damageDetails: JSX.Element[] = [];
-            Object.keys(damage).map((damageKey) => {
-              Object.keys(damage[damageKey]).map((damageType) => {
+            Object.keys(damage).forEach((damageKey) => {
+              Object.keys(damage[damageKey]).forEach((damageType) => {
                 if (damage[damageKey][damageType] > 0) {
                   damageDetails.push(
                     <li key={damageKey + damageType}>
@@ -235,7 +235,7 @@ class ProgressionView extends React.Component<Props, State> {
             });
 
             const plotDetails: JSX.Element[] = [];
-            Object.keys(plots).map((plotKey) => {
+            Object.keys(plots).forEach((plotKey) => {
               if (plots[plotKey] > 0) {
                 plotDetails.push(
                   <li key={plotKey}>
@@ -247,8 +247,8 @@ class ProgressionView extends React.Component<Props, State> {
             });
 
             const craftingDetails: JSX.Element[] = [];
-            Object.keys(crafting).map((craftingKey) => {
-              Object.keys(crafting[craftingKey]).map((craftingType) => {
+            Object.keys(crafting).forEach((craftingKey) => {
+              Object.keys(crafting[craftingKey]).forEach((craftingType) => {
                 if (crafting[craftingKey][craftingType] > 0) {
                   craftingDetails.push(
                     <li key={craftingKey + craftingType}>
@@ -266,7 +266,7 @@ class ProgressionView extends React.Component<Props, State> {
             let scenariosWon: number = 0;
             let scenariosLost: number = 0;
             let scenariosTied: number = 0;
-            scenarios.map((scenario) => {
+            scenarios.forEach((scenario) => {
               if (scenario.outcome === 'Win') scenariosWon++;
               if (scenario.outcome === 'Lose') scenariosLost++;
               if (scenario.outcome === 'Draw') scenariosTied++;
@@ -297,7 +297,7 @@ class ProgressionView extends React.Component<Props, State> {
             }
 
             const skillDetails: JSX.Element[] = [];
-            skillPartsUsed.map((skillPartUsed) => {
+            skillPartsUsed.forEach((skillPartUsed) => {
               skillDetails.push(
                 <li key={skillPartUsed.skillPartID}>
                   <div className='ProgressionLabel'>
