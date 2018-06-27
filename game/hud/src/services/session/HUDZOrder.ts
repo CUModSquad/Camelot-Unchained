@@ -31,6 +31,7 @@ enum HUDZOrder {
   RefillAmmo,
   GameMenu,
   Settings,
+  GameInfo,
 }
 
 export default HUDZOrder;
