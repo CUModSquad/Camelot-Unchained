@@ -36,7 +36,7 @@ class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavSta
 
   constructor(props: any) {
     super(props);
-    this.state = {...defaultFullScreenState};
+    this.state = { ...defaultFullScreenState };
   }
 
   public render() {
@@ -77,7 +77,7 @@ class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavSta
   }
 
   private handleKeydownEvent = (e: KeyboardEvent) => {
-    switch(e.keyCode) {
+    switch (e.keyCode) {
       case jsKeyCodes.ESC: {
         // Close full screen UI
         this.onCloseFullScreen();
@@ -163,8 +163,8 @@ class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavSta
     if (nextTabIndex !== -1) {
       if (nextTabIndex === otherActiveIndex) {
         // Swap windows
-        const otherPrevWindowIndex = _.findIndex(otherTabs, tab => {
-          return this.normalizeName(tab.name) === this.normalizeName(tabs[prevTabIndex].name)
+        const otherPrevWindowIndex = _.findIndex(otherTabs, (tab) => {
+          return this.normalizeName(tab.name) === this.normalizeName(tabs[prevTabIndex].name);
         });
         if (otherPrevWindowIndex !== -1) {
           this.setActiveTab(nextTabIndex, name);
@@ -249,11 +249,11 @@ class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavSta
   }
 
   private setTabsLeft = async (newTabsLeft: TabItem<any>[]) => {
-    return await new Promise((resolve) => this.setState({ tabsLeft: newTabsLeft }, () => resolve()));
+    return await new Promise(resolve => this.setState({ tabsLeft: newTabsLeft }, () => resolve()));
   }
 
   private setTabsRight = async (newTabsRight: TabItem<any>[]) => {
-    return await new Promise((resolve) => this.setState({ tabsRight: newTabsRight }, () => resolve()));
+    return await new Promise(resolve => this.setState({ tabsRight: newTabsRight }, () => resolve()));
   }
 
   private normalizeName = (name: string) => {

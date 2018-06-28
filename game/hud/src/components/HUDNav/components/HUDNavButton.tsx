@@ -61,7 +61,7 @@ export interface Props {
 }
 
 export interface State {
-  
+
 }
 
 class HUDNavButton extends React.Component<Props, State> {
@@ -95,6 +95,7 @@ class HUDNavButton extends React.Component<Props, State> {
       styles: { tooltip: Tooltip },
       event,
     };
+
     showTooltip(showPayload);
   }
 
