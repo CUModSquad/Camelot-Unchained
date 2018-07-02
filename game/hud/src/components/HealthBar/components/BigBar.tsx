@@ -16,7 +16,7 @@ const Container = styled('div')`
   left: ${(props: any) => props.left.toFixed(1)}px;
   width: 100%;
   height: ${(props: any) => props.height.toFixed(1)}px;
-  margin-bottom: ${({ scale }: {scale: number}) => (3 * scale).toFixed(1)}px;
+  margin-bottom: 4px;
 `;
 
 const BarContainer = styled('div')`
@@ -25,8 +25,6 @@ const BarContainer = styled('div')`
   right: 0;
   left: 0;
   bottom: 0;
-  width: 100%;
-  height: 100%;
   width: 100%;
   height: 100%;
   background: linear-gradient(to top, #303030, #1D1D1D);
