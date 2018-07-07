@@ -132,6 +132,11 @@ class HUD extends React.Component<HUDProps, HUDState> {
     );
   }
 
+  public componentWillMount() {
+    // Always load MOTD
+    this.setVisibility('motd', true);
+  }
+
   public componentDidMount() {
     this.props.dispatch(initialize());
     this.props.dispatch(initializeInvites());
@@ -147,19 +152,6 @@ class HUD extends React.Component<HUDProps, HUDState> {
           this.setVisibility('respawn', false);
         }
       });
-    }
-
-    // manage visibility of motd widget based on localStorage
-    this.setVisibility('motd', true);
-    try {
-      const delayInMin: number = 24 * 60;
-      const savedDelay = localStorage.getItem('cse-MOTD-hide-start');
-      const currentDate: Date = new Date();
-      const savedDelayDate: Date = new Date(JSON.parse(savedDelay));
-      savedDelayDate.setTime(savedDelayDate.getTime() + (delayInMin * 60 * 1000));
-      if (currentDate < savedDelayDate) this.setVisibility('motd', false);
-    } catch (error) {
-      console.log(error);
     }
   }
 
