@@ -27,8 +27,6 @@ interface InputState {
 
 class Input extends React.Component<InputProps, InputState> {
 
-  private changeTimer: any;
-
   constructor(props: InputProps) {
     super(props);
     this.state = { changed: false, value: props.value };
@@ -61,6 +59,7 @@ class Input extends React.Component<InputProps, InputState> {
           onKeyDown={this.onKeyDown}
           onBlur={this.onBlur}
           onClick={this.onClick}
+          onFocus={this.onFocus}
           value={this.state.value}
           />
         {adjuster}
@@ -68,48 +67,34 @@ class Input extends React.Component<InputProps, InputState> {
     );
   }
 
-  private delayedOnChange = (ms: number) => {
-    this.cancelOnChange();
-    this.changeTimer = setTimeout(() => {
-      this.changeTimer = null;
-      const el = this.refs['input'] as HTMLInputElement;
-      this.props.onChange(el.value);
-    }, ms);
-  }
-
-  private cancelOnChange = () => {
-    if (this.changeTimer) {
-      clearTimeout(this.changeTimer);
-      this.changeTimer = null;
-    }
+  private fireOnChange = () => {
+    const el = this.refs['input'] as HTMLInputElement;
+    this.props.onChange(el.value);
   }
 
   private increment = (e: React.MouseEvent<HTMLDivElement>) => {
     if (this.props.disabled) return;
-    this.cancelOnChange();
     const input = this.refs['input'] as HTMLInputElement;
     let value = ((input.value as any) | 0) + 1;
     const max = this.props.max;
     if (max !== undefined && value > max) value = max;
     input.value = value.toString();
     this.setState({ changed: true, value: value.toString() });
-    this.delayedOnChange(500);
+    this.fireOnChange();
   }
 
   private decrement = (e: React.MouseEvent<HTMLDivElement>) => {
     if (this.props.disabled) return;
-    this.cancelOnChange();
     const input = this.refs['input'] as HTMLInputElement;
     let value = ((input.value as any) | 0) - 1;
     const min = this.props.min;
     if (min !== undefined && value < min) value = min;
     input.value = value.toString();
     this.setState({ changed: true, value: value.toString() });
-    this.delayedOnChange(400);
+    this.fireOnChange();
   }
 
   private onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // TODO extend to support validation
     this.setState({ changed: true, value: e.target.value });
   }
 
@@ -117,15 +102,18 @@ class Input extends React.Component<InputProps, InputState> {
     client.RequestInputOwnership();
   }
 
+  private onFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    client.RequestInputOwnership();
+  }
+
   private onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     client.ReleaseInputOwnership();
     if (this.state.changed) {
-      this.delayedOnChange(0);
+      this.fireOnChange();
     }
   }
 
   private onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    this.cancelOnChange();
     if (this.props.numeric) {
       if (e.keyCode > 47 && e.keyCode < 58) return;
       if (e.keyCode === 8 || e.keyCode === 13) return;
@@ -135,11 +123,8 @@ class Input extends React.Component<InputProps, InputState> {
 
   private onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (this.state.changed) {
-      if (e.keyCode >= 32) {
-        this.delayedOnChange(500);
-      }
-      if (e.keyCode === 13) {
-        this.delayedOnChange(0);
+      if (e.keyCode >= 32 || e.keyCode === 13) {
+        this.fireOnChange();
       }
     }
   }
