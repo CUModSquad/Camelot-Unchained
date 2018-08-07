@@ -16,7 +16,7 @@ import { ObjectMap } from '@csegames/camelot-unchained/lib/utils/ObjectMap';
 import { GraphQL, GraphQLData } from '@csegames/camelot-unchained/lib/graphql/react';
 import { GraphQLQuery } from '@csegames/camelot-unchained/lib/graphql/query';
 import ClientInterface from '@csegames/camelot-unchained/lib/core/clientInterface';
-import Watermark from '../Watermark';
+import HUDZOrder from 'services/session/HUDZOrder';
 
 type Content = string | ObjectMap<any>;
 
@@ -329,7 +329,7 @@ class DevUIPage extends React.PureComponent<Partial<Page>> {
 
 const Container = styled('div')`
   position: relative;
-  z-index: 16;
+  z-index: ${HUDZOrder.DevUI};
   width: 100%;
   height: 100%;
   pointer-events: none;
@@ -374,7 +374,7 @@ class DevUI extends React.PureComponent<{}, ObjectMap<RootPage> | null> {
       return (this.state[k].visible && this.state[k].maximized) ? true : p;
     }, false);
     return (
-      <Container style={{ zIndex: anyMaximized ? 10000 : 999 }}>
+      <Container style={{ zIndex: anyMaximized ? HUDZOrder.MaximizedDevUI : HUDZOrder.DevUI }}>
         {keys.map((k) => {
           const page = this.state[k];
           const isMaximized = page.maximized;
@@ -393,9 +393,6 @@ class DevUI extends React.PureComponent<{}, ObjectMap<RootPage> | null> {
               pointerEvents: 'auto',
             }}>
             <div style={{ position: 'relative' }}>
-              {isMaximized ?
-                <Watermark style={{ watermark: { top: '0px', position: 'relative' } }} />
-              : null }
               {page.showCloseButton ?
                 <CloseButton
                   href={'#'}

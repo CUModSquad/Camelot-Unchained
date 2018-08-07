@@ -23,6 +23,7 @@ const Watermark = styled('i')`
   user-select: none;
   cursor: default;
   z-index: 9999;
+  pointer-events: none;
 `;
 
 export interface WatermarkStyle {
