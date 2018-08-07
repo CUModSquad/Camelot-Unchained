@@ -38,6 +38,11 @@ class Input extends React.Component<InputProps, InputState> {
     }
   }
 
+  public componentWillUnmount() {
+    window.removeEventListener('mousedown', this.releaseOwnership);
+    client.ReleaseInputOwnership();
+  }
+
   public render() {
     const ss = StyleSheet.create(merge({}, input, this.props.style));
     let adjuster;
@@ -100,12 +105,23 @@ class Input extends React.Component<InputProps, InputState> {
   }
 
   private onFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (client.debug) console.log(`Input: on focus ${this.props.name} grab ownership`);
     client.RequestInputOwnership();
+    window.addEventListener('mousedown', this.releaseOwnership);
+  }
+
+  private releaseOwnership = (e: MouseEvent) => {
+    if (e.srcElement !== this.refs['input'] as HTMLInputElement) {
+      if (client.debug) console.log(`Input: mousedown elsewhere ${this.props.name} release ownership`);
+      client.ReleaseInputOwnership();
+      window.removeEventListener('mousedown', this.releaseOwnership);
+    }
   }
 
   private onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    client.ReleaseInputOwnership();
+    if (client.debug) console.log(`Input: onBlur ${this.props.name}`);
     if (this.state.changed) {
+      if (client.debug) console.log(`Input: fireOnChange ${this.props.name}`);
       this.fireOnChange();
     }
   }
