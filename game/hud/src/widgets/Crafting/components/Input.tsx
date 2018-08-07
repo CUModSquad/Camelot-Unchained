@@ -5,7 +5,7 @@
  */
 
 import * as React from 'react';
-import { client } from '@csegames/camelot-unchained';
+import { client, jsKeyCodes } from '@csegames/camelot-unchained';
 import { StyleSheet, css, merge, input, InputStyles } from '../styles';
 
 interface InputProps {
@@ -33,7 +33,9 @@ class Input extends React.Component<InputProps, InputState> {
   }
 
   public componentWillReceiveProps(props: InputProps) {
-    this.setState({ changed: false, value: props.value });
+    if (props.value !== this.state.value) {
+      this.setState({ changed: false, value: props.value });
+    }
   }
 
   public render() {
@@ -58,7 +60,6 @@ class Input extends React.Component<InputProps, InputState> {
           onKeyUp={this.onKeyUp}
           onKeyDown={this.onKeyDown}
           onBlur={this.onBlur}
-          onClick={this.onClick}
           onFocus={this.onFocus}
           value={this.state.value}
           />
@@ -98,10 +99,6 @@ class Input extends React.Component<InputProps, InputState> {
     this.setState({ changed: true, value: e.target.value });
   }
 
-  private onClick = (e: React.MouseEvent<HTMLInputElement>) => {
-    client.RequestInputOwnership();
-  }
-
   private onFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     client.RequestInputOwnership();
   }
@@ -115,15 +112,15 @@ class Input extends React.Component<InputProps, InputState> {
 
   private onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (this.props.numeric) {
-      if (e.keyCode > 47 && e.keyCode < 58) return;
-      if (e.keyCode === 8 || e.keyCode === 13) return;
+      if (e.keyCode >= jsKeyCodes.ZERO && e.keyCode <= jsKeyCodes.NINE) return;
+      if (e.keyCode === jsKeyCodes.BACKSPACE || e.keyCode === jsKeyCodes.ENTER) return;
       e.preventDefault();
     }
   }
 
   private onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (this.state.changed) {
-      if (e.keyCode >= 32 || e.keyCode === 13) {
+      if (e.keyCode >= jsKeyCodes.SPACE || e.keyCode === jsKeyCodes.ENTER) {
         this.fireOnChange();
       }
     }
