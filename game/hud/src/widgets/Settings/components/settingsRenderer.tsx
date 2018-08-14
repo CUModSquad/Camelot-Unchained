@@ -5,9 +5,10 @@
  */
 
 import * as React from 'react';
-import { CheckBoxField } from '../../../components/UI/CheckBoxField';
-import { SliderField } from '../../../components/UI/SliderField';
-import { SubHeading } from '../../../components/UI/SubHeading';
+import { CheckBoxField } from 'UI/CheckBoxField';
+import { SliderField } from 'UI/SliderField';
+import { SubHeading } from 'UI/SubHeading';
+import { DropDownField, DropDownItem } from 'UI/DropDownField';
 
 interface Setting {
   type: React.Component | Function;
@@ -26,6 +27,9 @@ interface RenderSettingsProps {
   settings?: Settings;
   onToggle?: (id: string) => void;
   onChange?: (id: string, value: number) => void;
+  dropDownItemsDictionary?: { [configKey: string]: string[] };
+  selectedDropDownItemDictionary?: { [configKey: string]: string };
+  onSelectDropdownItem?: (item: DropDownItem) => void;
 }
 
 export function settingsRenderer(props: RenderSettingsProps) {
@@ -42,18 +46,40 @@ export function settingsRenderer(props: RenderSettingsProps) {
             if (config[key]) {    // ignore options that don't exist
               switch (setting.type) {
                 case CheckBoxField:
-                  return <CheckBoxField key={key} label={key} id={key} on={config[key] === 'true'}
+                  return (
+                    <CheckBoxField
+                      key={key}
+                      label={key}
+                      id={key}
+                      on={config[key] === 'true'}
                       onToggle={onToggle}
-                      />;
+                    />
+                  );
                 case SliderField:
-                  return <SliderField key={key} label={key} id={key}
+                  return (
+                    <SliderField
+                      key={key}
+                      label={key}
+                      id={key}
                       current={config[key] | 0}
                       min={setting.min}
                       max={setting.max}
                       step={setting.step}
                       logrithmic={setting.logrithmic}
                       onChange={onChange}
-                      />;
+                    />
+                  );
+                case DropDownField:
+                  return (
+                    <DropDownField
+                      key={key}
+                      id={key}
+                      label={key}
+                      selectedItem={props.selectedDropDownItemDictionary[key]}
+                      items={props.dropDownItemsDictionary[key]}
+                      onSelectItem={props.onSelectDropdownItem}
+                    />
+                  );
               }
             }
             break;

@@ -5,7 +5,7 @@
  */
 
 import configGroup from './config/configGroup';
-import { Race, Gender, Faction } from '..';
+import { Race, Gender, Faction, Archetype } from '..';
 import Item from './classes/Item';
 
 export interface EntityState {
@@ -34,6 +34,7 @@ export interface PlayerState extends EntityState {
   type: 'player';
   race: Race;
   gender: Gender;
+  class: Archetype;
   // health per body part, ordered according to the bodyParts enum found
   // in ../constants/bodyParts.ts -- TODO: use an enum from C# generated
   // through webAPI definitions.ts file
@@ -117,6 +118,11 @@ export interface SiegeState extends EntityState {
     current: number;
     max: number;
   };
+}
+
+export interface DisplayModeConfig {
+  width: number;
+  height: number;
 }
 
 interface clientInterface {
@@ -304,6 +310,12 @@ interface clientInterface {
   GetConfigVars(tag: configGroup): void;
 
   GetConfigVar(variable: string): void;
+
+  RequestDisplayModes(): void;
+
+  OnDisplayModesChanged(c: (displayModes: DisplayModeConfig[]) => void): void;
+
+  SetDisplayMode(wantFullScreen: boolean, width: number, height: number): void;
 
   /* Building | CUBE */
   OnBuildingModeChanged(c: (buildingMode: number) => void): void;

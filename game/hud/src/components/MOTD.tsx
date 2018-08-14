@@ -5,9 +5,13 @@
  */
 
 import * as React from 'react';
-import styled from 'react-emotion';
+import styled, { css } from 'react-emotion';
 import { ql, client } from '@csegames/camelot-unchained';
 import { GraphQL, GraphQLResult } from '@csegames/camelot-unchained/lib/graphql/react';
+import { CUQuery, MessageOfTheDay } from '@csegames/camelot-unchained/lib/graphql';
+import { CloseButton } from 'UI/CloseButton';
+
+const STORAGE_PREFIX = 'cse-MOTD-hide-start';
 
 const query = {
   namedQuery: 'motd',
@@ -149,21 +153,10 @@ const MOTDFooterRight = styled('div')` {
   width: 75px
 `;
 
-const CloseButton = styled('div')`
+const CloseButtonPosition = css`
   position: absolute;
-  z-index: 11;
   top: 6px;
   right: 7px;
-  width: 12px;
-  height: 12px;
-  background: url(images/inventory/close-button-grey.png) no-repeat;
-  cursor: pointer;
-  &:hover {
-    -webkit-filter: drop-shadow(2px 2px 2px rgba(255, 255, 255, 0.9));
-  }
-  &:active {
-    -webkit-filter: drop-shadow(2px 2px 2px rgba(255, 255, 255, 1));
-  }
 `;
 
 export interface WelcomeProps {
@@ -171,6 +164,8 @@ export interface WelcomeProps {
 }
 
 export interface WelcomeState {
+  visible: boolean;
+  storageInvalidate: string;
 }
 
 export interface WelcomeData {
@@ -186,32 +181,31 @@ class Welcome extends React.Component<WelcomeProps, WelcomeState> {
   constructor(props: WelcomeProps) {
     super(props);
     this.state = {
+      visible: false,
+      storageInvalidate: null,
     };
   }
 
   public render() {
     return (
-      <GraphQL query={query}>
+      <GraphQL query={query} onQueryResult={this.handleQueryResult}>
         {(graphql: GraphQLResult<{ motd: ql.schema.MessageOfTheDay }>) => {
           const gqlData = typeof graphql.data === 'string' ? JSON.parse(graphql.data) : graphql.data;
-          if (graphql.loading || !gqlData) return null;
+          if (graphql.loading || !gqlData || !this.state.visible) return null;
+          const latestMotd = gqlData.motd && gqlData.motd[gqlData.motd.length - 1];
 
           return (
             <Container>
               <MOTDTitle><h6>MOTD</h6></MOTDTitle>
               <InnerContainer className='cse-ui-scroller-thumbonly'>
-                <CloseButton onClick={this.hide} />
+                <CloseButton onClick={this.hide} className={CloseButtonPosition} />
                 <MOTDCorner />
                 <MOTDMotdTitle>
-                  <h4>{ gqlData && gqlData.motd && gqlData.motd[0]
-                    ? gqlData.motd[0].title
-                    : 'Welcome to Camelot Unchained'
-                  }</h4>
+                  <h4>{ latestMotd ? latestMotd.title : 'Welcome to Camelot Unchained' }</h4>
                 </MOTDMotdTitle>
                 <MOTDContent>
                       {
-                        gqlData && gqlData.motd && gqlData.motd[0]
-                        ? <div key='100' dangerouslySetInnerHTML={{ __html: gqlData.motd[0].htmlContent }} />
+                        latestMotd ? <div key='100' dangerouslySetInnerHTML={{ __html: latestMotd.htmlContent }} />
                         : this.defaultMessage
                       }
                 </MOTDContent>
@@ -221,7 +215,7 @@ class Welcome extends React.Component<WelcomeProps, WelcomeState> {
                       <MOTDFooterLeft />
                       <MOTDButton
                         className='btn'
-                        onClick={this.hideDelay}>
+                        onClick={() => this.onHideDelayClick(latestMotd)}>
                         Dismiss for 24h
                       </MOTDButton>
                       <MOTDFooterRight />
@@ -234,14 +228,54 @@ class Welcome extends React.Component<WelcomeProps, WelcomeState> {
       </GraphQL>
     );
   }
+
+  private handleQueryResult = (result: GraphQLResult<Pick<CUQuery, 'motd'>>) => {
+    const gqlData = typeof result.data === 'string' ? JSON.parse(result.data) : result.data;
+    const latestMotd = gqlData.motd && gqlData.motd[gqlData.motd.length - 1];
+    this.initMotd(latestMotd);
+  }
+
+  private initMotd = (motd: MessageOfTheDay) => {
+    // manage visibility of motd widget based on localStorage
+    try {
+      const delayInMin: number = 24 * 60;
+      const motdStoragePayload = localStorage.getItem(`${STORAGE_PREFIX}-${client.characterID}`);
+      if (motdStoragePayload) {
+        const { hideDelayStart, storageInvalidate } = JSON.parse(motdStoragePayload);
+
+        if (motd && storageInvalidate !== motd.id) {
+          // Message of the day has changed, override the 24h dismiss to show the new message
+          this.setState({ visible: true });
+          return;
+        }
+
+        const currentDate: Date = new Date();
+        const savedDelayDate: Date = new Date(hideDelayStart);
+        savedDelayDate.setTime(savedDelayDate.getTime() + (delayInMin * 60 * 1000));
+        if (currentDate > savedDelayDate) {
+          // It has been longer than 24h since last dismiss. Show the motd.
+          this.setState({ visible: true });
+        }
+      } else {
+        this.setState({ visible: true });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   private hide = (): void => {
     this.props.setVisibility(false);
   }
 
-  private hideDelay = (): void => {
+  private onHideDelayClick = (motd: MessageOfTheDay): void => {
     this.hide();
     const hideDelayStart: Date = new Date();
-    localStorage.setItem('cse-welcome-hide-start', JSON.stringify(hideDelayStart));
+    const motdStoragePayload = {
+      hideDelayStart,
+      storageInvalidate: motd ? motd.id : '',
+    };
+    localStorage.setItem(`${STORAGE_PREFIX}-${client.characterID}`, JSON.stringify(motdStoragePayload));
   }
 }
 

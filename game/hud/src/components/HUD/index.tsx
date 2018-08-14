@@ -8,9 +8,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import styled from 'react-emotion';
 import { client, events, PlayerState } from '@csegames/camelot-unchained';
-import { useConfig } from '@csegames/camelot-unchained/lib/graphql/react';
-// import { graphql } from 'react-apollo';
 import { ErrorBoundary } from '@csegames/camelot-unchained/lib/components/ErrorBoundary';
+import { hot } from 'react-hot-loader';
 
 import DragStore from '../DragAndDrop/DragStore';
 import {
@@ -31,32 +30,17 @@ import ScenarioPopup from '../ScenarioPopup';
 import ScenarioResults from '../ScenarioResults';
 
 import { ZoneName } from '../ZoneName';
+import HUDEditor from './HUDEditor';
 
 // TEMP -- Disable this being movable/editable
 import HUDNav from '../../services/session/layoutItems/HUDNav';
 import Console from '../Console';
 import { InteractiveAlertView } from '../InteractiveAlert';
 import { ContextMenu } from '../ContextMenu';
-import { Tooltip } from '../Tooltip';
+import { Tooltip } from 'UI/Tooltip';
 import PassiveAlert from '../PassiveAlert';
 
-useConfig({
-  url: `${client.apiHost}/graphql`,
-  requestOptions: {
-    headers: {
-      loginToken: client.loginToken,
-      shardID: `${client.shardID}`,
-      characterID: client.characterID,
-    },
-  },
-}, {
-  url: client.apiHost.replace('http', 'ws') + '/graphql',
-  initPayload: {
-    shardID: client.shardID,
-    loginToken: client.loginToken,
-    characterID: client.characterID,
-  },
-});
+import { HUDContext, HUDContextState, defaultContextState, fetchSkills, fetchStatuses } from './context';
 
 const HUDNavContainer = styled('div')`
   position: fixed;
@@ -65,6 +49,7 @@ const HUDNavContainer = styled('div')`
   width: 900px;
   height: 200px;
   pointer-events: none;
+  z-index: 999;
 `;
 
 const ZoneNameContainer = styled('div')`
@@ -82,6 +67,11 @@ const SkillBarContainer = styled('div')`
   pointer-events: none;
 `;
 
+interface HUDWidget<T = any> {
+  widget: Widget<T>;
+  name: string;
+}
+
 export interface HUDProps {
   dispatch: (action: any) => void;
   layout: LayoutState;
@@ -89,10 +79,18 @@ export interface HUDProps {
   data?: any;
 }
 
-export interface HUDState {
+export interface HUDState extends HUDContextState {
+  selectedWidget: HUDWidget | null;
 }
 
 class HUD extends React.Component<HUDProps, HUDState> {
+  constructor(props: HUDProps) {
+    super(props);
+    this.state = {
+      selectedWidget: null,
+      ...defaultContextState,
+    };
+  }
   public render() {
     const widgets = this.props.layout.widgets.map((widget, name) => ({ widget, name })).toArray();
     const locked = this.props.layout.locked;
@@ -100,39 +98,55 @@ class HUD extends React.Component<HUDProps, HUDState> {
                     .sort((a, b) => a.widget.position.zOrder - b.widget.position.zOrder)
                     .map((w, idx) =>
                       this.draggable(w.name, w.widget, w.widget.component, w.widget.dragOptions, w.widget.props));
+
     return (
-      <div className='HUD' style={locked ? {} : { backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
-        {renderWidgets}
-        <DragStore />
-        <ZoneNameContainer>
-          <ZoneName />
-        </ZoneNameContainer>
-        <Console />
+      <HUDContext.Provider value={this.state}>
+        <div className='HUD' style={locked ? {} : { backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
+          {renderWidgets}
+          <DragStore />
+          <ZoneNameContainer>
+            <ZoneName />
+          </ZoneNameContainer>
+          <Console />
 
-        <HUDNavContainer>
-          <HUDNav.component {...HUDNav.props} />
-        </HUDNavContainer>
+          <HUDNavContainer>
+            <HUDNav.component {...HUDNav.props} />
+          </HUDNavContainer>
 
-        <InteractiveAlertView />
-        <DevUI />
-        <ScenarioPopup />
+          <DevUI />
+          <InteractiveAlertView />
+          <ScenarioPopup />
 
-        <ScenarioResults />
-        <HUDFullScreen />
-        <SkillBarContainer>
-          <SkillBar />
-        </SkillBarContainer>
-        <ContextMenu />
-        <Tooltip />
-        <PassiveAlert />
-        <Watermark />
-      </div>
+          <ScenarioResults />
+
+          <HUDFullScreen />
+          <SkillBarContainer>
+            <SkillBar />
+          </SkillBarContainer>
+          <ContextMenu />
+          <Tooltip />
+          <PassiveAlert />
+          { locked ? null :
+            <HUDEditor
+              widgets={widgets}
+              selectedWidget={ this.state.selectedWidget ? this.state.selectedWidget : null }
+              dispatch={this.props.dispatch}
+              setSelectedWidget={this.setSelectedWidget}
+            />
+          }
+          <Watermark />
+        </div>
+      </HUDContext.Provider>
     );
   }
 
   public componentDidMount() {
+    // Always load MOTD
+    this.setVisibility('motd', true);
+
     this.props.dispatch(initialize());
     this.props.dispatch(initializeInvites());
+    this.initGraphQLContext();
 
     if (client && client.OnPlayerStateChanged) {
 
@@ -145,19 +159,6 @@ class HUD extends React.Component<HUDProps, HUDState> {
           this.setVisibility('respawn', false);
         }
       });
-    }
-
-    // manage visibility of motd widget based on localStorage
-    this.setVisibility('motd', true);
-    try {
-      const delayInMin: number = 24 * 60;
-      const savedDelay = localStorage.getItem('cse-MOTD-hide-start');
-      const currentDate: Date = new Date();
-      const savedDelayDate: Date = new Date(JSON.parse(savedDelay));
-      savedDelayDate.setTime(savedDelayDate.getTime() + (delayInMin * 60 * 1000));
-      if (currentDate < savedDelayDate) this.setVisibility('motd', false);
-    } catch (error) {
-      console.log(error);
     }
   }
 
@@ -175,6 +176,21 @@ class HUD extends React.Component<HUDProps, HUDState> {
         events.fire('chat-show-room', props.data.myOrder.name);
       }
     }
+  }
+
+  private setSelectedWidget = (selectedWidget: HUDWidget) => {
+    this.setState({ selectedWidget });
+  }
+
+  private initGraphQLContext = async () => {
+    const skills = await fetchSkills();
+    const statuses = await fetchStatuses();
+    this.setState(() => {
+      return {
+        skills,
+        statuses,
+      };
+    });
   }
 
   private setVisibility = (widgetName: string, vis: boolean) => {
@@ -200,8 +216,10 @@ class HUD extends React.Component<HUDProps, HUDState> {
           defaultOpacity={widget.position.opacity}
           defaultMode={widget.position.layoutMode}
           defaultVisible={widget.position.visibility}
+          zOrder={widget.position.zOrder}
           gridDivisions={10}
           locked={this.props.layout.locked}
+          selected={this.state.selectedWidget && this.state.selectedWidget.name === type}
           save={(s: HUDDragState) => {
             this.props.dispatch(setPosition({
               name: type,
@@ -230,9 +248,8 @@ class HUD extends React.Component<HUDProps, HUDState> {
       </ErrorBoundary>
     );
   }
-}
 
-const HUDWithQL: any = HUD; // graphql(ql.queries.MySocial)(HUD);
+}
 
 function select(state: SessionState) {
   return {
@@ -241,4 +258,4 @@ function select(state: SessionState) {
   };
 }
 
-export default connect(select)(HUDWithQL);
+export default hot(module)(connect(select)(HUD));

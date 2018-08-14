@@ -113,7 +113,7 @@ export class WarbandDisplay extends React.Component<WarbandDisplayProps, Warband
   }
 
   private static memberCompare(a: GroupMemberState, b: GroupMemberState): boolean {
-    return a.characterID === b.characterID;
+    return a.id === b.id || a.name === b.name || a.characterID === b.characterID;
   }
 
   private static getAvatar(gender: Gender, race: Race) {
@@ -168,7 +168,6 @@ export class WarbandDisplay extends React.Component<WarbandDisplayProps, Warband
   }
 
   private onWarbandJoined = (id: string) => {
-    events.fire('chat-show-room', id);
     this.setState({
       ...(WarbandDisplay.emptyWarband()),
       warbandID: id,
@@ -177,15 +176,12 @@ export class WarbandDisplay extends React.Component<WarbandDisplayProps, Warband
   }
 
   private onWarbandQuit = (id: string) => {
-    events.fire('chat-leave-room', id);
-
     if (getActiveWarbandID() === id) {
       setActiveWarbandID(null);
     }
 
     this.setState((state) => {
       if (state.warbandID !== id) return state;
-      console.log('warband quit!!');
       return {
         ...(WarbandDisplay.emptyWarband()),
       };

@@ -12,10 +12,53 @@ import { GraphQL, GraphQLResult } from '@csegames/camelot-unchained/lib/graphql/
 import { request } from '@csegames/camelot-unchained/lib/utils/request';
 import * as events from '@csegames/camelot-unchained/lib/events';
 import client from '@csegames/camelot-unchained/lib/core/client';
+import { FullScreenContext } from '../../lib/utils';
 
 declare const ol: typeof OL;
 
 const Container = styled('div')`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: url(images/map/map_bg.jpg);
+  background-size: cover;
+`;
+
+const LoadingContainer = styled('div')`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+`;
+
+const LoadingText = styled('div')`
+  font-size: 22px;
+  color: white;
+`;
+
+const RetryButton = styled('button')`
+  font-size: 22px;
+  display: block;
+  background: rgba(255,0,0,0.4);
+  border: none;
+  color: white !important;
+  border-radius: 5px;
+  padding: 10px;
+  margin-top: 25px !important;
+  &:hover {
+    background: rgba(255,0,0,0.6);
+  }
+  &:focus {
+    outline: 0;
+    outline-color: transparent;
+    outline-style: none;
+  }
 `;
 
 const query = `
@@ -69,13 +112,14 @@ interface MapMetadata {
   ScalePxToM: number;
 }
 
-
 export interface Props {
-
+  visibleComponentLeft: string;
+  visibleComponentRight: string;
 }
 
 export interface State {
-  updateMap: boolean;
+  loading: boolean;
+  failedToLoad: boolean;
 }
 
 type Coord = [number, number];
@@ -95,16 +139,30 @@ export class GameMap extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      updateMap: false,
+      loading: true,
+      failedToLoad: false,
     };
   }
 
   public render() {
+    const { visibleComponentLeft, visibleComponentRight } = this.props;
     return (
       <Container style={{ position: 'relative' }}>
         <div id='worldmap' ref={r => this.mapRef = r} ></div>
         <div id='maptooltip' className='map-tooltip' ref={r => this.tooltipRef = r}></div>
-        {this.state.updateMap ?
+        {this.state.loading &&
+          <LoadingContainer>
+            {this.state.failedToLoad ? (
+              <>
+                <LoadingText>Failed To Load Map Data</LoadingText>
+                <RetryButton onClick={this.fetchMetaData}>RELOAD</RetryButton>
+              </>
+            ) : (
+              <LoadingText>Fetching Map Data...</LoadingText>
+            )}
+          </LoadingContainer>
+        }
+        {this.metadata && (visibleComponentLeft === 'map-left' || visibleComponentRight === 'map-right') ?
           <GraphQL
             query={{
               query,
@@ -125,8 +183,6 @@ export class GameMap extends React.Component<Props, State> {
       this.zoneID = id;
       this.fetchMetaData();
     });
-
-    this.navigationEventHandle = events.on('hudnav--navigate', this.handleNavigationEvent);
   }
 
   public componentWillUnmount() {
@@ -144,31 +200,24 @@ export class GameMap extends React.Component<Props, State> {
   }
 
   public shouldComponentUpdate(nextProps: Props, nextState: State) {
-    if (this.state.updateMap !== nextState.updateMap) return true;
+    if (this.props.visibleComponentLeft !== nextProps.visibleComponentLeft) return true;
+    if (this.props.visibleComponentRight !== nextProps.visibleComponentRight) return true;
+    if (this.state.loading !== nextState.loading) return true;
+    if (this.state.failedToLoad !== nextState.failedToLoad) return true;
     if (this.initialized) return false;
     return true;
   }
 
-  private handleNavigationEvent = (name: string) => {
-    if (name === 'map') {
-      this.setState({
-        updateMap: true,
-      });
-    } else {
-      if (this.state.updateMap) {
-        this.setState({
-          updateMap: false,
-        });
-      }
-    }
-  }
-
   private fetchMetaData = () => {
+    this.setState({
+      failedToLoad: false,
+    });
     request('get', `https://s3.amazonaws.com/camelot-unchained/map/zone/${this.zoneID}/metadata.json`)
       .then((result) => {
         if (!result.ok) {
-          console.error(result.statusText);
-          setTimeout(() => this.fetchMetaData(), 5000);
+          this.setState({
+            failedToLoad: true,
+          });
           return;
         }
         this.metadata = result.json();
@@ -178,11 +227,17 @@ export class GameMap extends React.Component<Props, State> {
 
   private onQueryResult = (graphql: GraphQLResult<Pick<CUQuery, 'world'>>) => {
     if (!this.map || graphql.loading || !graphql.data) {
+      if (!this.state.loading) {
+        this.setState({ loading: true });
+      }
       return;
     }
 
     if (!graphql.data.world || !graphql.data.world.map) {
       // no map data, so nothing to do
+      if (!this.state.loading) {
+        this.setState({ loading: true });
+      }
       return;
     }
 
@@ -219,6 +274,10 @@ export class GameMap extends React.Component<Props, State> {
       if (features.length > 0) {
         this.dynamicVectorSource.clear();
         this.dynamicVectorSource.addFeatures(features);
+      }
+
+      if (this.state.loading) {
+        this.setState({ loading: false });
       }
     }
   }
@@ -302,4 +361,18 @@ export class GameMap extends React.Component<Props, State> {
   }
 }
 
-export default GameMap;
+class GameMapWithInjectedContext extends React.Component<{}> {
+  public render() {
+    return (
+      <FullScreenContext.Consumer>
+        {({ visibleComponentLeft, visibleComponentRight }) => {
+          return (
+            <GameMap visibleComponentLeft={visibleComponentLeft} visibleComponentRight={visibleComponentRight} />
+          );
+        }}
+      </FullScreenContext.Consumer>
+    );
+  }
+}
+
+export default GameMapWithInjectedContext;

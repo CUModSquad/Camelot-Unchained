@@ -13,49 +13,42 @@ export const HeaderFoundation = css`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: url(images/inventory/title-bg.png);
+  background: linear-gradient(to right,rgba(220, 141, 88, 0.60), transparent ), url(images/inventory/title-bg.png);
   background-size: cover;
-  padding: 0 20px;
+  padding: 20px 20px;
   z-index: 1;
   -webkit-mask-image: url(images/inventory/title-mask.png);
   -webkit-mask-size: cover;
-  box-shadow: inset 0 0px 67px rgba(0,0,0,0.6);
+  box-shadow: inset 0px 0px 60px rgba(0,0,0,0.8);
+  font-family: Caudex;
+  color: #FFE7BB;
+  font-size: 18px;
+  letter-spacing: 5px;
 `;
 
 export const HeaderBorderFoundation = css`
   position: absolute;
-  top: 6px;
-  left: 6px;
-  bottom: 6px;
+  top: 5px;
+  left: 5px;
+  bottom: 5px;
   width: 100%;
   border-top-width: 1px;
   border-bottom-width: 1px;
   border-left-width: 1px;
   border-right-width: 0px;
   border-style: solid;
-  z-index: -1;
 `;
 
 const Container = styled('div')`
   ${HeaderFoundation}
-  max-height: 50px;
-  min-height: 50px;
   z-index: 2;
-  background: linear-gradient(to right,rgba(189,121,75,0.6),transparent),
+  background: linear-gradient(to right,rgba(220,141,88,0.6),transparent),
     url(images/inventory/title-bg.png) no-repeat;
   &:before {
     content: '';
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
-    border-image: linear-gradient(to right, rgba(222, 194, 146, 0.2), transparent) 10% 1%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+    border-image: linear-gradient(to right, rgba(255, 255, 255, 0.1), transparent) 10% 1%;
     ${HeaderBorderFoundation}
-  }
-  &:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
   }
 `;
 
@@ -64,8 +57,8 @@ const HeaderOrnament = styled('div')`
   top: 0px;
   left: 0px;
   bottom: 0px;
-  height: 50px;
   width: 45px;
+  padding: 20px 0;
   background: url(images/inventory/title-ornament.png) no-repeat;
   background-size: contain;
   z-index: 2;
@@ -90,8 +83,8 @@ const HeaderOrnament = styled('div')`
 `;
 
 const HeaderTitle = styled('div')`
-  color: #DEC292;
-  font-size: 20px;
+  color: #ffe7bb;
+  font-size: 18px;
   font-family: Caudex;
   letter-spacing: 5px;
 `;

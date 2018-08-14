@@ -98,7 +98,15 @@ function registerPatcherHubEvents(dispatch: (action: ControllerAction) => any) {
   });
 
   events.on(signalr.PATCHER_EVENTS_CHARACTERREMOVED, (id: string) => dispatch(characterRemoved(id)));
+}
 
+function registerOtherPatcherHubEvents(dispatch: (action: ControllerAction) => any) {
+  events.on(signalr.PATCHER_EVENTS_CHARACTERUPDATED, (characterJSON: string) => {
+    const character = utils.tryParseJSON<webAPI.SimpleCharacter>(characterJSON, client.debug);
+    if (character !== null) dispatch(characterUpdate(character));
+  });
+
+  events.on(signalr.PATCHER_EVENTS_CHARACTERREMOVED, (id: string) => dispatch(characterRemoved(id)));
 }
 
 function webAPIServerToPatcherServer(server: webAPI.ServerModel): PatcherServer {
@@ -198,6 +206,21 @@ export const reset = module.createAction({
   reducer: () => initialState(),
 });
 
+function onPatcherSignalRStart(dispatch: (action: ControllerAction) => any) {
+  registerPatcherHubEvents(dispatch);
+  dispatch(initSignalRSuccess() as ControllerAction);
+  dispatch(getChannels());
+  // update channel info on a timer...
+  if (channelUpdateInterval === null) {
+    channelUpdateInterval = setInterval(() => dispatch(getChannels()), 500);
+  }
+}
+
+function onOtherPatcherSignalRStart(dispatch: (action: ControllerAction) => any) {
+  registerOtherPatcherHubEvents(dispatch);
+  dispatch(initSignalRSuccess() as ControllerAction);
+}
+
 export const initialize = module.createAction({
   type: 'controller/initialize',
   action: () => {
@@ -208,32 +231,29 @@ export const initialize = module.createAction({
       try {
         // Connect to main signalr patcher hub
         signalr.patcherHub.start(() => {
-          dispatch(initSignalRSuccess() as ControllerAction);
-          registerPatcherHubEvents(dispatch);
-          dispatch(getChannels());
-          // update channel info on a timer...
-          if (channelUpdateInterval === null) {
-            channelUpdateInterval = setInterval(() => dispatch(getChannels()), 500);
-          }
+          onPatcherSignalRStart(dispatch);
         });
       } catch (e) {
         console.error(e);
         dispatch(initSignalRFailed() as ControllerAction);
       }
 
-        // Connect to all server's patcher hubs
-        webAPI.ServersAPI.GetServersV1(webAPI.defaultConfig).then((res) => {
-          if (res.ok) {
-            const servers = JSON.parse(res.data);
-            servers.forEach((server) => {
-              try {
-                signalr.createPatcherHub(server.apiHost + '/signalr').start();
-              } catch (e) {
-                console.error(e);
-              }
-            });
-          }
-        });
+      // Connect to all server's patcher hubs
+      webAPI.ServersAPI.GetServersV1(webAPI.defaultConfig).then((res) => {
+        if (res.ok) {
+          const servers: PatcherServer[] = JSON.parse(res.data);
+          servers.forEach((server) => {
+            try {
+              signalr.createPatcherHub(server.apiHost + '/signalr').start(() => {
+                onOtherPatcherSignalRStart(dispatch);
+              });
+            } catch (e) {
+              console.error(e);
+              dispatch(initSignalRFailed() as ControllerAction);
+            }
+          });
+        }
+      });
     };
   },
 });

@@ -6,8 +6,21 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { ql, client, utils, events, TabItem, Faction, Vec3F, Euler3f, ItemPermissions } from '@csegames/camelot-unchained';
 import { SecureTradeState } from '@csegames/camelot-unchained/lib/graphql/schema';
+import {
+  ql,
+  client,
+  utils,
+  events,
+  TabItem,
+  Faction,
+  Vec3F,
+  Euler3f,
+  Race,
+  Gender,
+  Archetype,
+  ItemPermissions,
+} from '@csegames/camelot-unchained';
 
 import { inventoryFilterButtons, colors, nullVal, emptyStackHash } from './constants';
 import { DrawerCurrentStats } from '../components/Inventory/components/Containers/Drawer';
@@ -692,7 +705,9 @@ export function getContainerColor(item: InventoryItemFragment, alpha?: number) {
     }
   }
 
-  console.error('You provided an undefined item to getContainerColor() function');
+  if (!item) {
+    console.error('You provided an undefined item to getContainerColor() function');
+  }
 }
 
 export function getTooltipColor(faction: Faction) {
@@ -845,6 +860,7 @@ export function isCraftingSlotVerified(dragDataTransfer: InventoryDataTransfer,
 }
 
 export interface FullScreenNavState {
+  initial: boolean;
   visibleComponentLeft: string;
   visibleComponentRight: string;
   inventoryItems: InventoryItemFragment[];
@@ -855,6 +871,10 @@ export interface FullScreenNavState {
   stackGroupIdToItemIDs: {[id: string]: string[]};
   tabsLeft: TabItem<{ title: string }>[];
   tabsRight: TabItem<{ title: string }>[];
+  invBodyDimensions: {
+    width: number;
+    height: number;
+  };
 }
 
 export interface HUDFullScreenTabData {
@@ -881,6 +901,7 @@ export const defaultTabsRight: TabItem<HUDFullScreenTabData>[] = [
 ];
 
 export const defaultFullScreenState: FullScreenNavState = {
+  initial: true,
   visibleComponentLeft: '',
   visibleComponentRight: '',
   inventoryItems: null,
@@ -891,6 +912,7 @@ export const defaultFullScreenState: FullScreenNavState = {
   myTradeState: 'None',
   tabsLeft: defaultTabsLeft,
   tabsRight: defaultTabsRight,
+  invBodyDimensions: { width: 0, height: 0 },
 };
 
 export const FullScreenContext = React.createContext(defaultFullScreenState);
@@ -903,4 +925,69 @@ export function requestUIKeydown() {
 export function releaseUIKeydown() {
   const shouldFullscreenListen = true;
   events.fire('hudfullscreen-shouldListenKeydown', shouldFullscreenListen);
+}
+
+export function isRightOrLeftItem(gearSlots: GearSlotDefRefFragment[]) {
+  if (gearSlots.length === 1) {
+    const firstGearSlotId = gearSlots[0].id;
+    return _.includes(firstGearSlotId.toLowerCase(), 'right') ||
+    _.includes(firstGearSlotId.toLowerCase(), 'left') ||
+    _.includes(firstGearSlotId.toLowerCase(), 'primary') ||
+    _.includes(firstGearSlotId.toLowerCase(), 'secondary');
+  }
+  return false;
+}
+
+export function getPaperDollBG(faction: Faction) {
+  let paperdollBG = '';
+  switch (faction) {
+    case Faction.Arthurian: {
+      paperdollBG = 'bg-art';
+      break;
+    }
+    case Faction.TDD: {
+      paperdollBG = 'bg-tdd';
+      break;
+    }
+    case Faction.Viking: {
+      paperdollBG = 'bg-vik';
+      break;
+    }
+  }
+
+  return `images/paperdoll/bg/${paperdollBG}.png`;
+}
+
+export function getPaperDollIcon(gender: Gender, race: Race, playerClass: Archetype) {
+  const formatGender = gender === Gender.Male ? 'm' : 'f';
+  let formatRace = Race[race] ? Race[race].toLowerCase() : '';
+
+  if (_.includes(formatRace, 'human')) {
+    formatRace = 'human';
+  }
+  const formatPlayerClass = Archetype[playerClass] ? Archetype[playerClass].toLowerCase() : '';
+  return `images/paperdoll/standing/${formatRace}-${formatGender}-${formatPlayerClass}.png`;
+}
+
+export function getPaperDollBaseIcon(faction: Faction) {
+  let formatFaction = '';
+  switch (faction) {
+    case Faction.Arthurian: {
+      formatFaction = 'art';
+      break;
+    }
+    case Faction.TDD: {
+      formatFaction = 'tdd';
+      break;
+    }
+    case Faction.Viking: {
+      formatFaction = 'vik';
+      break;
+    }
+    default: {
+      formatFaction = 'art';
+      break;
+    }
+  }
+  return `images/paperdoll/base/${formatFaction}-base.png`;
 }

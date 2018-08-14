@@ -13,7 +13,7 @@ import { ql, webAPI, client } from '@csegames/camelot-unchained';
 import LockedOverlay from './LockedOverlay';
 import withDragAndDrop, { DragAndDropInjectedProps, DragEvent } from '../../../../../components/DragAndDrop/DragAndDrop';
 import InventoryRow from '../../Inventory/components/InventoryRow';
-import { SlotType, InventorySlotItemDef } from '../../../lib/itemInterfaces';
+import { SlotType, InventorySlotItemDef, SlotItemDefType } from '../../../lib/itemInterfaces';
 import { InventoryDataTransfer } from '../../../lib/eventNames';
 import { InventoryItemFragment } from '../../../../../gqlInterfaces';
 import {
@@ -94,8 +94,8 @@ const Footer = styled('div')`
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  background: ${(props: any) => props.useGrayBG ? 'url(images/inventory/bag-bottom-bg-grey.png)' :
-    'url(images/inventory/bag-bottom-bg.png)'};
+  background: ${(props: any) => props.useGrayBG ? 'url(images/inventory/bag-bottom-bg-grey.png) no-repeat' :
+    'url(images/inventory/bag-bottom-bg.png) no-repeat'};
   background-size: cover;
   width: 100%;
   height: 36px;
@@ -104,7 +104,7 @@ const Footer = styled('div')`
 
 const FooterItem = styled('div')`
   display: flex;
-  color: ${(props: any) =>  props.useGrayBG ? '#999999' : '#F6C773'};
+  color: ${(props: any) =>  props.useGrayBG ? '#999999' : '#998675'};
   font-family: Caudex;
   margin-right: 10px;
 `;
@@ -125,6 +125,8 @@ export interface TradeDropContainerProps extends DragAndDropInjectedProps {
   bodyHeight: number;
   bodyWidth: number;
   onTradeItemsChange?: (items: InventoryItemFragment[]) => void;
+  showTooltip: (item: SlotItemDefType, event: MouseEvent) => void;
+  hideTooltip: () => void;
   useGrayBG?: boolean;
   getRef?: (ref: HTMLDivElement) => void;
 }
@@ -164,8 +166,7 @@ class TradeContainer extends React.Component<TradeDropContainerComponentProps, T
 
     return (
       <Container useGrayBG={useGrayBG}>
-        <BackgroundImage
-          src={useGrayBG ? 'images/inventory/bag-bg-grey.png' : 'images/inventory/bag-bg.png'} />
+        <BackgroundImage src={useGrayBG ? 'images/inventory/bag-bg-grey.png' : 'images/inventory/bag-bg.png'} />
         <Content innerRef={getRef}>
           {(tradeState === 'Locked' || tradeState === 'Confirmed' || tradeState === 'None') &&
             <LockedContainer>
@@ -176,13 +177,16 @@ class TradeContainer extends React.Component<TradeDropContainerComponentProps, T
           <InventoryRow
             items={rowItems || []}
             bodyWidth={bodyWidth}
+            showTooltip={this.props.showTooltip}
+            hideTooltip={this.props.hideTooltip}
+            onRightClickItem={this.onRightClick}
             onContainerIdToDrawerInfoChange={() => {}}
             onChangeStackGroupIdToItemIDs={() => {}}
-            onRightClickItem={this.onRightClick}
             onChangeInventoryItems={() => {}}
             onDropOnZone={() => {}}
             onMoveStack={() => {}}
             syncWithServer={() => {}}
+            onRightOrLeftItemAction={() => {}}
           />
         </Content>
         <Footer useGrayBG={useGrayBG}>

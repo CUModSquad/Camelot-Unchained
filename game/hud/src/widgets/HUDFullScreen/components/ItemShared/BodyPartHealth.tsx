@@ -6,9 +6,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import * as classNames from 'classnames';
-import styled, { css } from 'react-emotion';
-import { characterBodyPartIcons } from '../../lib/constants';
+import styled from 'react-emotion';
+import { client, bodyParts } from '@csegames/camelot-unchained';
 
 export interface BodyPartHealthStyles {
   healthInfoContainer: React.CSSProperties;
@@ -21,13 +20,44 @@ export interface BodyPartHealthStyles {
 }
 
 const HealthInfoContainer = styled('div')`
+  position: relative;
   display: flex;
+  justify-content: space-around;
+  width: 50%;
+  &:before {
+    content: '';
+    width: 100%;
+    height: 13px;
+    position: absolute;
+    top: -15px;
+    right: 0;
+    left: 0;
+    background: url(images/paperdoll/ornament-health-mid-top.png) no-repeat;
+    background-size: contain;
+  }
+  &:after {
+    content: '';
+    width: 100%;
+    height: 13px;
+    position: absolute;
+    right: 0;
+    bottom: -15px;
+    left: 0;
+    background: url(images/paperdoll/ornament-health-mid-bot.png) no-repeat;
+    background-size: contain;
+  }
+`;
+
+const SectionContainer = styled('div')`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 const HealthCompContainer = styled('div')`
   display: flex;
   align-items: center;
-  margin-right: 25px;
+  margin-bottom: ${(props: { marginBottom: number }) => props.marginBottom}px;
 `;
 
 const HealthCompInfo = styled('div')`
@@ -38,17 +68,20 @@ const HealthCompInfo = styled('div')`
 const HealthCompSecondaryText = styled('div')`
   margin: 0;
   padding: 0;
-  color: #6F7581;
-  font-size: 12px;
+  color: #707475;
+  font-size: 14px;
+  font-family: TitilliumWeb;
 `;
 
 const Icon = styled('div')`
-  font-size: 24px;
-`;
-
-const FlipIcon = css`
-  transform: scaleX(-1);
-  -webkit-transform: scaleX(-1);
+  font-size: 14px;
+  font-family: TitilliumWeb;
+  color: #707475;
+  margin-right: 5px;
+  &.isRightPart {
+    transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+  }
 `;
 
 export interface MaxHealthPartsInfo {
@@ -78,42 +111,63 @@ export const healthBodyParts = {
   rightLeg: HealthBodyParts.RightLeg,
 };
 
+interface BodyPartItemProps {
+  isRightPart: boolean;
+  bodyPart: bodyParts;
+  iconName: string;
+  marginBottom?: number;
+}
+
+class BodyPartItem extends React.PureComponent<BodyPartItemProps> {
+  public render() {
+    const { isRightPart, iconName, marginBottom } = this.props;
+
+    return (
+      <HealthCompContainer marginBottom={marginBottom}>
+        <Icon className={(isRightPart ? 'isRightPart' : '') + ` ${iconName}`} />
+        <HealthCompInfo>
+          <HealthCompSecondaryText>
+            HP {this.getMaxHealth()}
+          </HealthCompSecondaryText>
+        </HealthCompInfo>
+      </HealthCompContainer>
+    );
+  }
+
+  private getMaxHealth = () => {
+    const { bodyPart } = this.props;
+    if (client.playerState.health[bodyPart]) {
+      return client.playerState.health[bodyPart].max;
+    }
+
+    return 'N/A';
+  }
+}
+
 class BodyPartHealth extends React.Component<BodyPartHealthProps, {}> {
   public render() {
     return (
       <HealthInfoContainer>
-        {Object.keys(healthBodyParts).map((healthComponent: string, i: number) => {
-          const isRightPart = _.includes(healthComponent.toLowerCase(), 'right');
-          const name = healthComponent.substr(0).toUpperCase() + healthComponent.substr(1, healthComponent.length);
-          return (
-            <HealthCompContainer key={i}>
-              <Icon className={classNames(isRightPart ? FlipIcon : '', characterBodyPartIcons[name])} />
-              <HealthCompInfo>
-                <HealthCompSecondaryText>
-                  hp {this.getMaxHealthForBodyPart(healthBodyParts[healthComponent]) || 'N/A'}
-                </HealthCompSecondaryText>
-              </HealthCompInfo>
-            </HealthCompContainer>
-          );
-        })}
+        <SectionContainer>
+          <BodyPartItem marginBottom={5} isRightPart={false} bodyPart={bodyParts.LEFTARM} iconName={'icon-health-arm'} />
+          <BodyPartItem isRightPart={true} bodyPart={bodyParts.RIGHTARM} iconName={'icon-health-arm'} />
+        </SectionContainer>
+
+        <SectionContainer>
+          <BodyPartItem marginBottom={5} isRightPart={false} bodyPart={bodyParts.HEAD} iconName={'icon-health-head'} />
+          <BodyPartItem isRightPart={false} bodyPart={bodyParts.TORSO} iconName={'icon-health-torso'} />
+        </SectionContainer>
+
+        <SectionContainer>
+          <BodyPartItem marginBottom={5} isRightPart={false} bodyPart={bodyParts.LEFTLEG} iconName={'icon-health-leg'} />
+          <BodyPartItem isRightPart={true} bodyPart={bodyParts.RIGHTLEG} iconName={'icon-health-leg'} />
+        </SectionContainer>
       </HealthInfoContainer>
     );
   }
 
   public shouldComponentUpdate(nextProps: BodyPartHealthProps) {
     return !_.isEqual(this.props, nextProps);
-  }
-
-  private getMaxHealthForBodyPart = (healthComponent: HealthBodyParts) => {
-    const { maxHealthParts } = this.props;
-    switch (healthComponent) {
-      case HealthBodyParts.Head: return maxHealthParts['HEAD'];
-      case HealthBodyParts.Torso: return maxHealthParts['TORSO'];
-      case HealthBodyParts.LeftArm: return maxHealthParts['LEFTARM'];
-      case HealthBodyParts.RightArm: return maxHealthParts['RIGHTARM'];
-      case HealthBodyParts.LeftLeg: return maxHealthParts['LEFTLEG'];
-      case HealthBodyParts.RightLeg: return maxHealthParts['RIGHTLEG'];
-    }
   }
 }
 

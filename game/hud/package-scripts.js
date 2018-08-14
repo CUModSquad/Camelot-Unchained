@@ -5,9 +5,11 @@ module.exports = {
       description: 'Custom build script to make my life easier - JB',
     },
     lint: {
-      script: 'tslint -t stylish src/**/*.ts{,x}',
-      description: 'Run TS-Lint"',
-      hiddenFromHelp: true,
+      default: {
+        script: 'tslint -t stylish src/**/*.ts{,x}',
+        description: 'Run TS-Lint"',
+        hiddenFromHelp: true,
+      },
       fix: {
         script: 'tslint --fix src/**/*.ts{,x}',
         description: 'Fix TS-Lint errors',
@@ -38,8 +40,41 @@ module.exports = {
         script: 'nps clean,build.browserify.lib,build.dev,dev.livereload,dev.watch,dev.serve',
         description: 'Development mode will start an http server with live reload that will watch and build whenever a file change is detected.'
       },
+      webpack: {
+        default: {
+          script: 'nps clean && nps gql.codegen && nps gql.collectAndConcat && nps build.sass,copy.dev,copy.dist && nps dev.webpack.watch',
+          description: 'Development mode will start an http server with live reload that will watch and build whenever a file change is detected.',
+        },
+        watch: {
+          script: 'nps -p dev.webpack.serveWebpack,dev.webpack.watchGraphql,dev.webpack.watchSass,dev.webpack.watchMisc',
+        },
+        serveWebpack: {
+          script: 'webpack-serve --content ./dist --open',
+        },
+        watchWebpack: {
+          script: 'webpack --mode development --watch',
+        },
+        watchGraphql: {
+          script: 'watch -p "src/**/*.graphql -c "nps gql.codegen && nps gql.collectAndConcat"',
+        },
+        watchSass: {
+          script: 'watch -p "src/**/*.scss" -c "nps build.sass"',
+        },
+        watchMisc: {
+          script: 'watch -p "src/**/*.html" -p "src/third-party/**/*" -p "src/font/**/*" -p "src/images/**/*" -p "src/**/*.ui" -p "src/**/*.ico" -p "src/**/*.config.js" -c "nps copy.dev,copy.dist"',
+        },
+        hatchery: {
+          script: 'nps clean && nps gql.codegen && nps gql.collectAndConcat && nps build.sass && nps copy && nps copy.dist && nps clean.hatchery && nps copy.hatchery && nps dev.webpack.watchHatchery',
+        },
+        watchHatchery: {
+          script: 'cross-env CUUI_DEV_OUTPUT_PATH="%localappdata%/CSE/CamelotUnchained/4/INTERFACE/hud" nps -p dev.webpack.watchWebpack,dev.webpack.watchGraphql,dev.webpack.watchSass,dev.webpack.watchMisc',
+        },
+      },
+      production: {
+        script: 'nps clean,build.browserify.lib,build.devProduction,dev.livereload,dev.watch,dev.serve',
+        description: 'Development Production mode will start an http server with live reload that will watch and build whenever a file change is detected using a production environment variable.'
+      },
       start: {
-
       },
       serve: {
         script: 'start http-server ./dist/ -p 9003 -o --cors -c-1',
@@ -196,20 +231,24 @@ module.exports = {
       },
       browserify: {
         default: {
-          script: 'mkdirp build/js && browserify tmpp/index.js -r react -r react-dom -r jquery -r es6-promise -r react-draggable -r react-redux -r react-select -r redux -r redux-thunk -r ol -o build/js/hud.js --fast --noparse=FILE -t [ envify --NODE_ENV production ]',
+          script: 'mkdirp build/js && browserify -g [ envify --NODE_ENV development ] tmpp/index.js -r react -r react-dom -r jquery -r es6-promise -r react-draggable -r react-redux -r react-select -r redux -r redux-thunk -r ol -o build/js/hud.js --fast --noparse=FILE',
           hiddenFromHelp: true,
         },
         lib: {
           script: '',//mkdirp build/js && browserify -r react -r react-dom -r jquery -r es6-promise -r react-draggable -r react-redux -r react-select -r redux -r redux-thunk -r ol > build/js/lib.js',
           hiddenFromHelp: true,
-        }
+        },
+        production: {
+          script: 'mkdirp build/js && browserify -g [ envify --NODE_ENV production ] tmpp/index.js -r react -r react-dom -r jquery -r es6-promise -r react-draggable -r react-redux -r react-select -r redux -r redux-thunk -r ol -o build/js/hud.js --fast --noparse=FILE',
+          hiddenFromHelp: true,
+        },
       },
       babel: {
         script: 'babel tmp -d tmpp -q',
         hiddenFromHelp: true,
       },
       default: {
-        script: 'nps report.start && tsc && nps lint && nps report.lint && nps report.tsc,copy,report.copy,build.babel,report.babel,build.browserify.lib,build.browserify,report.browserify,build.sass,copy.dist,clean.temps,report.success',
+        script: 'nps report.start && tsc && nps lint && nps report.lint && nps report.tsc,copy,report.copy,build.babel,report.babel,build.browserify.lib,build.browserify.production,report.browserify,build.sass,copy.dist,clean.temps,report.success',
         description: 'Build the module.',
       },
       dev: {
@@ -217,8 +256,27 @@ module.exports = {
         description: 'build for dev watcher, skips the browserify lib & sass',
         hiddenFromHelp: true,
       },
+      webpack: {
+        default: {
+          script: 'nps report.start && nps copy,report.copy,build.webpack.production,build.sass,copy.dist,clean.temps,report.success',
+        },
+        development: {
+          script: 'webpack --mode development',
+          hiddenFromHelp: true,
+        },
+        production: {
+          script: 'webpack --mode production',
+          hiddenFromHelp: true,
+        },
+      },
+      devWebpack: {
+        script: 'nps report.start && nps copy,report.copy,build.webpack.development,build.sass,clean.temps,report.success,copy.dev',
+        description: 'build for dev watcher',
+        hiddenFromHelp: true,
+      },
       hatchery: {
         script: 'nps build,clean.hatchery,copy.hatchery',
+        webpack: 'nps build.webpack.development,clean.hatchery,copy.hatchery',
         description: 'Builds the module and copies to the Hatchery (4) UI override directory.',
       },
       wyrmling: {
@@ -247,10 +305,17 @@ module.exports = {
       },
       ignoreLint: {
         script: 'nps report.start && nps report.gql && nps gql && tsc && nps report.tsc,copy,report.copy,build.babel,report.babel,build.browserify.lib,build.browserify,report.browserify,build.sass,copy.dist,clean.temps,report.success',
+        localServer: 'nps report.start && nps report.gql && nps gqlLocalServer && tsc && nps report.tsc,copy,report.copy,build.babel,report.babel,build.browserify.lib,build.browserify,report.browserify,build.sass,copy.dist,clean.temps,report.success',
+        description: 'Build module without running lint',
+      },
+      ignoreLintProduction: {
+        script: 'nps report.start && nps report.gql && nps gql && tsc && nps report.tsc,copy,report.copy,build.babel,report.babel,build.browserify.lib,build.browserify.production,report.browserify,build.sass,copy.dist,clean.temps,report.success',
+        localServer: 'nps report.start && nps report.gql && nps gqlLocalServer && tsc && nps report.tsc,copy,report.copy,build.babel,report.babel,build.browserify.lib,build.browserify,report.browserify,build.sass,copy.dist,clean.temps,report.success',
         description: 'Build module without running lint',
       },
       ignoreLintHatchery: {
         script: 'nps build.ignoreLint,clean.hatchery,copy.hatchery',
+        production: 'nps build.ignoreLintProduction,clean.hatchery,copy.hatchery',
         description: 'Builds the module and copies to the Hatchery (4) UI override directory.',
       },
       ignoreLintWyrmling: {
@@ -272,6 +337,10 @@ module.exports = {
       ignoreLintNuadaPrep: {
         script: 'nps build.ignoreLint,clean.nuadaPrep,copy.nuadaPrep',
         description: 'Builds the module and copies to the NuadaPrep (1400) UI override directory',
+      },
+      ignoreLintLocalServer: {
+        script: 'nps build.ignoreLint.localServer,clean.hatchery,copy.hatchery',
+        description: 'Builds the module and copies to the Hatchery (4) UI override directory',
       },
     },
     report: {
@@ -317,7 +386,7 @@ module.exports = {
       }
     },
     deploy: {
-      script: 'nps clean,build.browserify.lib,build && rimraf ../../../CamelotUnchained/MMO/Client/Assets/interface/hud && copyup build/**/* ../../../CamelotUnchained/MMO/Client/Assets/interface/hud',
+      script: 'nps clean,build.webpack && rimraf ../../../CamelotUnchained/MMO/Client/Assets/interface/hud && copyup build/**/* ../../../CamelotUnchained/MMO/Client/Assets/interface/hud',
       description: 'Deploys a fresh build to the client assets directory, CamelotUnchained & CamelotUnchained-UI repositories should be side by side in the same root directory.'
     },
   }

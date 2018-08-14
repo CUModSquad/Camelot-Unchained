@@ -6,8 +6,9 @@
 
 import * as React from 'react';
 import styled from 'react-emotion';
+import { isEmpty } from 'lodash';
 
-import * as actions from '../services/actions/contextMenu';
+import * as actions from 'actions/contextMenu';
 
 const Container = styled('div')`
   background: rgba(0, 0, 0, 0.01);
@@ -16,6 +17,7 @@ const Container = styled('div')`
   right: 0;
   top: 0;
   bottom: 0;
+  z-index: 10000;
 `;
 
 const Menu = styled('ol')`
@@ -110,11 +112,14 @@ export class ContextMenu extends React.Component<Props, State> {
     if (this.state.show === false) return null;
 
     return (
-      <Container onClick={this.hide} onKeyDown={this.hide}>
+      <Container onMouseDown={this.hide} onKeyDown={this.hide}>
         <Menu style={this.state.styledPosition}>
           {
             this.state.items &&
               this.state.items.map(item => <Item key={item.title}
+                onMouseDown={(event: MouseEvent) => {
+                  event.stopPropagation();
+                }}
                 onClick={(event: MouseEvent) => {
                   event.stopPropagation();
                   this.hide();
@@ -140,6 +145,8 @@ export class ContextMenu extends React.Component<Props, State> {
   }
 
   private onShowContextMenu = (items: MenuItem[], event: MouseEvent) => {
+    // If there are no items, dont show context menu
+    if (isEmpty(items)) return;
 
     let styledPosition: StylePosition = {};
 

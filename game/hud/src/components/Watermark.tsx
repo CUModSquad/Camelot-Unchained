@@ -12,18 +12,21 @@ const Watermark = styled('i')`
   height: 20px;
   line-height: 20px;
   position: fixed;
+  margin: auto;
   left: 50%;
   top: 15px;
+  text-align: center;
   transform: translateX(-50%);
   color: #FFF;
   font-size: 13px;
   font-family: 'Merriweather Sans', sans-serif;
-  fotn-weight: bold;
-  text-align: right;
+  font-weight: bold;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
   -webkit-touch-callout: none;
   user-select: none;
   cursor: default;
+  z-index: 9999;
+  pointer-events: none;
 `;
 
 export interface WatermarkStyle {
@@ -33,5 +36,5 @@ export interface WatermarkStyle {
 export default (props: {
   style?: Partial<WatermarkStyle>;
 }) => {
-  return <Watermark>Engine/Tech Alpha - Do not stream or distribute.</Watermark>;
+  return <Watermark style={props.style ? props.style.watermark : {}}>Beta 1 - Do not stream or distribute.</Watermark>;
 };

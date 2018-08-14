@@ -6,13 +6,23 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
+import styled from 'react-emotion';
 import { events, client, TabPanel, TabItem, jsKeyCodes } from '@csegames/camelot-unchained';
 import { SecureTradeState } from '@csegames/camelot-unchained/lib/graphql/schema';
+import { showTooltip, hideTooltip } from 'actions/tooltips';
 
 import HudFullScreenView from './HUDFullScreenView';
-import { FullScreenNavState, FullScreenContext, HUDFullScreenTabData, defaultFullScreenState } from './lib/utils';
 import { ContainerIdToDrawerInfo } from './components/ItemShared/InventoryBase';
-import { InventoryItemFragment, EquippedItemFragment } from '../../gqlInterfaces';
+import { InventoryItemFragment, EquippedItemFragment, GearSlotDefRefFragment } from '../../gqlInterfaces';
+import { SlotItemDefType, SlotType } from './lib/itemInterfaces';
+import TooltipContent, { defaultTooltipStyle } from './components/Tooltip';
+import {
+  FullScreenNavState,
+  FullScreenContext,
+  HUDFullScreenTabData,
+  defaultFullScreenState,
+  isRightOrLeftItem,
+} from './lib/utils';
 
 /* tslint:disable:interface-name */
 export interface ITemporaryTab {
@@ -29,6 +39,25 @@ export interface ITemporaryTab {
 export interface FullScreenNavProps {
 }
 
+const BackgroundImage = styled('div')`
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  z-index: 99;
+  box-shadow: inset 0px -100px 120px rgba(0, 0, 0, 0.8);
+  background: url(images/inventory/bag-bg.png) repeat-x, linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  &.left {
+    top: 0;
+    left: 0;
+    bottom: 0;
+  }
+  &.right {
+    top: 0;
+    left: 50%;
+    bottom: 0;
+  }
+`;
+
 class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavState> {
   private navigateListener: number;
   private shouldKeydownListener: number;
@@ -41,20 +70,29 @@ class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavSta
   }
 
   public render() {
+    const { visibleComponentLeft, visibleComponentRight } = this.state;
     return (
       <FullScreenContext.Provider value={this.state}>
-        <HudFullScreenView
-          getLeftRef={r => this.tabPanelLeftRef = r}
-          getRightRef={r => this.tabPanelRightRef = r}
-          onActiveTabChanged={(i, name) => this.handleTabChange(name)}
-          onCloseFullScreen={this.onCloseFullScreen}
-          onChangeInventoryItems={this.onChangeInventoryItems}
-          onChangeEquippedItems={this.onChangeEquippedItems}
-          onChangeMyTradeItems={this.onChangeMyTradeItems}
-          onChangeContainerIdToDrawerInfo={this.onChangeContainerIdToDrawerInfo}
-          onChangeStackGroupIdToItemIDs={this.onChangeStackGroupIdToItemIDs}
-          onChangeMyTradeState={this.onChangeMyTradeState}
-        />
+        <div style={visibleComponentLeft === '' && visibleComponentRight === '' ? { visibility: 'hidden' } : {}}>
+          <BackgroundImage className={'left'} />
+          <BackgroundImage className={'right'} />
+          <HudFullScreenView
+            getLeftRef={r => this.tabPanelLeftRef = r}
+            getRightRef={r => this.tabPanelRightRef = r}
+            onActiveTabChanged={(i, name) => this.handleTabChange(name)}
+            onRightOrLeftItemAction={this.onRightOrLeftItemAction}
+            showItemTooltip={this.showItemTooltip}
+            hideItemTooltip={this.hideItemTooltip}
+            onCloseFullScreen={this.onCloseFullScreen}
+            onChangeInventoryItems={this.onChangeInventoryItems}
+            onChangeEquippedItems={this.onChangeEquippedItems}
+            onChangeMyTradeItems={this.onChangeMyTradeItems}
+            onChangeContainerIdToDrawerInfo={this.onChangeContainerIdToDrawerInfo}
+            onChangeStackGroupIdToItemIDs={this.onChangeStackGroupIdToItemIDs}
+            onChangeMyTradeState={this.onChangeMyTradeState}
+            onChangeInvBodyDimensions={this.onChangeInvBodyDimensions}
+          />
+        </div>
       </FullScreenContext.Provider>
     );
   }
@@ -62,7 +100,6 @@ class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavSta
   public componentDidMount() {
     this.navigateListener = events.on('hudnav--navigate', this.handleNavEvent);
     this.shouldKeydownListener = events.on('hudfullscreen-shouldListenKeydown', this.handleShouldKeydownEvent);
-    this.tabPanelRightRef.activeTabIndex = 1;
   }
 
   public componentDidUpdate(prevProps: FullScreenNavProps, prevState: FullScreenNavState) {
@@ -94,6 +131,11 @@ class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavSta
         events.fire('hudnav--navigate', 'equippedgear');
         break;
       }
+      case jsKeyCodes.M: {
+        // Open/Close map
+        events.fire('hudnav--navigate', 'map');
+        break;
+      }
       default: break;
     }
   }
@@ -107,42 +149,61 @@ class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavSta
   }
 
   private handleNavEvent = (name: string, shouldOpen?: boolean) => {
-    if (name === 'inventory' || name === 'equippedgear' || name === 'character') {
-      if (_.includes(this.state.visibleComponentLeft, name) || _.includes(this.state.visibleComponentRight, name)) {
-        this.onCloseFullScreen();
-      } else {
-        this.setActiveTab(0, 'equippedgear-left');
-        this.setActiveTab(1, 'inventory-right');
+    switch (name) {
+      case 'inventory':
+      case 'equippedgear':
+      case 'character': {
+        if (this.isAlreadyOpen(name)) {
+          this.onCloseFullScreen();
+        } else {
+          this.setActiveTab(0, 'equippedgear-left');
+          this.setActiveTab(1, 'inventory-right');
+        }
+        break;
       }
-      return;
-    }
 
-    if (name === 'trade' && typeof shouldOpen === 'boolean') {
-      const tradeTab = {
-        name: 'trade-left',
-        tab: {
-          title: 'Trade',
-          temporary: true,
-        },
-        rendersContent: 'Trade',
-      };
-      if (shouldOpen) {
-        this.setActiveTab(1, 'inventory-right');
-        this.handleTemporaryTab({
-          ...tradeTab,
-          tab: {
-            ...tradeTab.tab,
-            onTemporaryTabClose: () => events.fire('hudnav--navigate', 'trade', false),
-          },
-        }, 'left', shouldOpen);
-      } else {
-        this.handleTemporaryTab(tradeTab as any, 'left', false);
-        this.onCloseFullScreen();
+      case 'map': {
+        if (this.isAlreadyOpen(name)) {
+          this.onCloseFullScreen();
+        } else {
+          this.setActiveTab(3, 'map-left');
+          this.setActiveTab(1, 'inventory-right');
+        }
+        break;
       }
-      return;
-    }
 
-    this.handleTabChange(name);
+      case 'trade': {
+        if (typeof shouldOpen === 'boolean') {
+          const tradeTab = {
+            name: 'trade-left',
+            tab: {
+              title: 'Trade',
+              temporary: true,
+            },
+            rendersContent: 'Trade',
+          };
+          if (shouldOpen) {
+            this.setActiveTab(1, 'inventory-right');
+            this.handleTemporaryTab({
+              ...tradeTab,
+              tab: {
+                ...tradeTab.tab,
+                onTemporaryTabClose: () => this.onCloseFullScreen(),
+              },
+            }, 'left', shouldOpen);
+          } else {
+            this.handleTemporaryTab(tradeTab as any, 'left', false);
+            this.onCloseFullScreen();
+          }
+          break;
+        }
+      }
+
+      default: {
+        this.handleTabChange(name);
+        break;
+      }
+    }
   }
 
   private handleTabChange = (name: string) => {
@@ -275,6 +336,66 @@ class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavSta
     this.setActiveTab(0, '');
     window.removeEventListener('keydown', this.handleKeydownEvent);
     client.ReleaseInputOwnership();
+    hideTooltip();
+
+    if (this.state.myTradeState !== 'Confirmed' && this.state.myTradeState !== 'None') {
+      events.fire('cancel-trade');
+    }
+  }
+
+  private isAlreadyOpen = (name: string) => {
+    const { visibleComponentLeft, visibleComponentRight } = this.state;
+    return _.includes(visibleComponentLeft, name) || _.includes(visibleComponentRight, name);
+  }
+
+  private onRightOrLeftItemAction = (item: InventoryItemFragment, action: (gearSlots: GearSlotDefRefFragment[]) => void) => {
+    const { gearSlotSets } = item.staticDefinition;
+    if (gearSlotSets) {
+      // Dealing with a right or left weapon/piece of armor
+      const equippedItemFirstSlot = _.find(this.state.equippedItems, (item) => {
+        return item.gearSlots && isRightOrLeftItem(item.gearSlots) &&
+          gearSlotSets[0].gearSlots[0].id === item.gearSlots[0].id;
+      });
+      const equippedItemSecondSlot = _.find(this.state.equippedItems, (item) => {
+        return item.gearSlots && isRightOrLeftItem(item.gearSlots) &&
+          gearSlotSets[1] && gearSlotSets[1].gearSlots[0].id === item.gearSlots[0].id;
+      });
+
+      if (gearSlotSets.length === 2 &&
+        equippedItemFirstSlot && !equippedItemSecondSlot && !_.isEqual(equippedItemFirstSlot, equippedItemSecondSlot)) {
+        action(gearSlotSets[1].gearSlots);
+        return;
+      } else {
+        action(gearSlotSets[0].gearSlots);
+        return;
+      }
+    }
+  }
+
+  private showItemTooltip = (item: SlotItemDefType, event: MouseEvent) => {
+    let instructions = 'Right click item for more actions';
+    if (item.item && item.item.staticDefinition && item.item.staticDefinition.gearSlotSets.length > 0) {
+      instructions = 'Double click to equip | Right click item for more actions';
+    } else if (item.slotType === SlotType.CraftingContainer || item.slotType === SlotType.Container) {
+      instructions = 'Left click to open container | Right click item for more actions';
+    }
+
+    const content = <TooltipContent
+      item={item.item || (item.stackedItems && item.stackedItems[0])}
+      slotType={item.slotType}
+      stackedItems={item.stackedItems}
+      equippedItems={this.state.equippedItems}
+      instructions={instructions}
+    />;
+    showTooltip({ content, event, styles: defaultTooltipStyle });
+  }
+
+  private isVisible = () => {
+    return this.state.visibleComponentLeft !== '' || this.state.visibleComponentRight !== '';
+  }
+
+  private hideItemTooltip = () => {
+    hideTooltip();
   }
 
   private onChangeEquippedItems = (equippedItems: EquippedItemFragment[]) => {
@@ -282,15 +403,21 @@ class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavSta
   }
 
   private onChangeInventoryItems = (inventoryItems: InventoryItemFragment[]) => {
-    this.setState({ inventoryItems });
+    if (this.isVisible()) {
+      this.setState({ inventoryItems });
+    }
   }
 
   private onChangeContainerIdToDrawerInfo = (containerIdToDrawerInfo: ContainerIdToDrawerInfo) => {
-    this.setState({ containerIdToDrawerInfo });
+    if (this.isVisible()) {
+      this.setState({ containerIdToDrawerInfo });
+    }
   }
 
   private onChangeStackGroupIdToItemIDs = (stackGroupIdToItemIDs: {[id: string]: string[]}) => {
-    this.setState({ stackGroupIdToItemIDs });
+    if (this.isVisible()) {
+      this.setState({ stackGroupIdToItemIDs });
+    }
   }
 
   private onChangeMyTradeItems = (myTradeItems: InventoryItemFragment[]) => {
@@ -299,6 +426,10 @@ class HUDFullScreen extends React.Component<FullScreenNavProps, FullScreenNavSta
 
   private onChangeMyTradeState = (myTradeState: SecureTradeState) => {
     this.setState({ myTradeState });
+  }
+
+  private onChangeInvBodyDimensions = (invBodyDimensions: { width: number; height: number; }) => {
+    this.setState({ invBodyDimensions });
   }
 }
 

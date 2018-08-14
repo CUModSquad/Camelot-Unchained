@@ -7,23 +7,34 @@
 import * as React from 'react';
 import styled from 'react-emotion';
 
-const Text = styled('p')`
+const Container = styled('div')`
+  padding-left: 20px;
+  height: 100%;
+  width: 50%;
+  display: flex;
+  align-items: center;
+`;
+
+const Text = styled('div')`
   margin: 0;
   padding: 0;
-  color: #6F7581;
-  font-size: 26px;
-  font-weight: bold;
+  font-family: Caudex;
+  font-size: 24px;
+  letter-spacing: 2px;
+  color: #EEEEED;
 `;
 
 export interface CharacterNameProps {
   characterName: string;
-  orderName: string;
+  // orderName: string;
 }
 
 const CharacterAndOrderName = (props: CharacterNameProps) => {
-  const { characterName, orderName } = props;
+  const { characterName } = props;
   return (
-    <Text>{characterName} {orderName && `<${orderName}>`}</Text>
+    <Container>
+      <Text>{characterName}</Text>
+    </Container>
   );
 };
 
