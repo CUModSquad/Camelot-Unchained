@@ -7,9 +7,14 @@
 import { request as httpRequest, RequestOptions } from '../utils/request';
 import { withDefaults } from '../utils/withDefaults';
 import { ObjectMap } from '../utils/ObjectMap';
+import { DocumentNode } from 'graphql';
+
+// issues with graphql .mjs file usage
+// tslint:disable-next-line
+const { print } = require('graphql/language/printer.js');
 
 // Query Definition as defined by apollo-codegen
-export interface GraphQLQueryDefinition {
+export interface LegacyGraphqlDefinition {
   kind: string;
   name: {
     value: string,
@@ -19,6 +24,10 @@ export interface GraphQLQueryDefinition {
       body: string,
     },
   };
+}
+
+export interface LegacyGraphqlDocumentNode {
+  definitions: LegacyGraphqlDefinition[];
 }
 
 export interface QueryOptions {
@@ -40,7 +49,7 @@ export const defaultQueryOpts: QueryOptions = {
 export interface GraphQLQuery {
   operationName: string | null;
   namedQuery: string | null;
-  query: string | { definitions: GraphQLQueryDefinition[]; };
+  query: string | LegacyGraphqlDocumentNode | DocumentNode;
   variables: ObjectMap<any> | null;
 }
 
@@ -51,14 +60,18 @@ export const defaultQuery: GraphQLQuery = {
   variables: null,
 };
 
-export function parseQuery(query: string | { definitions: GraphQLQueryDefinition[]; }) {
-  if (typeof query === 'string') return query;
+export function parseQuery(query: string | LegacyGraphqlDocumentNode | DocumentNode) {
+  if (typeof query === 'string') {
+    return query;
+  }
+  if (query.hasOwnProperty('loc')) {
+    return print(query);
+  }
   let queryString = '';
-  query.definitions.forEach((definition: GraphQLQueryDefinition) => {
+  (query as LegacyGraphqlDocumentNode).definitions.forEach((definition: LegacyGraphqlDefinition) => {
     queryString = `${queryString} ${definition.loc.source.body}`;
     return;
   });
-  
   return queryString;
 }
 
@@ -80,8 +93,8 @@ export async function query<T>(query: GraphQLQuery, options?: Partial<QueryOptio
   const opts = withDefaults(options, defaultQueryOpts);
 
   try {
-    
-    const response = await httpRequest('post', 
+
+    const response = await httpRequest('post',
       opts.url,
       {},
       {

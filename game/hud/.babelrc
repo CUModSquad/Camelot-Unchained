@@ -1,4 +1,14 @@
 {
-  "presets": ["es2015"],
-  "plugins": ["react-hot-loader/babel", "transform-es2015-modules-commonjs", "transform-runtime"]
+  "presets": [
+    "@babel/env"
+  ],
+  "plugins": [
+    "react-hot-loader/babel",
+    "@babel/plugin-syntax-jsx",
+    "@babel/plugin-transform-react-jsx",
+    "babel-plugin-transform-react-display-name",
+    "babel-plugin-graphql-tag",
+    "@babel/plugin-transform-runtime",
+    "@babel/plugin-transform-modules-commonjs"
+  ]
 }
