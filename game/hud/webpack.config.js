@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = function (e, rawArgv) {
 
@@ -14,6 +14,14 @@ module.exports = function (e, rawArgv) {
     NODE_ENV: process.env.NODE_ENV || mode,
   };
 
+  let gitRevision = 'unknown';
+  try {
+    gitRevision = require('child_process').execSync('git rev-parse HEAD').toString().trim();
+  } catch(e) {
+    console.error(e);
+  }
+  const enableSentry = process.env.CUUI_ENABLE_SENTRY === '1';
+  const isClient =  process.env.CUUI_DEV_OUTPUT_PATH ? true : env.NODE_ENV === 'production' ? true : false;
   const outputPath = process.env.CUUI_DEV_OUTPUT_PATH ? process.env.CUUI_DEV_OUTPUT_PATH : argv.watch ? path.resolve(__dirname, 'dist') : path.resolve(__dirname, 'build');
 
   const config = {
@@ -112,6 +120,10 @@ module.exports = function (e, rawArgv) {
               ]
             },
             {
+              test: /\.hbs$/,
+              loader: 'handlebars-loader'
+            },
+            {
               exclude: [/\.js$/, /\.html$/, /\.json$/, /\.tsx?$/],
               loader: require.resolve('file-loader'),
               options: {
@@ -135,7 +147,18 @@ module.exports = function (e, rawArgv) {
           return e;
         }, {}),
       }),
-      // new webpack.HotModuleReplacementPlugin(),
+      new HtmlWebpackPlugin({
+        title: 'Custom template using Handlebars',
+        template: 'src/index.hbs',
+        templateParameters: {
+          isClient,
+          isBrowser: !isClient,
+          isDevelopment: env.NODE_ENV === 'development',
+          isProduction: env.NODE_ENV === 'production',
+          enableSentry,
+          gitRevision,
+        }
+      }),
       new BundleAnalyzerPlugin({
         analyzerMode: 'disabled',
         generateStatsFile: true,

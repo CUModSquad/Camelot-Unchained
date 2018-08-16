@@ -1,6 +1,6 @@
 language: node_js
 node_js:
- - "8"
+ - "10"
 cache:
   yarn: true
 install:
@@ -9,8 +9,8 @@ install:
  - "cd $TRAVIS_BUILD_DIR/library && yarn"
  - "cd $TRAVIS_BUILD_DIR/patcher && yarn"
 script:
- - "cd $TRAVIS_BUILD_DIR/game/hud && yarn start build && yarn start test"
- - "cd $TRAVIS_BUILD_DIR/library && yarn start build && yarn start test"
+ - "cd $TRAVIS_BUILD_DIR/game/hud && yarn start build"
+ - "cd $TRAVIS_BUILD_DIR/library && yarn start build"
  - "cd $TRAVIS_BUILD_DIR/patcher && yarn start build"
 notifications:
   email:
