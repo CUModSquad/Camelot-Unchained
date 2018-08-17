@@ -215,13 +215,12 @@ class Progression extends React.Component<Props, State> {
 
   private onCollectClick = () => {
     this.setState({ collecting: true });
-    this.collectCharacterDayProgression(0);
+    this.collectCharacterDayProgression(0, this.state.logIDs);
+    this.onCloseClick();
   }
 
-  private collectCharacterDayProgression = async (logIDIndex: number) => {
+  private collectCharacterDayProgression = async (logIDIndex: number, logIDs: string[]) => {
     if (!this.state.logIDs[logIDIndex]) {
-      // set a timeout for the api server to update
-      this.setState({ collecting: false, collected: true });
       return;
     }
     try {
@@ -230,7 +229,7 @@ class Progression extends React.Component<Props, State> {
         client.loginToken,
         client.shardID,
         client.characterID,
-        this.state.logIDs[logIDIndex],
+        logIDs[logIDIndex],
       );
       if (!res.ok) {
         const resultData = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
@@ -240,7 +239,7 @@ class Progression extends React.Component<Props, State> {
       }
 
       // Recursively collect next days character progression
-      this.collectCharacterDayProgression(logIDIndex + 1);
+      setTimeout(() => this.collectCharacterDayProgression(logIDIndex + 1, logIDs), 500);
     } catch (err) {
       console.error(err);
     }
