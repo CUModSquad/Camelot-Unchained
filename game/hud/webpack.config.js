@@ -34,6 +34,25 @@ module.exports = function (e, rawArgv) {
     IS_WATCH: isWatch,
   };
 
+  const cacheAndThreadLoader = [
+    {
+      loader: require.resolve('cache-loader'),
+      options: {
+        cacheDirectory: path.resolve(__dirname, 'node_modules', '.cache', 'cache-loader'),
+      },
+    },
+  ];
+  if (!process.env.CI) {
+    cacheAndThreadLoader.push(
+      {
+        loader: require.resolve('thread-loader'),
+        options: {
+            workers: require('os').cpus().length - 1,
+        },
+      },
+    );
+  }
+
   const config = {
     mode,
     devtool: mode === 'development' ? 'source-map' : 'source-map',
@@ -115,18 +134,7 @@ module.exports = function (e, rawArgv) {
               test: /\.tsx?$/,
               exclude: /node_modules/,
               use: [
-                {
-                  loader: require.resolve('cache-loader'),
-                  options: {
-                    cacheDirectory: path.resolve(__dirname, 'node_modules', '.cache', 'cache-loader'),
-                  },
-                },
-                {
-                  loader: require.resolve('thread-loader'),
-                  options: {
-                      workers: require('os').cpus().length - 1,
-                  },
-                },
+                ...cacheAndThreadLoader,
                 {
                   loader: require.resolve('babel-loader'),
                   options: {
@@ -136,8 +144,8 @@ module.exports = function (e, rawArgv) {
                 {
                   loader: require.resolve('ts-loader'),
                   options: {
-                    transpileOnly: true,
-                    happyPackMode: true,
+                    transpileOnly: process.env.CI ? false : true,
+                    happyPackMode: process.env.CI ? false : true,
                     compilerOptions: {
                       sourceMap: true,
                     }
@@ -167,12 +175,6 @@ module.exports = function (e, rawArgv) {
       exprContextCritical: false,
     },
     plugins: [
-      new ForkTsCheckerWebpackPlugin({
-        checkSyntacticErrors: true,
-        tslint: true, // can turn this off if required
-        formatter: 'codeframe',
-        async: false,
-      }),
       new webpack.DefinePlugin({
         'process.env': Object.keys(env).reduce((e, key) => {
           e[key] = JSON.stringify(env[key]);
@@ -208,6 +210,17 @@ module.exports = function (e, rawArgv) {
       hints: false,
     },
   };
+
+  if (!process.env.CI) {
+    config.plugins.push(
+      new ForkTsCheckerWebpackPlugin({
+        checkSyntacticErrors: true,
+        tslint: true, // can turn this off if required
+        formatter: 'codeframe',
+        async: false,
+      })
+    );
+  }
 
   if (mode === 'production') {
     config.plugins.push(new BundleAnalyzerPlugin({
