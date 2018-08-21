@@ -16,7 +16,7 @@ import { InventoryItem, ContextMenuActionGQL } from 'gql/interfaces';
 declare const toastr: any;
 
 const query = gql`
-  query ContextMenuActionGQL($id: String!, $shardID: ShardID!) {
+  query ContextMenuActionGQL($id: String!, $shardID: Int!) {
     item(id: $id, shard: $shardID) {
       id
       actions {

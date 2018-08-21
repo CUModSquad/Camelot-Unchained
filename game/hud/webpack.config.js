@@ -142,6 +142,14 @@ module.exports = function (e, rawArgv) {
                   },
                 },
                 {
+                  loader: require.resolve('eslint-loader'),
+                  query: {
+                    emitError: true,
+                    emitWarning: true,
+                    failOnError: true,
+                  }
+                },
+                {
                   loader: require.resolve('ts-loader'),
                   options: {
                     transpileOnly: process.env.CI ? false : true,
