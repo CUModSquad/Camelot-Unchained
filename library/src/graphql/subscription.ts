@@ -140,7 +140,10 @@ export class SubscriptionManager {
     } else {
       payload = subscription;
     }
-    if (typeof payload.query === 'object' && payload.query.hasOwnProperty('loc')) {
+    if (
+      typeof payload.query === 'object' &&
+      (payload.query.hasOwnProperty('loc') || payload.query.hasOwnProperty('definitions'))
+    ) {
       payload.query =  print(payload.query);
     }
 
@@ -221,6 +224,7 @@ export class SubscriptionManager {
           try {
             data = JSON.parse(op.payload.data).data;
           } catch (e) {
+            console.error('GraphQL Subscription Parse Error', e);
           }
           const result = {
             data,

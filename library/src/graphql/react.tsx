@@ -161,7 +161,11 @@ export class GraphQL<QueryDataType, SubscriptionDataType>
 
     if (props.query) {
       let q;
-      if (typeof props.query === 'string' || props.query.hasOwnProperty('loc')) {
+      if (
+        typeof props.query === 'string' ||
+        props.query.hasOwnProperty('loc') ||
+        props.query.hasOwnProperty('definitions')
+      ) {
         q = { query: props.query };
       } else {
         q = props.query;

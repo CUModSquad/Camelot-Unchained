@@ -64,7 +64,7 @@ export function parseQuery(query: string | LegacyGraphqlDocumentNode | DocumentN
   if (typeof query === 'string') {
     return query;
   }
-  if (query.hasOwnProperty('loc')) {
+  if (query.hasOwnProperty('loc') || query.hasOwnProperty('definitions')) {
     return print(query);
   }
   let queryString = '';
@@ -113,13 +113,38 @@ export async function query<T>(query: GraphQLQuery, options?: Partial<QueryOptio
     );
     if (response.ok) {
       const result = JSON.parse(response.data);
+      if (result.errors) {
+        // TODO log sentry error here?
+        console.error(
+          'GraphQL Error:',
+          {
+            errors: result.errors.map(getMessage).join(' '),
+            query: q.query,
+            operationName: q.operationName,
+            namedQuery: q.namedQuery,
+            variables: JSON.stringify(q.variables),
+          },
+        );
+      }
       return {
         data: result.data as T,
-        ok: result.data !== undefined,
+        ok: result.data !== undefined && result.errors === undefined,
         statusText: result.errors === undefined ? 'OK' : result.errors.map(getMessage).join(' '),
       };
+
     }
 
+    // TODO log sentry error here?
+    console.error(
+      'GraphQL Error:',
+      {
+        errors: response.statusText,
+        query: q.query,
+        operationName: q.operationName,
+        namedQuery: q.namedQuery,
+        variables: JSON.stringify(q.variables),
+      },
+    );
     return errorResult(response.statusText);
 
   } catch (err) {
