@@ -6,6 +6,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const WebpackServeWaitpage = require('webpack-serve-waitpage');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = function (e, rawArgv) {
 
@@ -164,11 +166,37 @@ module.exports = function (e, rawArgv) {
             {
               test: /\.(graphql|gql)$/,
               exclude: /node_modules/,
-              loader: 'graphql-tag/loader'
+              loader: require.resolve('graphql-tag/loader'),
             },
             {
               test: /\.hbs$/,
-              loader: 'handlebars-loader'
+              loader: require.resolve('handlebars-loader'),
+            },
+            {
+              test: /\.scss$/,
+              exclude: /node_modules/,
+              use: [
+                mode === 'development' ? require.resolve('style-loader') : {
+                  loader: MiniCssExtractPlugin.loader,
+                  options: {}
+                },
+                {
+                  loader: require.resolve('css-loader'),
+                  options: {
+                    // turn off url handling as we are copying all the files over to build folder
+                    // turning this on would be ideal, but will require lots of sass refactoring
+                    url: false,
+                  }
+                },
+                {
+                  loader: require.resolve('sass-loader'),
+                  options: {
+                    // override the default webpack importer to use the existing sass importer
+                    // removing this would be ideal, but will require lots of sass refactoring
+                    importer: require('sass-importer-node/sass-importer-node.js'),
+                  }
+                }
+              ]
             },
             {
               exclude: [/\.js$/, /\.html$/, /\.json$/, /\.tsx?$/],
@@ -205,6 +233,10 @@ module.exports = function (e, rawArgv) {
       new FriendlyErrorsWebpackPlugin({
         clearConsole: false,
       }),
+      new MiniCssExtractPlugin({
+        filename: 'css/[name].css',
+        chunkFilename: 'css/[id].css'
+      }),
     ],
     node: {
       dgram: 'empty',
@@ -230,6 +262,14 @@ module.exports = function (e, rawArgv) {
     );
   }
 
+  const copyPaths = [
+    'third-party/**/*',
+    'images/**/*',
+    'font/**/*',
+    '**/*.ico',
+    '**/*.ui',
+  ];
+
   if (mode === 'production') {
     config.plugins.push(new BundleAnalyzerPlugin({
       analyzerMode: 'disabled',
@@ -245,8 +285,13 @@ module.exports = function (e, rawArgv) {
           theme: 'dark',
         }));
       }
-    }
+    };
+    copyPaths.push('**/*.config.js');
   }
+
+  config.plugins.push(new CopyWebpackPlugin(copyPaths, {
+    context: 'src/',
+  }));
 
   return config;
 }

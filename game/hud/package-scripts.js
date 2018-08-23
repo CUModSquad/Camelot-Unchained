@@ -27,11 +27,11 @@ module.exports = {
 
     build: {
       default: {
-        script: 'nps report.start && nps clean && nps copy,build.webpack.production,build.sass,copy && nps report.success',
+        script: 'nps report.start && nps clean && nps gql.codegen && nps build.webpack.production && nps report.success',
         description: 'Builds the UI in production mode',
       },
       dev: {
-        script: 'nps report.start && nps clean && nps copy,build.webpack.development,build.sass,copy.dev && nps report.success',
+        script: 'nps report.start && nps clean && nps gql.codegen && nps build.webpack.development && nps report.success',
         description: 'Builds the UI in development mode',
       },
       webpack: {
@@ -47,10 +47,6 @@ module.exports = {
           hiddenFromHelp: true,
           script: 'webpack --mode production',
         },
-      },
-      sass: {
-        hiddenFromHelp: true,
-        script: 'node-sass src/index.scss -o build/css --importer node_modules/sass-importer-node/sass-importer-node.js --quiet && nps report.sass',
       },
       ...generateForTargets((target) => {
         return {
@@ -71,13 +67,13 @@ module.exports = {
     // Dev
     dev: {
       default: {
-        script: 'nps clean && nps gql.codegen && nps build.sass,copy.dev && nps dev.watch',
+        script: 'nps clean && nps gql.codegen && nps dev.watch',
         description: 'Development mode will start an http server with live reload that will watch and build whenever a file change is detected.',
       },
       watch: {
         default: {
           hiddenFromHelp: true,
-          script: 'nps -p dev.watch.webpackServe,dev.watch.graphql,dev.watch.sass,dev.watch.misc',
+          script: 'nps -p dev.watch.webpackServe,dev.watch.graphql',
         },
         webpackServe: {
           hiddenFromHelp: true,
@@ -90,14 +86,6 @@ module.exports = {
         graphql: {
           hiddenFromHelp: true,
           script: 'watch -p "src/**/*.graphql" -p "src/gql/fragments/**/*.ts" -p "src/**/*.tsx" -p "src/components/**/*.ts" -p "src/services/**/*.ts" -p "src/widgets/**/*.ts" -c "nps gql.codegen"',
-        },
-        sass: {
-          hiddenFromHelp: true,
-          script: 'watch -p "src/**/*.scss" -c "nps build.sass"',
-        },
-        misc: {
-          hiddenFromHelp: true,
-          script: 'watch -p "src/**/*.html" -p "src/third-party/**/*" -p "src/font/**/*" -p "src/images/**/*" -p "src/**/*.ui" -p "src/**/*.ico" -p "src/**/*.config.js" -c "nps copy.dev"',
         },
       },
       webpack: {
@@ -115,7 +103,7 @@ module.exports = {
         return {
           [target.name]: {
             default: {
-              script: `nps clean && nps gql.codegen && nps build.sass && nps copy && nps clean.${target.name} && nps copy.${target.name} && nps dev.${target.name}.watch`,
+              script: `nps clean && nps gql.codegen && nps clean.${target.name} && nps dev.${target.name}.watch`,
             },
             webpack: {
               hiddenFromHelp: true,
@@ -123,7 +111,7 @@ module.exports = {
             },
             watch: {
               hiddenFromHelp: true,
-              script: `nps -p dev.${target.name}.webpack,dev.watch.graphql,dev.watch.sass,dev.watch.misc`,
+              script: `nps -p dev.${target.name}.webpack,dev.watch.graphql`,
             }
           },
         };
@@ -154,14 +142,6 @@ module.exports = {
 
     // Copy
     copy: {
-      default: {
-        script: 'copyup "src/third-party/**/*" "src/images/**/*" "src/font/**/*" "src/**/*.ico" "src/**/*.ui" build && nps report.copy',
-        hiddenFromHelp: true,
-      },
-      dev: {
-        script: 'nps copy && copyup "src/**/*.config.js" build && nps report.copy',
-        hiddenFromHelp: true,
-      },
       ...generateForTargets((target) => {
         return {
           [target.name]: {
@@ -223,20 +203,12 @@ module.exports = {
         script: 'echo "Copy complete..."',
         hiddenFromHelp: true,
       },
-      sass: {
-        script: 'echo "SCSS compile complete..."',
-        hiddenFromHelp: true,
-      },
       success: {
         script: 'echo "Build completed successfully!"',
         hiddenFromHelp: true,
       },
       lint: {
         script: 'echo "TSLint complete"',
-        hiddenFromHelp: true,
-      },
-      test: {
-        script: 'echo "Testing started..."',
         hiddenFromHelp: true,
       },
       gql: {
