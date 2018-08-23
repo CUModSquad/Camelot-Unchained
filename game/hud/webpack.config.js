@@ -176,13 +176,19 @@ module.exports = function (e, rawArgv) {
               test: /\.scss$/,
               exclude: /node_modules/,
               use: [
-                mode === 'development' ? require.resolve('style-loader') : {
+                (mode === 'development' && !env.IS_CLIENT) ? {
+                  loader: require.resolve('style-loader'),
+                  options: {
+                    sourceMap: true,
+                  }
+                } : {
                   loader: MiniCssExtractPlugin.loader,
                   options: {}
                 },
                 {
                   loader: require.resolve('css-loader'),
                   options: {
+                    sourceMap: true,
                     // turn off url handling as we are copying all the files over to build folder
                     // turning this on would be ideal, but will require lots of sass refactoring
                     url: false,
@@ -191,6 +197,7 @@ module.exports = function (e, rawArgv) {
                 {
                   loader: require.resolve('sass-loader'),
                   options: {
+                    sourceMap: true,
                     // override the default webpack importer to use the existing sass importer
                     // removing this would be ideal, but will require lots of sass refactoring
                     importer: require('sass-importer-node/sass-importer-node.js'),
