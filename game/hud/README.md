@@ -86,7 +86,7 @@ yarn start build.cube
 
 It is possible to run a development build, without any watching/reloading.
 
-Here is a full list of available single run production builds:
+Here is a full list of available single run development builds:
 
 ```sh
 yarn start build.dev
@@ -134,3 +134,5 @@ To override environment variables locally, you can make any of the following fil
 .env.development.local
 .env.production.local
 ```
+
+*NOTE: if you make changes to `.env` files you will need to restart any running `dev` commands*
