@@ -3574,6 +3574,10 @@ dot-prop@^4.1.0:
   dependencies:
     is-obj "^1.0.0"
 
+dotenv@^6.0.0:
+  version "6.0.0"
+  resolved "http://registry.camelotunchained.com/dotenv/-/dotenv-6.0.0.tgz#24e37c041741c5f4b25324958ebbc34bca965935"
+
 duplexer2@^0.1.4:
   version "0.1.4"
   resolved "http://registry.camelotunchained.com/duplexer2/-/duplexer2-0.1.4.tgz#8b12dab878c0d69e3e7891051662a32fc6bddcc1"
@@ -6421,6 +6425,14 @@ lodash.endswith@^4.2.1:
   version "4.2.1"
   resolved "http://registry.camelotunchained.com/lodash.endswith/-/lodash.endswith-4.2.1.tgz#fed59ac1738ed3e236edd7064ec456448b37bc09"
 
+lodash.every@^4.6.0:
+  version "4.6.0"
+  resolved "http://registry.camelotunchained.com/lodash.every/-/lodash.every-4.6.0.tgz#eb89984bebc4364279bb3aefbbd1ca19bfa6c6a7"
+
+lodash.filter@^4.6.0:
+  version "4.6.0"
+  resolved "http://registry.camelotunchained.com/lodash.filter/-/lodash.filter-4.6.0.tgz#668b1d4981603ae1cc5a6fa760143e480b4c4ace"
+
 lodash.isarguments@^3.0.0:
   version "3.1.0"
   resolved "http://registry.camelotunchained.com/lodash.isarguments/-/lodash.isarguments-3.1.0.tgz#2f573d85c6a24289ff00663b491c1d338ff3458a"
@@ -6435,6 +6447,10 @@ lodash.isequal@^3.0.4:
   dependencies:
     lodash._baseisequal "^3.0.0"
     lodash._bindcallback "^3.0.0"
+
+lodash.isequal@^4.5.0:
+  version "4.5.0"
+  resolved "http://registry.camelotunchained.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
 
 lodash.isfunction@^3.0.8:
   version "3.0.9"
@@ -6456,6 +6472,10 @@ lodash.keys@^3.0.0:
     lodash.isarguments "^3.0.0"
     lodash.isarray "^3.0.0"
 
+lodash.keys@^4.2.0:
+  version "4.2.0"
+  resolved "http://registry.camelotunchained.com/lodash.keys/-/lodash.keys-4.2.0.tgz#a08602ac12e4fb83f91fc1fb7a360a4d9ba35205"
+
 lodash.mergewith@^4.6.0:
   version "4.6.0"
   resolved "http://registry.camelotunchained.com/lodash.mergewith/-/lodash.mergewith-4.6.0.tgz#150cf0a16791f5903b8891eab154609274bdea55"
@@ -6467,6 +6487,10 @@ lodash.pick@^4.4.0:
 lodash.restparam@^3.0.0:
   version "3.6.1"
   resolved "http://registry.camelotunchained.com/lodash.restparam/-/lodash.restparam-3.6.1.tgz#936a4e309ef330a7645ed4145986c85ae5b20805"
+
+lodash.some@^4.6.0:
+  version "4.6.0"
+  resolved "http://registry.camelotunchained.com/lodash.some/-/lodash.some-4.6.0.tgz#1bb9f314ef6b8baded13b549169b2a945eb68e4d"
 
 lodash.startswith@^4.2.1:
   version "4.2.1"
@@ -6489,9 +6513,9 @@ lodash.templatesettings@^4.0.0:
   dependencies:
     lodash._reinterpolate "~3.0.0"
 
-lodash@4.12.0:
-  version "4.12.0"
-  resolved "http://registry.camelotunchained.com/lodash/-/lodash-4.12.0.tgz#2bd6dc46a040f59e686c972ed21d93dc59053258"
+lodash.union@^4.6.0:
+  version "4.6.0"
+  resolved "http://registry.camelotunchained.com/lodash.union/-/lodash.union-4.6.0.tgz#48bb5088409f16f1821666641c44dd1aaae3cd88"
 
 lodash@4.17.4, lodash@^4.0.0, lodash@^4.17.4, lodash@^4.2.0, lodash@^4.2.1:
   version "4.17.4"
@@ -10428,11 +10452,19 @@ which@1, which@^1.1.1, which@^1.2.9:
   dependencies:
     isexe "^2.0.0"
 
-why-did-you-update@0.0.8:
-  version "0.0.8"
-  resolved "http://registry.camelotunchained.com/why-did-you-update/-/why-did-you-update-0.0.8.tgz#389d97dd6c147e1edbc9f5d5470d44d985c8ae38"
+why-did-you-update@^0.1.1:
+  version "0.1.1"
+  resolved "http://registry.camelotunchained.com/why-did-you-update/-/why-did-you-update-0.1.1.tgz#c73d361511fecd899056e9954ca9b1ab760d3097"
   dependencies:
-    lodash "4.12.0"
+    lodash.every "^4.6.0"
+    lodash.filter "^4.6.0"
+    lodash.isequal "^4.5.0"
+    lodash.isfunction "^3.0.8"
+    lodash.isstring "^4.0.1"
+    lodash.keys "^4.2.0"
+    lodash.pick "^4.4.0"
+    lodash.some "^4.6.0"
+    lodash.union "^4.6.0"
 
 wide-align@^1.1.0:
   version "1.1.2"

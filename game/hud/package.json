@@ -69,6 +69,7 @@
     "redux-thunk": "^2.2.0",
     "redux-typed-modules": "^2.2.1",
     "sass-importer-node": "^1.0.1",
+    "why-did-you-update": "^0.1.1",
     "yargs-parser": "^2.4.1"
   },
   "devDependencies": {
@@ -107,6 +108,7 @@
     "copyfiles": "^1.0.0",
     "cross-env": "^5.2.0",
     "css-loader": "^1.0.0",
+    "dotenv": "^6.0.0",
     "eslint": "^5.4.0",
     "eslint-loader": "^2.1.0",
     "eslint-plugin-graphql": "^2.1.1",
@@ -144,7 +146,6 @@
     "webpack-cli": "^3.1.0",
     "webpack-serve": "^2.0.2",
     "webpack-serve-waitpage": "^1.0.2",
-    "why-did-you-update": "0.0.8",
     "write-file-webpack-plugin": "^4.3.2"
   }
 }

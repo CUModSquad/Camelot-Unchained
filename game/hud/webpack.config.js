@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
+const fs = require('fs');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -9,78 +10,55 @@ const WebpackServeWaitpage = require('webpack-serve-waitpage');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-module.exports = function (e, rawArgv) {
+module.exports = function (e, argv = {}) {
 
-  const argv = rawArgv ? rawArgv : {};
+  const MODE = argv.mode || 'development';
+  const NODE_ENV = process.env.NODE_ENV || MODE;
 
-  const mode = argv.mode ? argv.mode : 'development';
+  const DOTENV = loadDotenv(NODE_ENV);
 
-  const NODE_ENV = process.env.NODE_ENV || mode;
+  const OUTPUT_PATH = process.env.CUUI_HUDBUILD_OUTPUT_PATH || path.resolve(__dirname, 'build');
+  const IS_WATCH = argv.watch ? true : false;
+  const IS_BROWSER = process.env.CUUI_HUDBUILD_IS_BROWSER === '1';
+  const IS_CLIENT = !IS_BROWSER;
+  const IS_DEVELOPMENT = NODE_ENV === 'development';
+  const IS_PRODUCTION = NODE_ENV === 'production';
+  const IS_CI = process.env.CI;
+  const ENABLE_SENTRY = process.env.CUUI_HUD_ENABLE_SENTRY === '1';
+  const GIT_REVISION = getGitRevision();
 
-  let gitRevision = 'unknown';
-  try {
-    gitRevision = require('child_process').execSync('git rev-parse HEAD').toString().trim();
-  } catch(e) {
-    console.error(e);
-  }
-  const isWatch = argv.watch;
-  const enableSentry = process.env.CUUI_ENABLE_SENTRY === '1';
-  const isClient =  process.env.CUUI_DEV_OUTPUT_PATH ? true : process.env.CUUI_IS_CLIENT === '1' ? true : false;
-  const outputPath = process.env.CUUI_DEV_OUTPUT_PATH ? process.env.CUUI_DEV_OUTPUT_PATH : path.resolve(__dirname, 'build');
-
-  const env = {
+  const EXPOSE_ENV = {
+    ...DOTENV,
     NODE_ENV,
-    ENABLE_SENTRY: enableSentry,
-    IS_CLIENT: isClient,
-    IS_BROWSER: !isClient,
-    IS_DEVELOPMENT: NODE_ENV === 'development',
-    IS_PRODUCTION: NODE_ENV === 'production',
-    GIT_REVISION: gitRevision,
-    IS_WATCH: isWatch,
+    ENABLE_SENTRY,
+    IS_CLIENT,
+    IS_BROWSER,
+    IS_DEVELOPMENT,
+    IS_PRODUCTION,
+    GIT_REVISION,
+    IS_WATCH,
   };
 
-  const cacheAndThreadLoader = [
-    {
-      loader: require.resolve('cache-loader'),
-      options: {
-        cacheDirectory: path.resolve(__dirname, 'node_modules', '.cache', 'cache-loader'),
-      },
-    },
-  ];
-  if (!process.env.CI) {
-    cacheAndThreadLoader.push(
-      {
-        loader: require.resolve('thread-loader'),
-        options: {
-            workers: require('os').cpus().length - 1,
-        },
-      },
-    );
-  }
+  logEnv(EXPOSE_ENV);
 
   const config = {
-    mode,
-    devtool: mode === 'development' ? 'source-map' : 'source-map',
+    mode: MODE,
+    devtool: 'source-map',
     entry: {
       hud: ['./src/index.tsx'],
     },
     output: {
-      path: outputPath,
+      path: OUTPUT_PATH,
       filename: 'js/[name].js',
       chunkFilename: 'js/[name].js',
     },
     optimization: {
-      minimize: mode === 'production' ? false /* make this true if minimization is desired */ : false,
+      minimize: false,
       splitChunks: {
         chunks: 'async',
         cacheGroups: {
           vendors: {
             test: /[\\/]node_modules[\\/]/,
-            chunks: 'all',
-            priority: -10,
-          },
-          gqlDocuments: {
-            test: /gqlDocuments/,
             chunks: 'all',
             priority: -10,
           },
@@ -125,7 +103,6 @@ module.exports = function (e, rawArgv) {
             },
             {
               test: /\.mjs?$/,
-              // exclude: /node_modules/,
               use: [
                 {
                   loader: require.resolve('babel-loader'),
@@ -139,7 +116,18 @@ module.exports = function (e, rawArgv) {
               test: /\.tsx?$/,
               exclude: /node_modules/,
               use: [
-                ...cacheAndThreadLoader,
+                {
+                  loader: require.resolve('cache-loader'),
+                  options: {
+                    cacheDirectory: path.resolve(__dirname, 'node_modules', '.cache', 'cache-loader'),
+                  },
+                },
+                ...(!process.env.CI ? [{
+                  loader: require.resolve('thread-loader'),
+                  options: {
+                      workers: require('os').cpus().length - 1,
+                  },
+                }] : []),
                 {
                   loader: require.resolve('babel-loader'),
                   options: {
@@ -157,8 +145,8 @@ module.exports = function (e, rawArgv) {
                 {
                   loader: require.resolve('ts-loader'),
                   options: {
-                    transpileOnly: process.env.CI ? false : true,
-                    happyPackMode: process.env.CI ? false : true,
+                    transpileOnly: IS_CI ? false : true,
+                    happyPackMode: IS_CI ? false : true,
                     compilerOptions: {
                       sourceMap: true,
                     }
@@ -179,7 +167,7 @@ module.exports = function (e, rawArgv) {
               test: /\.scss$/,
               exclude: /node_modules/,
               use: [
-                (mode === 'development' && !env.IS_CLIENT) ? {
+                (IS_DEVELOPMENT && IS_BROWSER) ? {
                   loader: require.resolve('style-loader'),
                   options: {
                     sourceMap: true,
@@ -222,8 +210,8 @@ module.exports = function (e, rawArgv) {
     },
     plugins: [
       new webpack.DefinePlugin({
-        'process.env': Object.keys(env).reduce((e, key) => {
-          e[key] = JSON.stringify(env[key]);
+        'process.env': Object.keys(EXPOSE_ENV).reduce((e, key) => {
+          e[key] = JSON.stringify(EXPOSE_ENV[key]);
           return e;
         }, {}),
       }),
@@ -232,7 +220,7 @@ module.exports = function (e, rawArgv) {
         template: 'src/index.hbs',
         templateParameters: {
           process: {
-            env,
+            env: EXPOSE_ENV,
           },
         }
       }),
@@ -242,8 +230,38 @@ module.exports = function (e, rawArgv) {
       }),
       new MiniCssExtractPlugin({
         filename: 'css/[name].css',
-        chunkFilename: 'css/[id].css'
+        chunkFilename: 'css/[name].[id].css'
       }),
+      new CopyWebpackPlugin(
+        [
+          'third-party/**/*',
+          'images/**/*',
+          'font/**/*',
+          '**/*.ico',
+          '**/*.ui',
+          ...((IS_DEVELOPMENT && IS_BROWSER) ? [
+            '**/*.config.js'
+          ] : [])
+        ],
+        {
+          context: 'src/',
+        }
+      ),
+      ...(!IS_CI ? [
+        new ForkTsCheckerWebpackPlugin({
+          checkSyntacticErrors: true,
+          tslint: true, // can turn this off if required
+          formatter: 'codeframe',
+          async: false,
+        }),
+      ] : []),
+      ...(IS_PRODUCTION ? [
+        new BundleAnalyzerPlugin({
+          analyzerMode: 'disabled',
+          generateStatsFile: true,
+          statsFilename: 'asset-stats.json',
+        }),
+      ] : []),
     ],
     node: {
       dgram: 'empty',
@@ -256,49 +274,64 @@ module.exports = function (e, rawArgv) {
     performance: {
       hints: false,
     },
+    ...(MODE === 'development' ? {
+      serve: {
+        add: (app, middleware, options) => {
+          app.use(WebpackServeWaitpage(options, {
+            theme: 'dark',
+          }));
+        }
+      },
+    }: {})
   };
 
-  if (!process.env.CI) {
-    config.plugins.push(
-      new ForkTsCheckerWebpackPlugin({
-        checkSyntacticErrors: true,
-        tslint: true, // can turn this off if required
-        formatter: 'codeframe',
-        async: false,
-      })
-    );
-  }
-
-  const copyPaths = [
-    'third-party/**/*',
-    'images/**/*',
-    'font/**/*',
-    '**/*.ico',
-    '**/*.ui',
-  ];
-
-  if (mode === 'production') {
-    config.plugins.push(new BundleAnalyzerPlugin({
-      analyzerMode: 'disabled',
-      generateStatsFile: true,
-      statsFilename: 'asset-stats.json',
-    }));
-  }
-
-  if (mode === 'development') {
-    config.serve = {
-      add: (app, middleware, options) => {
-        app.use(WebpackServeWaitpage(options, {
-          theme: 'dark',
-        }));
-      }
-    };
-    copyPaths.push('**/*.config.js');
-  }
-
-  config.plugins.push(new CopyWebpackPlugin(copyPaths, {
-    context: 'src/',
-  }));
 
   return config;
+}
+
+function loadDotenv(NODE_ENV) {
+  const envFiles = [
+    path.resolve(process.cwd(), `.env.${NODE_ENV}.local`),
+    path.resolve(process.cwd(), `.env.${NODE_ENV}`),
+    path.resolve(process.cwd(), `.env.local`),
+    path.resolve(process.cwd(), `.env`),
+  ];
+  const env = envFiles.reduce((mergedEnv, envFile) => {
+    if (fs.existsSync(envFile)) {
+      return {
+        ...(require('dotenv').config({path: envFile}).parsed),
+        ...mergedEnv,
+      }
+    }
+    return mergedEnv;
+  }, {});
+  return Object.keys(env).reduce((e, key) => {
+    if (!key.startsWith('CUUI_HUDBUILD_')) {
+      let value = env[key];
+      if (value === 'true') {
+        value = true;
+      } else if (value === 'false') {
+        value = false;
+      }
+      e[key] = value;
+    }
+    return e;
+  }, {});
+}
+
+function getGitRevision() {
+  let GIT_REVISION = 'unknown';
+  try {
+    GIT_REVISION = require('child_process').execSync('git rev-parse HEAD').toString().trim();
+  } catch(e) {
+    console.error(e);
+  }
+  return GIT_REVISION;
+}
+
+function logEnv(env) {
+  console.log('WEBPACK ENVIRONMENT');
+  Object.keys(env).forEach(key => {
+    console.log(`  ${key}: ${JSON.stringify(env[key])}`);
+  });
 }

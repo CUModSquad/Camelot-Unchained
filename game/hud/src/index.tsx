@@ -20,20 +20,12 @@ import { ApolloProvider } from 'react-apollo';
 
 // Uncomment if you want super easy perf gainzzz https://github.com/garbles/why-did-you-update
 
-// if (client.debug) {
-//   // tslint:disable
-//   {
-//     // @ts-ignore
-//     let createClass = React.createClass;
-//     Object.defineProperty(React, 'createClass', {
-//       set: (nextCreateClass) => {
-//         createClass = nextCreateClass;
-//       }
-//     });
-//   }
-//   const {whyDidYouUpdate} = require('why-did-you-update');
-//   whyDidYouUpdate(React);
-// }
+if (process.env.ENABLE_WHY_DID_YOU_UPDATE) {
+  // tslint:disable
+  const { whyDidYouUpdate } = require('why-did-you-update');
+  whyDidYouUpdate(React);
+  // tslint:enable
+}
 
 const root = document.getElementById('hud');
 

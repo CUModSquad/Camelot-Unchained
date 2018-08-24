@@ -34,6 +34,14 @@ module.exports = {
         script: 'nps report.start && nps clean && nps gql.codegen && nps build.webpack.development && nps report.success',
         description: 'Builds the UI in development mode',
       },
+      browser: {
+        default: {
+          script: 'cross-env CUUI_HUDBUILD_IS_BROWSER="1" nps build'
+        },
+        dev: {
+          script: 'cross-env CUUI_HUDBUILD_IS_BROWSER="1" nps build.dev'
+        }
+      },
       webpack: {
         default: {
           hiddenFromHelp: true,
@@ -53,11 +61,11 @@ module.exports = {
         return {
           [target.name]: {
             default: {
-              script: `nps clean.${target.name} && cross-env CUUI_DEV_OUTPUT_PATH="${folderPath}" nps build`,
+              script: `nps clean.${target.name} && cross-env CUUI_HUDBUILD_OUTPUT_PATH="${folderPath}" nps build`,
               description: `Builds the UI in production mode and copies to the ${target.name} (${target.id}) UI override directory.`,
             },
             dev: {
-              script: `nps clean.${target.name} && cross-env CUUI_DEV_OUTPUT_PATH="${folderPath}" nps build.dev`,
+              script: `nps clean.${target.name} && cross-env CUUI_HUDBUILD_OUTPUT_PATH="${folderPath}" nps build.dev`,
               description: `Builds the UI in development mode and copies to the ${target.name} (${target.id}) UI override directory.`,
             }
           },
@@ -68,7 +76,7 @@ module.exports = {
     // Dev
     dev: {
       default: {
-        script: 'nps clean && nps gql.codegen && nps dev.watch',
+        script: 'nps clean && nps gql.codegen && cross-env CUUI_HUDBUILD_IS_BROWSER="1" nps dev.watch',
         description: 'Development mode will start an http server with live reload that will watch and build whenever a file change is detected.',
       },
       watch: {
@@ -108,7 +116,7 @@ module.exports = {
             },
             webpack: {
               hiddenFromHelp: true,
-              script: `cross-env CUUI_DEV_OUTPUT_PATH="${folderPath}" webpack-serve --content "${folderPath}" --log-level silent`,
+              script: `cross-env CUUI_HUDBUILD_OUTPUT_PATH="${folderPath}" webpack-serve --content "${folderPath}" --log-level silent`,
             },
             watch: {
               hiddenFromHelp: true,
@@ -121,7 +129,7 @@ module.exports = {
 
     // Deploy
     deploy: {
-      script: 'cross-env CUUI_IS_CLIENT="1" CUUI_ENABLE_SENTRY="1" nps build && rimraf ../../../CamelotUnchained/MMO/Client/Assets/interface/hud && copyup build/**/* ../../../CamelotUnchained/MMO/Client/Assets/interface/hud',
+      script: 'cross-env CUUI_HUD_ENABLE_SENTRY="1" nps build && rimraf ../../../CamelotUnchained/MMO/Client/Assets/interface/hud && copyup build/**/* ../../../CamelotUnchained/MMO/Client/Assets/interface/hud',
       description: 'Deploys a fresh build to the client assets directory, CamelotUnchained & CamelotUnchained-UI repositories should be side by side in the same root directory.'
     },
 
