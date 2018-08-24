@@ -49,14 +49,15 @@ module.exports = {
         },
       },
       ...generateForTargets((target) => {
+        const folderPath = `%localappdata%/CSE/CamelotUnchained/${target.id}/INTERFACE/hud`;
         return {
           [target.name]: {
             default: {
-              script: `nps build,clean.${target.name},copy.${target.name}`,
+              script: `nps clean.${target.name} && cross-env CUUI_DEV_OUTPUT_PATH="${folderPath}" nps build`,
               description: `Builds the UI in production mode and copies to the ${target.name} (${target.id}) UI override directory.`,
             },
             dev: {
-              script: `nps build.dev,clean.${target.name},copy.${target.name}`,
+              script: `nps clean.${target.name} && cross-env CUUI_DEV_OUTPUT_PATH="${folderPath}" nps build.dev`,
               description: `Builds the UI in development mode and copies to the ${target.name} (${target.id}) UI override directory.`,
             }
           },
@@ -120,7 +121,7 @@ module.exports = {
 
     // Deploy
     deploy: {
-      script: 'cross-env CUUI_ENABLE_SENTRY="1" nps build && rimraf ../../../CamelotUnchained/MMO/Client/Assets/interface/hud && copyup build/**/* ../../../CamelotUnchained/MMO/Client/Assets/interface/hud',
+      script: 'cross-env CUUI_IS_CLIENT="1" CUUI_ENABLE_SENTRY="1" nps build && rimraf ../../../CamelotUnchained/MMO/Client/Assets/interface/hud && copyup build/**/* ../../../CamelotUnchained/MMO/Client/Assets/interface/hud',
       description: 'Deploys a fresh build to the client assets directory, CamelotUnchained & CamelotUnchained-UI repositories should be side by side in the same root directory.'
     },
 

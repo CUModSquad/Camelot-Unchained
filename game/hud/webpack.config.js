@@ -25,13 +25,16 @@ module.exports = function (e, rawArgv) {
   }
   const isWatch = argv.watch;
   const enableSentry = process.env.CUUI_ENABLE_SENTRY === '1';
-  const isClient =  process.env.CUUI_DEV_OUTPUT_PATH ? true : NODE_ENV === 'production' ? true : false;
-  const outputPath = process.env.CUUI_DEV_OUTPUT_PATH ? process.env.CUUI_DEV_OUTPUT_PATH : isWatch ? path.resolve(__dirname, 'dist') : path.resolve(__dirname, 'build');
+  const isClient =  process.env.CUUI_DEV_OUTPUT_PATH ? true : process.env.CUUI_IS_CLIENT === '1' ? true : false;
+  const outputPath = process.env.CUUI_DEV_OUTPUT_PATH ? process.env.CUUI_DEV_OUTPUT_PATH : path.resolve(__dirname, 'build');
 
   const env = {
     NODE_ENV,
-    ENABLE_SENRTY: enableSentry,
+    ENABLE_SENTRY: enableSentry,
     IS_CLIENT: isClient,
+    IS_BROWSER: !isClient,
+    IS_DEVELOPMENT: NODE_ENV === 'development',
+    IS_PRODUCTION: NODE_ENV === 'production',
     GIT_REVISION: gitRevision,
     IS_WATCH: isWatch,
   };
@@ -228,12 +231,9 @@ module.exports = function (e, rawArgv) {
         title: 'Custom template using Handlebars',
         template: 'src/index.hbs',
         templateParameters: {
-          isClient,
-          isBrowser: !isClient,
-          isDevelopment: env.NODE_ENV === 'development',
-          isProduction: env.NODE_ENV === 'production',
-          enableSentry,
-          gitRevision,
+          process: {
+            env,
+          },
         }
       }),
       new WriteFilePlugin(),

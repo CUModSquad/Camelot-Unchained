@@ -9,7 +9,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
   <link rel="stylesheet" href="third-party/animate.css">
   <link rel="stylesheet" href="https://openlayers.org/en/v4.6.4/css/ol.css" type="text/css">
   <link rel="stylesheet" href="third-party/toastr.min.css">
-  {{#if isBrowser}}
+  {{#if process.env.IS_BROWSER}}
   <!-- jss -->
   <style>
     html, body {
@@ -20,11 +20,11 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 </head>
 <body>
   <div id="hud"></div>
-  {{#if enableSentry}}
+  {{#if process.env.ENABLE_SENTRY }}
   <script src=https://cdn.ravenjs.com/3.24.0/raven.min.js crossorigin=anonymous></script>
   <script>
     Raven.config('https://f7710348f19c4a0f8f8cd83ea0aa343f@sentry.io/1259561', {
-      release: '0-0-0', // use git revision as release? {{gitRevision}}
+      release: '0-0-0', // use git revision as release? {{process.env.GIT_REVISION}}
       environment: 'development-test',
     }).install()
 
@@ -41,11 +41,11 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
   <script src="third-party/fontawesome.js"></script>
 
-  {{#if isBrowser}}
+  {{#if process.env.IS_BROWSER}}
   <script src="dev.config.js"></script>
   {{/if}}
 
-  {{#if isClient}}
+  {{#if process.env.IS_CLIENT}}
   <script src="third-party/object-assign-shim.js"></script>
   <script src="third-party/findIndex-polyfill.js"></script>
   {{/if}}
