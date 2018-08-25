@@ -14,6 +14,8 @@ module.exports = function (e, argv = {}) {
 
   const MODE = argv.mode || 'development';
   const NODE_ENV = process.env.NODE_ENV || MODE;
+  process.env.NODE_ENV = NODE_ENV;
+  process.env.BABEL_ENV = NODE_ENV;
 
   const DOTENV = loadDotenv(NODE_ENV);
 
@@ -122,7 +124,7 @@ module.exports = function (e, argv = {}) {
                     cacheDirectory: path.resolve(__dirname, 'node_modules', '.cache', 'cache-loader'),
                   },
                 },
-                ...(!process.env.CI ? [{
+                ...(!IS_CI ? [{
                   loader: require.resolve('thread-loader'),
                   options: {
                       workers: require('os').cpus().length - 1,
@@ -274,7 +276,7 @@ module.exports = function (e, argv = {}) {
     performance: {
       hints: false,
     },
-    ...(MODE === 'development' ? {
+    ...(IS_DEVELOPMENT ? {
       serve: {
         add: (app, middleware, options) => {
           app.use(WebpackServeWaitpage(options, {
