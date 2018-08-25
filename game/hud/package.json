@@ -100,6 +100,7 @@
     "babel-cli": "^6.5.1",
     "babel-eslint": "^8.2.6",
     "babel-loader": "^8.0.0-beta",
+    "babel-plugin-emotion": "^9.2.6",
     "babel-plugin-graphql-tag": "^1.6.0",
     "babel-plugin-transform-react-display-name": "^6.25.0",
     "cache-loader": "^1.2.2",
