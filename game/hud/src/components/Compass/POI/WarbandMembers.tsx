@@ -10,6 +10,8 @@ import { client, events, GroupMemberState, Vec3f } from '@csegames/camelot-uncha
 import { CompassContextConsumer, CompassContext } from '../CompassContext';
 import CompassElevationSwitch from '../CompassElevationSwitch';
 import { hubEvents } from '@csegames/camelot-unchained/lib/signalR/hubs/groupsHub';
+import { easeLinear } from 'd3-ease';
+import Animate from 'react-move/Animate';
 
 const MemberPoi = styled('div')`
   position: absolute;
@@ -71,21 +73,38 @@ export default class WarbandMembers extends React.Component<{}, WarbandMembersSt
         {(compass: CompassContext) => (
           <>
             {this.state.members.filter(member => member.isAlive).map(member => (
-              <MemberPoi key={member.characterID} style={compass.getPoiPlacementStyle(member.position, 12.5)}>
-                <MemberIcon />
-                {Math.round(compass.getDistance(member.position))}
-                <CompassElevationSwitch bufferZone={1} target={member.position}>
-                  {(isLevel, isAbove, isBelow) => (
-                    <>
-                      {
-                        isLevel ? '' :
-                        isAbove ? `↑` :
-                        `↓`
-                      }
-                    </>
-                  )}
-                </CompassElevationSwitch>
-              </MemberPoi>
+              <Animate
+                key={member.characterID}
+                start={{
+                  x: member.position.x,
+                  y: member.position.y,
+                  z: member.position.z,
+                }}
+                update={{
+                  x: [member.position.x],
+                  y: [member.position.y],
+                  z: [member.position.z],
+                  timing: { duration: 200, ease: easeLinear, delay: 0 },
+                }}
+                >
+                {({ x, y, z }: any) => (
+                  <MemberPoi style={compass.getPoiPlacementStyle({ x, y, z }, 12.5)}>
+                    <MemberIcon />
+                    {Math.round(compass.getDistance({ x, y, z }))}
+                    <CompassElevationSwitch bufferZone={1} target={{ x, y, z }}>
+                      {(isLevel, isAbove, isBelow) => (
+                        <>
+                          {
+                            isLevel ? '' :
+                            isAbove ? `↑` :
+                            `↓`
+                          }
+                        </>
+                      )}
+                    </CompassElevationSwitch>
+                  </MemberPoi>
+                )}
+              </Animate>
             ))}
           </>
         )}
