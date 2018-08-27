@@ -41,6 +41,7 @@ module.exports = function (e, argv = {}) {
     IS_WATCH,
   };
 
+  console.log(`CPUS: ${require('os').cpus().length}`)
   logEnv(EXPOSE_ENV);
 
   const config = {
@@ -257,13 +258,13 @@ module.exports = function (e, argv = {}) {
           async: false,
         }),
       ] : []),
-      ...(IS_PRODUCTION ? [
-        new BundleAnalyzerPlugin({
-          analyzerMode: 'disabled',
-          generateStatsFile: true,
-          statsFilename: 'asset-stats.json',
-        }),
-      ] : []),
+      // ...(IS_PRODUCTION ? [
+      //   new BundleAnalyzerPlugin({
+      //     analyzerMode: 'disabled',
+      //     generateStatsFile: true,
+      //     statsFilename: 'asset-stats.json',
+      //   }),
+      // ] : []),
     ],
     node: {
       dgram: 'empty',
@@ -273,9 +274,10 @@ module.exports = function (e, argv = {}) {
       child_process: 'empty',
       dns: 'empty',
     },
-    performance: {
-      hints: false,
-    },
+    // performance: {
+    //   hints: false,
+    // },
+    performance: false,
     ...(IS_DEVELOPMENT ? {
       serve: {
         add: (app, middleware, options) => {
