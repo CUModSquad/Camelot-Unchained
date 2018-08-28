@@ -116,7 +116,7 @@ function registerOtherPatcherHubEvents(dispatch: (action: ControllerAction) => a
 
         // Update character
         dispatch(characterUpdate(character));
-      };
+      }
     });
 
   const characterRemovedEvent = signalr.getPatcherEventName(apiHost, signalr.PATCHER_EVENTS_CHARACTERREMOVED);
