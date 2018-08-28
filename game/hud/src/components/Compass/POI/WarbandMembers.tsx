@@ -38,7 +38,7 @@ const MemberPoiCircle = styled('div')`
   background: rgba(11, 102, 35,.8);
   box-shadow: 0 0 1px rgba(11, 102, 35,.8);
   pointer-events: auto;
-` as React.ComponentType<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>>;
+`;
 
 const StyledSvg = styled('svg')`
   fill: rgba(255,255,255,0.8);
@@ -124,13 +124,11 @@ class MemberPoiContainer extends React.Component<MemberPoiContainerProps, Member
 
   public componentDidUpdate() {
     if (this.state.hover) {
-      console.log('updateCompassTooltip');
       updateCompassTooltip(this.getTooltipData());
     }
   }
 
   public componentWillUnmount() {
-    console.log('hideCompassTooltip');
     hideCompassTooltip(this.props.poi.id);
   }
 
@@ -151,7 +149,6 @@ class MemberPoiContainer extends React.Component<MemberPoiContainerProps, Member
 
   private handleMouseEnter = () => {
     this.setState((prevState: MemberPoiContainerState) => {
-      console.log('showCompassTooltip');
       showCompassTooltip(this.getTooltipData());
       const hoverCount = prevState.hoverCount + 1;
       return {
@@ -166,7 +163,6 @@ class MemberPoiContainer extends React.Component<MemberPoiContainerProps, Member
     setTimeout(() => {
       this.setState((prevState: MemberPoiContainerState) => {
         if (hoverCount === prevState.hoverCount) {
-          console.log('hideCompassTooltip');
           hideCompassTooltip(this.props.poi.id);
           return {
             hoverCount: 0,

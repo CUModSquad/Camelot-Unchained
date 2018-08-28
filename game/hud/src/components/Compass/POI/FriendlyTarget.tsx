@@ -40,7 +40,7 @@ const FriendlyTargetPoiCircle = styled('div')`
   display: flex;
   align-items: center;
   justify-content: center;
-` as React.ComponentType<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>>;
+`;
 
 const StyledSvg = styled('svg')`
   fill: rgba(255,255,255,0.8);
@@ -124,13 +124,11 @@ class FriendlyTargetPOIContainer extends React.Component<
 
   public componentDidUpdate() {
     if (this.state.hover) {
-      console.log('updateCompassTooltip');
       updateCompassTooltip(this.getTooltipData());
     }
   }
 
   public componentWillUnmount() {
-    console.log('hideCompassTooltip');
     hideCompassTooltip(this.props.poi.id);
   }
 
@@ -146,7 +144,6 @@ class FriendlyTargetPOIContainer extends React.Component<
 
   private handleMouseEnter = () => {
     this.setState((prevState: FriendlyTargetPoiContainerState) => {
-      console.log('showCompassTooltip');
       showCompassTooltip(this.getTooltipData());
       const hoverCount = prevState.hoverCount + 1;
       return {
@@ -161,7 +158,6 @@ class FriendlyTargetPOIContainer extends React.Component<
     setTimeout(() => {
       this.setState((prevState: FriendlyTargetPoiContainerState) => {
         if (hoverCount === prevState.hoverCount) {
-          console.log('hideCompassTooltip');
           hideCompassTooltip(this.props.poi.id);
           return {
             hoverCount: 0,

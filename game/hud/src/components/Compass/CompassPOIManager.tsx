@@ -446,6 +446,23 @@ class CompassPOIManager extends React.Component<CompassPOIManagerProps, CompassP
     );
   }
 
+  public shouldComponentUpdate(nextProps: CompassPOIManagerProps, nextState: CompassPOIManagerState) {
+    if (this.props.children !== nextProps.children) {
+      return true;
+    }
+    if (this.props.degreesToShow !== nextProps.degreesToShow) {
+      return true;
+    }
+    if (
+      this.state.position.x !== nextState.position.x ||
+      this.state.position.y !== nextState.position.y ||
+      this.state.position.z !== nextState.position.z
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   public componentDidMount() {
     this.updatePositionInterval = setInterval(this.updatePosition, this.updatePositionIntervalTime);
   }
