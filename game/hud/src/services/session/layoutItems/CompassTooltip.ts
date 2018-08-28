@@ -11,7 +11,7 @@ export default {
   position: {
     x: {
       anchor: 5,
-      offset: -300,
+      offset: -200,
     },
     y: {
       anchor: Edge.TOP,
