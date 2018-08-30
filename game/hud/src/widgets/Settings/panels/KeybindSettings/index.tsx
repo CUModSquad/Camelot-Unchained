@@ -292,6 +292,7 @@ export class KeybindSettings extends React.PureComponent<KeybindSettingsProps, K
   private clearBind = (id: number, alias: number) => {
     this.dontListen();
     updateKeybind(getButtonNameFromId(id), { id, alias, boundKeyName: '', boundKeyValue: 0 });
+    client.ClearKeybind(id, alias);
     this.setState({ listening: null, version: this.state.version + 1, keybinds: getKeybinds() });
   }
 
