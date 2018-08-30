@@ -123,7 +123,7 @@ function sameBinds(keybinds: Keybinds, name: string, keybind: Binding): Clash | 
   Object.keys(keybinds).forEach((key) => {
     const binds = keybinds[key].boundKeys;
     for (let i = 0; i < binds.length; i++) {
-      if (binds[i].value === keybind.boundKeyValue && (name !== key || keybind.alias !== i)) {
+      if (binds[i].name === keybind.boundKeyName && (name !== key || keybind.alias !== i)) {
         sameAs.push({
           id: keybinds[key].button,
           name: key,
