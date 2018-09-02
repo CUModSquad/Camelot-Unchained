@@ -85,7 +85,6 @@ class HUDEditor extends React.Component<Props, State> {
     const { widgets } = this.props;
     return (
       <HUDEditorContainer
-        className='cse-ui-scroller-thumbonly'
         style={{
           right: `${this.state.editorPosition.x}px`,
           top: `${this.state.editorPosition.y}px`,
@@ -98,7 +97,7 @@ class HUDEditor extends React.Component<Props, State> {
             </a>
           </div>
         </HUDEditorTitle>
-        <HUDEditorList>
+        <HUDEditorList className='cse-ui-scroller-thumbonly'>
           <ul>
             { _.sortBy(widgets, 'name').map((widget) => {
               return (widget.name === 'building' ? null : // building should be removed as HUDDrag item
