@@ -229,16 +229,16 @@ class News extends React.Component<NewsProps, NewsState> {
   public render() {
     const { activeFilter } = this.state;
     const posts = this.getPostsWithInvisibleCells(activeFilter === PostFilter.All ? this.state.posts :
-      this.state.posts.filter((post) => post.type === activeFilter));
+      this.state.posts.filter(post => post.type === activeFilter));
     const newsItems = posts.map(this.renderNewsItem);
 
-    let fullArticle = null
+    let fullArticle = null;
     if (this.state.selectedPost) {
       fullArticle = this.renderSelectedPost();
     }
     return (
       <Container>
-        <Animate animationEnter='fadeIn' animationLeave='fadeOut' durationEnter={200} durationLeave={200}>
+        <Animate animationEnter="fadeIn" animationLeave="fadeOut" durationEnter={200} durationLeave={200}>
           {fullArticle}
         </Animate>
         <FilterTabs activeFilter={activeFilter} onFilterClick={this.onFilterClick} />
@@ -247,10 +247,10 @@ class News extends React.Component<NewsProps, NewsState> {
         </Content>
         {(this.state.activeFilter === PostFilter.All || this.state.activeFilter === PostFilter.News) &&
           (this.state.isFetching ?
-            <LoadMoreLoading className='wave-text'>
+            <LoadMoreLoading className="wave-text">
               <i>|</i><i>|</i><i>|</i><i>|</i><i>|</i><i>|</i><i>|</i>
             </LoadMoreLoading> :
-            <LoadMoreText href='#' onClick={this.fetchNextPage}>Load More</LoadMoreText>
+            <LoadMoreText href="#" onClick={this.fetchNextPage}>Load More</LoadMoreText>
         )}
       </Container>
     );
@@ -269,7 +269,7 @@ class News extends React.Component<NewsProps, NewsState> {
 
   private renderNewsItem = (post: PostItem, i: number) => {
     if (post === null) {
-      return <ContentItem key={i} />
+      return <ContentItem key={i} />;
     }
     if (i === 0) {
       // Feature first item
@@ -280,7 +280,7 @@ class News extends React.Component<NewsProps, NewsState> {
       }
       return (
         <NewsFeaturedItem key={i} post={post} onSelectPost={this.onSelectPost} />
-      )
+      );
     }
 
     if (isPatchNote(post)) {
@@ -412,7 +412,7 @@ class News extends React.Component<NewsProps, NewsState> {
     if (remainder) {
       for (let i = 0; i < remainder; i++) {
         // A null post indicates an invisible cell
-        postsWithInvisibleCells.push(null)
+        postsWithInvisibleCells.push(null);
       }
     }
 
@@ -427,7 +427,7 @@ class News extends React.Component<NewsProps, NewsState> {
     this.setState({ selectedPost: null });
   }
 
-  private onFilterClick = (filter: PostFilter) =>{ 
+  private onFilterClick = (filter: PostFilter) => {
     this.setState({ activeFilter: filter });
   }
 }

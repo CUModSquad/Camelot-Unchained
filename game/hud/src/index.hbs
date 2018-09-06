@@ -20,7 +20,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 </head>
 <body>
   <div id="hud"></div>
-  {{#if process.env.ENABLE_SENTRY }}
+  {{!-- {{#if process.env.ENABLE_SENTRY }}
   <script src=https://cdn.ravenjs.com/3.24.0/raven.min.js crossorigin=anonymous></script>
   <script>
     Raven.config('https://f7710348f19c4a0f8f8cd83ea0aa343f@sentry.io/1259561', {
@@ -37,7 +37,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
       });
     }, 1000);
   </script>
-  {{/if}}
+  {{/if}} --}}
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
   <script src="third-party/fontawesome.js"></script>
 
