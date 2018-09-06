@@ -74,7 +74,7 @@ class HUDEditor extends React.Component<Props, State> {
     super(props);
     this.state = {
       mode: EditMode.NONE,
-      editorPosition: { x: 2, y: 300 },
+      editorPosition: { x: 35, y: 150 },
       minScale: 0.5,
       maxScale: 3,
       scaleFactor: 0.01,
@@ -85,7 +85,6 @@ class HUDEditor extends React.Component<Props, State> {
     const { widgets } = this.props;
     return (
       <HUDEditorContainer
-        className='cse-ui-scroller-thumbonly'
         style={{
           right: `${this.state.editorPosition.x}px`,
           top: `${this.state.editorPosition.y}px`,
@@ -98,7 +97,7 @@ class HUDEditor extends React.Component<Props, State> {
             </a>
           </div>
         </HUDEditorTitle>
-        <HUDEditorList>
+        <HUDEditorList className='cse-ui-scroller-thumbonly'>
           <ul>
             { _.sortBy(widgets, 'name').map((widget) => {
               return (widget.name === 'building' ? null : // building should be removed as HUDDrag item
@@ -112,6 +111,13 @@ class HUDEditor extends React.Component<Props, State> {
                       'HUDWidgetNameSelected' : 'HUDWidgetName'
                   }>
                     { widget.name === 'motd' ? 'MOTD' : _.startCase(widget.name) }
+                    { !widget.widget.position.visibility &&
+                      <span>&nbsp;<i
+                        className={'fa fa-eye-slash'}
+                        onMouseOver={ this.onMouseOverListVisibility }
+                        onMouseLeave={ this.onMouseLeave }
+                      ></i></span>
+                    }
                   </div>
                 </li>
               );
@@ -425,6 +431,12 @@ class HUDEditor extends React.Component<Props, State> {
         layoutMode: widget.position.layoutMode,
       },
     }));
+  }
+
+  private onMouseOverListVisibility = (e: React.MouseEvent<HTMLElement>) => {
+    this.tooltipMessage = 'Widget is Hidden';
+    this.tooltipEvent = e;
+    this.onMouseOver(e);
   }
 
   private onMouseOverToggleVisibility = (e: React.MouseEvent<HTMLElement>) => {
