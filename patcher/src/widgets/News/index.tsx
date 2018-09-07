@@ -238,7 +238,7 @@ class News extends React.Component<NewsProps, NewsState> {
     }
     return (
       <Container>
-        <Animate animationEnter="fadeIn" animationLeave="fadeOut" durationEnter={200} durationLeave={200}>
+        <Animate animationEnter='fadeIn' animationLeave='fadeOut' durationEnter={200} durationLeave={200}>
           {fullArticle}
         </Animate>
         <FilterTabs activeFilter={activeFilter} onFilterClick={this.onFilterClick} />
@@ -247,10 +247,10 @@ class News extends React.Component<NewsProps, NewsState> {
         </Content>
         {(this.state.activeFilter === PostFilter.All || this.state.activeFilter === PostFilter.News) &&
           (this.state.isFetching ?
-            <LoadMoreLoading className="wave-text">
+            <LoadMoreLoading className='wave-text'>
               <i>|</i><i>|</i><i>|</i><i>|</i><i>|</i><i>|</i><i>|</i>
             </LoadMoreLoading> :
-            <LoadMoreText href="#" onClick={this.fetchNextPage}>Load More</LoadMoreText>
+            <LoadMoreText href='#' onClick={this.fetchNextPage}>Load More</LoadMoreText>
         )}
       </Container>
     );
