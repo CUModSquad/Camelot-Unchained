@@ -10,7 +10,7 @@ declare var cuAPI: any;
 
 if (process.env.ENABLE_SENTRY) {
   Raven.config('https://f7710348f19c4a0f8f8cd83ea0aa343f@sentry.io/1259561', {
-    release: '0-0-0', // use git revision as release? {{process.env.GIT_REVISION}}
+    release: process.env.GIT_REVISION, // use git revision as release? {{process.env.GIT_REVISION}}
     environment: 'development-test',
   }).install();
 
