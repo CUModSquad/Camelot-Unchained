@@ -169,10 +169,9 @@ class SearchableList extends React.Component<Props, State> {
   }
 
   private getVisibleItems = () => {
-    if (!this.scrollRef) return [];
-
     const { extraItemsRendered, listItemHeight, listHeight } = this.props;
-    const howManyItemsFit = Math.ceil((listHeight ||  this.scrollRef.clientHeight) / listItemHeight) +
+    const howManyItemsFit =
+      Math.ceil((listHeight || this.scrollRef ? this.scrollRef.clientHeight : 2160) / listItemHeight) +
       (extraItemsRendered || 0);
     const startingIndex = Math.floor(this.state.scrollTop / listItemHeight);
 
