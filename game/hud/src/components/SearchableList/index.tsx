@@ -96,16 +96,12 @@ class SearchableList extends React.Component<Props, State> {
   }
 
   public componentDidUpdate(prevProps: Props) {
-    if (!_.isEqual(this.props.listItemsData, prevProps.listItemsData) && this.props.searchValue === '') {
-      this.setState({ listItemsData: this.props.listItemsData });
-    }
-
     if (this.props.visible !== prevProps.visible) {
       this.setScrollTop();
     }
 
-    if (this.props.searchValue !== prevProps.searchValue) {
-      this.handleSearchChange();
+    if (this.props.searchValue !== prevProps.searchValue || !_.isEqual(this.props.listItemsData, prevProps.listItemsData) {
+      this.handleDataChange();
     }
   }
 
@@ -148,7 +144,7 @@ class SearchableList extends React.Component<Props, State> {
     }, 5);
   }
 
-  private handleSearchChange = () => {
+  private handleDataChange = () => {
     if (this.props.searchValue === '') {
       this.setState({ listItemsData: this.props.listItemsData });
     }
