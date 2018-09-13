@@ -48,9 +48,5 @@ module.exports = generators.Base.extend({
       this.destinationPath('src/cu-boilerplate-module.ui'),
       this.destinationPath('src/' + this.nameSlug + '.ui')
     );
-    this.fs.move(
-      this.destinationPath('src/sass/main.scss'),
-      this.destinationPath('src/sass/' + this.nameSlug + '.scss')
-    );
   }
 });

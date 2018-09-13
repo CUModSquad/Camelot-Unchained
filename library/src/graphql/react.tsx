@@ -40,7 +40,7 @@ export interface GraphQLOptions extends QueryOptions {
   // useCache: boolean;
 }
 
-const defaultGraphQLOptions : GraphQLOptions = {
+const defaultGraphQLOptions: GraphQLOptions = {
   ...defaultQueryOpts,
   pollInterval: 0,
   // useCache: true,
@@ -48,7 +48,7 @@ const defaultGraphQLOptions : GraphQLOptions = {
 
 export class GraphQLClient {
   private conf: QueryOptions;
-  public lastQuery:  {
+  public lastQuery: {
     query: string;
     variables: ObjectMap<any>;
     headers?: ObjectMap<string> | null;
