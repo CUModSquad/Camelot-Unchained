@@ -72,7 +72,7 @@ module.exports = function (e, argv = {}) {
     mode: MODE,
     devtool: 'source-map',
     entry: {
-      [NAME]: ['./src/sentry.tsx', './src/index.tsx'],
+      [NAME]: ['./src/polyfill.tsx', './src/sentry.tsx', './src/index.tsx'],
     },
     output: {
       path: OUTPUT_PATH,
