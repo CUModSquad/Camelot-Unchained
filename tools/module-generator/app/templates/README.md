@@ -1,6 +1,6 @@
-# Boilerplate Module
+# <%= name %> Module
 
-> The primary Boilerplate elements for Camelot Unchained's in-game UI.
+> The primary <%= nameSlug %> elements for Camelot Unchained's in-game UI.
 
 
 ## Requirements
@@ -16,22 +16,11 @@ To get started run:
 yarn
 ```
 
-You will then be ready to develop the Boilerplate Module.
-
-If you are also making changes to the `library` you will need to link it as follows.
-
-```sh
-cd ../../library
-yarn
-yarn start build
-yarn link
-cd ../game/boilerplate-module
-yarn link @csegames/camelot-unchained
-```
+You will then be ready to develop the <%= name %>.
 
 ## Developing In Browser
 
-It is possible to develop parts of the Boilerplate Module within a local browser,
+It is possible to develop parts of the <%= name %> within a local browser,
 however some client specific functionality will not work.
 
 Run the following:
@@ -58,10 +47,10 @@ yarn start dev.cube
 
 These command swill start building & watching source files for changes.
 
-The build output will go to `%localappdata%\CSE\CamelotUnchained\?\INTERFACE\boilerplate-module` where `?` depends on
+The build output will go to `%localappdata%\CSE\CamelotUnchained\?\INTERFACE\<%= nameSlug %>` where `?` depends on
 your chosen target e.g. `hatchery` is `4`
 
-When you make a change wait for it to finish compiling and then run `/reloadui boilerplate-module` in the client.
+When you make a change wait for it to finish compiling and then run `/reloadui <%= nameSlug %>` in the client.
 
 ## Single Run Production Builds
 
