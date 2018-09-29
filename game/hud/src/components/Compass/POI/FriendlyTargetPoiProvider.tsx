@@ -6,7 +6,7 @@
 
 import * as React from 'react';
 import styled from 'react-emotion';
-import { client, AnyEntityState, PlayerState } from '@csegames/camelot-unchained';
+import { FriendlyTargetState } from '@csegames/camelot-unchained';
 import {
   CompassPOIProviderProps,
   CompassPOI,
@@ -84,6 +84,7 @@ class FriendlyTargetPOIContainer extends React.Component<
   FriendlyTargetPoiContainerProps,
   FriendlyTargetPoiContainerState
 > {
+
   public state = {
     hover: false,
     hoverCount: 0,
@@ -115,6 +116,10 @@ class FriendlyTargetPOIContainer extends React.Component<
     );
   }
 
+  public componentWillUnmount() {
+    hideCompassTooltip(this.props.poi.id);
+  }
+
   public shouldComponentUpdate(nextProps: FriendlyTargetPoiContainerProps, nextState: FriendlyTargetPoiContainerState) {
     if (nextProps.compass.renderTimestamp !== this.props.compass.renderTimestamp) {
       return true;
@@ -126,10 +131,6 @@ class FriendlyTargetPOIContainer extends React.Component<
     if (this.state.hover) {
       updateCompassTooltip(this.getTooltipData());
     }
-  }
-
-  public componentWillUnmount() {
-    hideCompassTooltip(this.props.poi.id);
   }
 
   private getTooltipData = (): CompassTooltipData => {
@@ -179,6 +180,8 @@ export default class FriendlyTargetPoiProvider extends React.Component<
   CompassPOIProviderProps<FriendlyTargetData>,
   FriendlyTargetPoiProviderState
 > {
+  private eventSelfPlayerStateUpdatedHandle: EventHandle;
+  private eventFriendlyTargetStateUpdatedHandle: EventHandle;
 
   public state = {
     playerId: '',
@@ -201,32 +204,13 @@ export default class FriendlyTargetPoiProvider extends React.Component<
   }
 
   public componentDidMount() {
-    client.OnFriendlyTargetStateChanged((state: AnyEntityState) => {
-      if (state) {
-        const poi = this.getFriendlyTargetPOI(state);
-        if (poi.data.id && poi.data.id !== this.state.playerId) {
-          if (!this.props.compass.hasPOI('friendly', `friendly-${poi.data.id}`)) {
-            this.props.compass.removePOIByType('friendly');
-          }
-          this.props.compass.addPOI('friendly', poi);
-        } else {
-          this.props.compass.removePOIByType('friendly');
-        }
-      } else {
-        this.props.compass.removePOIByType('friendly');
-      }
-    });
-    client.OnPlayerStateChanged((state: PlayerState) => {
-      this.setState((prevState: FriendlyTargetPoiProviderState) => {
-        if (prevState.playerId !== state.id) {
-          return {
-            playerId: state.id,
-          };
-        } else {
-          return null;
-        }
-      });
-    });
+    this.eventSelfPlayerStateUpdatedHandle = game.friendlyTargetState.onUpdated(this.onSelfPlayerStateUpdated);
+    this.eventFriendlyTargetStateUpdatedHandle = game.selfPlayerState.onUpdated(this.onFriendlyTargetStateUpdated);
+  }
+
+  public componentWillUnmount() {
+    this.eventSelfPlayerStateUpdatedHandle.clear();
+    this.eventFriendlyTargetStateUpdatedHandle.clear();
   }
 
   public shouldComponentUpdate(
@@ -239,9 +223,37 @@ export default class FriendlyTargetPoiProvider extends React.Component<
     return false;
   }
 
-  private getFriendlyTargetPOI = (state: AnyEntityState): CompassPOIPartial<FriendlyTargetData> => {
+  private onSelfPlayerStateUpdated = () => {
+    if (game.friendlyTargetState.isActive) {
+      const poi = this.getFriendlyTargetPOI(game.friendlyTargetState as FriendlyTargetState);
+      if (poi.data.id && poi.data.id !== this.state.playerId) {
+        if (!this.props.compass.hasPOI('friendly', `friendly-${poi.data.id}`)) {
+          this.props.compass.removePOIByType('friendly');
+        }
+        this.props.compass.addPOI('friendly', poi);
+      } else {
+        this.props.compass.removePOIByType('friendly');
+      }
+    } else {
+      this.props.compass.removePOIByType('friendly');
+    }
+  }
+
+  private onFriendlyTargetStateUpdated = () => {
+    this.setState((prevState: FriendlyTargetPoiProviderState) => {
+      if (prevState.playerId !== game.selfPlayerState.characterID) {
+        return {
+          playerId: game.selfPlayerState.characterID,
+        };
+      } else {
+        return null;
+      }
+    });
+  }
+
+  private getFriendlyTargetPOI = (state: FriendlyTargetState): CompassPOIPartial<FriendlyTargetData> => {
     return withCompassPOIPartialDefaults({
-      id: `friendly-${state.id}`,
+      id: `friendly-${state.characterID}`,
       type: 'friendly',
       position: state.position,
       offset: 18,
@@ -250,9 +262,9 @@ export default class FriendlyTargetPoiProvider extends React.Component<
     });
   }
 
-  private getFriendlyTargetData = (state: AnyEntityState): FriendlyTargetData => {
+  private getFriendlyTargetData = (state: FriendlyTargetState): FriendlyTargetData => {
     return {
-      id: state.id,
+      id: state.characterID,
       name: state.name,
       isAlive: state.isAlive,
       position: state.position,

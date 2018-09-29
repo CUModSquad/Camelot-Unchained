@@ -7,7 +7,6 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import styled from 'react-emotion';
-import { client } from '@csegames/camelot-unchained';
 import hash from 'object-hash';
 import {
   CompassPOIProviderProps,
@@ -63,13 +62,17 @@ interface MapPoiContainerProps {
 interface MapPoiContainerState {
   hoverCount: number;
   hover: boolean;
+  zoneID: string;
 }
 
 class MapPoiContainer extends React.Component<MapPoiContainerProps, MapPoiContainerState> {
 
+  private eventSelfPlayerStateUpdatedHandle: EventHandle;
+
   public state = {
     hover: false,
     hoverCount: 0,
+    zoneID: '',
   };
 
   public render() {
@@ -108,9 +111,7 @@ class MapPoiContainer extends React.Component<MapPoiContainerProps, MapPoiContai
   }
 
   public componentDidMount() {
-    client.OnCharacterZoneChanged((id) => {
-      this.props.compass.removePOIByType('map');
-    });
+    this.eventSelfPlayerStateUpdatedHandle = game.selfPlayerState.onUpdated(this.onSelfPlayerStateUpdated);
   }
 
   public componentDidUpdate() {
@@ -121,6 +122,25 @@ class MapPoiContainer extends React.Component<MapPoiContainerProps, MapPoiContai
 
   public componentWillUnmount() {
     hideCompassTooltip(this.props.poi.id);
+    this.eventSelfPlayerStateUpdatedHandle.clear();
+  }
+
+  private onSelfPlayerStateUpdated = () => {
+    this.setState((prevState: MapPoiContainerState) => {
+      if (prevState.zoneID === '') {
+        this.props.compass.removePOIByType('map');
+        return {
+          zoneID: game.selfPlayerState.zoneID,
+        };
+      } else if (prevState.zoneID !== game.selfPlayerState.zoneID) {
+        this.props.compass.removePOIByType('map');
+        return {
+          zoneID: game.selfPlayerState.zoneID,
+        };
+      } else {
+        return null;
+      }
+    });
   }
 
   private getTooltipData = (): CompassTooltipData => {
