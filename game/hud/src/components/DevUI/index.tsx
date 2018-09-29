@@ -10,12 +10,10 @@ import * as _ from 'lodash';
 import styled, { css } from 'react-emotion';
 
 // @ts-ignore
-import { client, webAPI } from '@csegames/camelot-unchained';
+import { client, webAPI, GameInterface } from '@csegames/camelot-unchained';
 import { TabPanel } from '@csegames/camelot-unchained/lib/components';
-import { ObjectMap } from '@csegames/camelot-unchained/lib/utils/ObjectMap';
 import { GraphQL, GraphQLData } from '@csegames/camelot-unchained/lib/graphql/react';
 import { GraphQLQuery } from '@csegames/camelot-unchained/lib/graphql/query';
-import ClientInterface from '@csegames/camelot-unchained/lib/core/clientInterface';
 import HUDZOrder from 'services/session/HUDZOrder';
 
 type Content = string | ObjectMap<any>;
@@ -76,20 +74,20 @@ const Button = styled('div')`
   },
 `;
 
-function evalContext(namespaces: { data: ObjectMap<any>, graphql: ObjectMap<any>, client: ClientInterface }) {
+function evalContext(namespaces: { data: ObjectMap<any>, graphql: ObjectMap<any>, game: GameInterface }) {
   // @ts-ignore: no-unused-locals
   const data = namespaces.data;
   // @ts-ignore: no-unused-locals
   const graphql = namespaces.graphql;
   // @ts-ignore: no-unused-locals
-  const client = namespaces.client;
+  const game = namespaces.game;
   // tslint:disable-next-line
   return (s: string) => { return eval(s); };
 }
 
 // @ts-ignore: no-unused-locals
 function parseTemplate(template: any,
-    namespaces: { data: ObjectMap<any>, graphql: ObjectMap<any>, client: ClientInterface  }) {
+    namespaces: { data: ObjectMap<any>, graphql: ObjectMap<any>, game: GameInterface  }) {
   const ctx = evalContext(namespaces);
 
   // Replace statements wrapped with %% with their retrieved data ex.) %% graphql.data.myCharacter.name %%
@@ -150,7 +148,7 @@ class DevUIStringContent extends React.PureComponent<DevUIStringContentProps> {
                 graphql: {
                   data: graphql.data,
                 },
-                client,
+                game: game as GameInterface,
               });
               return <div dangerouslySetInnerHTML={{ __html: parsedContent }} />;
             } else {
@@ -163,7 +161,7 @@ class DevUIStringContent extends React.PureComponent<DevUIStringContentProps> {
       const parsedContent = parseTemplate(this.props.content, {
         data: this.props.data,
         graphql: null,
-        client,
+        game: game as GameInterface,
       });
       return <div dangerouslySetInnerHTML={{ __html: parsedContent }} />;
     }
