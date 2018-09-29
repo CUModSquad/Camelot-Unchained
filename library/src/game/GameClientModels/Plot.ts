@@ -122,7 +122,7 @@ function initDefault(): Plot {
     permissions: 0,
     ownerCharacterID: '',
     ownerEntityID: '',
-    buildingMode: BuildingMode.NotBuilding,
+    buildingMode: window.BuildingMode.NotBuilding,
 
     getBlocks: noOp,
     setBuildingMode: noOp,
