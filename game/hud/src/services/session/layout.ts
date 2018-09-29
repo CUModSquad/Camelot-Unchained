@@ -7,7 +7,6 @@
 import * as React from 'react';
 import { Map } from 'immutable';
 import { Module } from 'redux-typed-modules';
-import { client, RUNTIME_ASSERT } from '@csegames/camelot-unchained';
 
 import { cloneDeep } from 'lodash';
 import { HUDDragOptions, LayoutMode } from '../../components/HUDDrag';
@@ -337,7 +336,6 @@ export const lockHUD = module.createAction({
   },
   reducer: (s, a) => {
     a.removeEvent();
-    if (typeof client.RequestInputOwnership === 'function') client.RequestInputOwnership();
     return {
       locked: true,
     };
@@ -348,7 +346,6 @@ export const unlockHUD = module.createAction({
   type: 'layout/UNLOCK_HUD',
   action: () => null,
   reducer: (s, a) => {
-    if (typeof client.ReleaseInputOwnership === 'function') client.ReleaseInputOwnership();
     return {
       locked: false,
     };
@@ -366,10 +363,8 @@ export const toggleHUDLock = module.createAction({
   reducer: (s, a) => {
     if (s.locked) {
       a.addEvent();
-      if (typeof client.RequestInputOwnership === 'function') client.RequestInputOwnership();
     } else {
       a.removeEvent();
-      if (typeof client.ReleaseInputOwnership === 'function') client.ReleaseInputOwnership();
     }
     return {
       locked: !s.locked,
@@ -416,7 +411,7 @@ export const resize = module.createAction({
     return {};
   },
   reducer: (s, a) => {
-    RUNTIME_ASSERT(screen.width >= 640 && screen.height >= 480, 'ignoring resize event for small window');
+    ASSERT(screen.width >= 640 && screen.height >= 480, 'ignoring resize event for small window');
     let onScreenWidgets = Map<string, Widget<any>>();
     s.widgets.forEach((value, key) => {
       onScreenWidgets = onScreenWidgets.set(key, {
