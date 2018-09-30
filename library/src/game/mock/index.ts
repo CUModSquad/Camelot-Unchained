@@ -5,7 +5,9 @@
  */
 
 import { mockLoading } from './mockLoading';
+import { mockPlot } from './mockPlot';
 
 export function runMocks() {
   mockLoading();
+  mockPlot();
 }
