@@ -119,6 +119,7 @@ export type Plot = PlotModel & Updatable;
 export const PlotState_Update = 'plotState.update';
 
 function noOp(...args: any[]): any {}
+function noOpSuccess(...args: any[]): Success { return { success: true }; }
 
 function initDefault(): Plot {
   return {
@@ -130,19 +131,44 @@ function initDefault(): Plot {
 
     materials: [],
     activeBlock: {} as Block,
-    setBuildingMode: noOp,
-    selectBlock: noOp,
+    setBuildingMode: noOpSuccess,
+    selectBlock: noOpSuccess,
 
-    replaceMaterials: noOp,
-    replaceMaterialsInSelection: noOp,
-    replaceShapes: noOp,
-    replaceShapesInSelection: noOp,
+    replaceMaterials: noOpSuccess,
+    replaceMaterialsInSelection: noOpSuccess,
+    replaceShapes: noOpSuccess,
+    replaceShapesInSelection: noOpSuccess,
 
-    countBlocks: noOp,
+    countBlocks: () => 42,
 
-    getBlueprints: noOp,
-    selectBlueprint: noOp,
-    createBlueprintFromSelection: noOp,
+    getBlueprints: () => {
+      return {
+        success: true,
+        blueprints: [],
+      };
+    },
+    selectBlueprint: noOpSuccess,
+    createBlueprintFromSelection: (name: string) => {
+      const result = game.plot.getBlueprints();
+      if (result.success) {
+        const blueprint = {
+          id: result.blueprints.length,
+          icon: '',
+          tags: [],
+          name,
+        };
+        engine.trigger(PlotState_Update, game.plot);
+        return {
+          success: true,
+          blueprint,
+        };
+      } else {
+        return {
+          success: false,
+          reason: '',
+        };
+      }
+    },
     deleteBlueprint: noOp,
 
     dropLight: noOp,
