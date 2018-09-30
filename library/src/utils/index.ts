@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './assert';
-import './EventEmitter';
 import './ObjectMap';
 import './objectUtils';
 import './typeUtils';
@@ -21,6 +20,7 @@ export * from './textUtils';
 export * from './distance';
 export * from './compareNumbers';
 export * from './time';
+export * from './EventEmitter';
 
 import * as KeyCodes from './keyCodes';
 

@@ -35,10 +35,14 @@ export interface PlotModel {
   buildingMode: BuildingMode;
 
   /**
-   * Returns block info from the client
-   * @return {Material[]} An array of material objects that contain associated blocks
+   * The active selected block
    */
-  getBlocks: () => Material[];
+  activeBlock: Block;
+
+  /**
+   * An array of material objects that contain associated blocks
+   */
+  materials: Material[];
 
   /**
    * Sets the building mode, used to toggle between tools or turn build mode on / off
@@ -124,7 +128,8 @@ function initDefault(): Plot {
     ownerEntityID: '',
     buildingMode: window.BuildingMode.NotBuilding,
 
-    getBlocks: noOp,
+    materials: [],
+    activeBlock: {} as Block,
     setBuildingMode: noOp,
     selectBlock: noOp,
 
