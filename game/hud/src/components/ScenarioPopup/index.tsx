@@ -7,7 +7,6 @@
 
 import * as React from 'react';
 import styled from 'react-emotion';
-import { client, soundEvents } from '@csegames/camelot-unchained';
 
 import Victory from './components/Victory';
 import Defeat from './components/Defeat';
@@ -40,6 +39,7 @@ export interface ScenarioPopupState {
 }
 
 class ScenarioPopup extends React.Component<ScenarioPopupProps, ScenarioPopupState> {
+  private eventOnScenarioRoundEnded: EventHandle;
   private scenarioNoneTimeout: any;
 
   constructor(props: ScenarioPopupProps) {
@@ -78,12 +78,15 @@ class ScenarioPopup extends React.Component<ScenarioPopupProps, ScenarioPopupSta
   }
 
   public componentDidMount() {
-    client.ScenarioRoundEnded((scenarioID: string, roundID: string, scenarioEnded: boolean, didWin: boolean) => {
-      this.handleScenarioType(scenarioEnded, didWin);
-    });
+    this.eventOnScenarioRoundEnded = game.onScenarioRoundEnded(
+      (scenarioID: string, roundID: string, scenarioEnded: boolean, didWin: boolean) => {
+        this.handleScenarioType(scenarioEnded, didWin);
+      },
+    );
   }
 
   public componentWillUnmount() {
+    this.eventOnScenarioRoundEnded.clear();
     if (this.scenarioNoneTimeout) {
       clearTimeout(this.scenarioNoneTimeout);
       this.scenarioNoneTimeout = null;
@@ -106,7 +109,6 @@ class ScenarioPopup extends React.Component<ScenarioPopupProps, ScenarioPopupSta
       }
     } else {
       // Just show round over
-      client.ReleaseInputOwnership();
       this.playSound('roundover');
       this.setState({ type: ScenarioPopupType.RoundOver });
       this.scenarioNoneTimeout = setTimeout(() => this.setState({ type: ScenarioPopupType.None }), 4500);
@@ -116,15 +118,15 @@ class ScenarioPopup extends React.Component<ScenarioPopupProps, ScenarioPopupSta
   private playSound = (sound: 'victory' | 'defeat' | 'roundover') => {
     switch (sound) {
       case 'victory': {
-        client.PlaySoundEvent(soundEvents.PLAY_MUSIC_SCENARIO_VICTORY);
+        game.playGameSound(window.SoundEvent.PLAY_SCENARIO_MUSIC_VICTORY);
         break;
       }
       case 'defeat': {
-        client.PlaySoundEvent(soundEvents.PLAY_MUSIC_SCENARIO_DEFEAT);
+        game.playGameSound(window.SoundEvent.PLAY_SCENARIO_MUSIC_DEFEAT);
         break;
       }
       case 'roundover': {
-        client.PlaySoundEvent(soundEvents.PLAY_SCENARIO_UI_WIDGET_ROUNDOVER);
+        game.playGameSound(window.SoundEvent.PLAY_SCENARIO_UI_WIDGET_ROUNDOVER);
         break;
       }
       default: break;
