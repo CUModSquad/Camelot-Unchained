@@ -133,7 +133,7 @@ class MemberPoiContainer extends React.Component<MemberPoiContainerProps, Member
 
 
   public handleClick = () => {
-    // client.RequestFriendlyTargetEntityID(this.props.poi.data.id);
+    game.selfPlayerState.requestFriendlyTarget(this.props.poi.data.id);
   }
 
   private getTooltipData = (): CompassTooltipData => {

@@ -47,8 +47,7 @@ class WarbandMemberDisplay extends React.Component<WarbandMemberDisplayProps, Wa
     if (event.button === 2) return;
 
     event.preventDefault();
-    // TODO COHERENT RequestFriendlyTargetEntityID is missing
-    // client.RequestFriendlyTargetEntityID(this.props.member.id);
+    game.selfPlayerState.requestFriendlyTarget(this.props.member.id);
   }
 
   private handleContextMenu = (event: MouseEvent) => {
