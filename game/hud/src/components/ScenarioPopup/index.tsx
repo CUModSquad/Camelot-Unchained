@@ -118,15 +118,15 @@ class ScenarioPopup extends React.Component<ScenarioPopupProps, ScenarioPopupSta
   private playSound = (sound: 'victory' | 'defeat' | 'roundover') => {
     switch (sound) {
       case 'victory': {
-        game.playGameSound(SoundEvent.PLAY_SCENARIO_MUSIC_VICTORY);
+        game.playGameSound(window.SoundEvent.PLAY_SCENARIO_MUSIC_VICTORY);
         break;
       }
       case 'defeat': {
-        game.playGameSound(SoundEvent.PLAY_SCENARIO_MUSIC_DEFEAT);
+        game.playGameSound(window.SoundEvent.PLAY_SCENARIO_MUSIC_DEFEAT);
         break;
       }
       case 'roundover': {
-        game.playGameSound(SoundEvent.PLAY_SCENARIO_UI_WIDGET_ROUNDOVER);
+        game.playGameSound(window.SoundEvent.PLAY_SCENARIO_UI_WIDGET_ROUNDOVER);
         break;
       }
       default: break;
