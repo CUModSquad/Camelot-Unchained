@@ -126,17 +126,11 @@ class MaterialReplacePane extends React.Component<MaterialReplacePaneProps, Mate
   }
 
   private materialReplace = () => {
-    const w: any = window;
-    if (w.cuAPI != null) {
-      w.cuAPI.ReplaceSelectedSubstance(this.props.from.id, this.props.to.id);
-    }
+    game.plot.replaceMaterialsInSelection(this.props.from.id, this.props.to.id);
   }
 
   private materialReplaceAll = () => {
-    const w: any = window;
-    if (w.cuAPI != null) {
-      w.cuAPI.ReplaceSubstance(this.props.from.id, this.props.to.id);
-    }
+    game.plot.replaceMaterials(this.props.from.id, this.props.to.id);
   }
 }
 

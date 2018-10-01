@@ -7,8 +7,6 @@
 import { building } from '../../../../../../lib/old-library';
 
 class BlueprintRequests {
-  private win: any = window;
-  private fake: boolean = (this.win.cuAPI == null);
 
   public requestBlueprints() {
     setTimeout(() => building.requestBlueprints(), 1000);

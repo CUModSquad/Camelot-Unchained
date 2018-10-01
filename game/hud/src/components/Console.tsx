@@ -141,7 +141,7 @@ export class Console extends React.Component<ConsoleProps, ConsoleState> {
   }
 
   private static getAPIData() {
-    return (window as any).cuAPI;
+    return game;
   }
 
   private onConsoleText = (s: string) => {
