@@ -37,12 +37,6 @@ export default () => {
   ));
 
   /**
-   * Crash the game -- Yes, this really just crashes the game
-   */
-  // TODO COHERENT CrashTheGame is missing
-  // registerSlashCommand('crashthegame', 'CRASH the game client!!', () => game.CrashTheGame());
-
-  /**
    * Get your characters current x, y, z coordinates -- ONLY DURING DEVELOPMENT
    */
   registerSlashCommand('loc', 'tells you your current location', () => {

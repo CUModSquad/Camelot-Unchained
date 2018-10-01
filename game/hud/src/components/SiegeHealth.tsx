@@ -143,7 +143,6 @@ export interface SiegeHealthProps {
   for: HealthFor;
 }
 export interface SiegeHealthState {
-  // TODO COHERENT how to handle seige targets?
   entity: SelfPlayerState | FriendlyTargetState | EnemyTargetState;
 }
 

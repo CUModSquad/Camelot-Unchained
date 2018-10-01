@@ -7,13 +7,13 @@
 import BuildingEventTopics from './events/BuildingEventTopics';
 
 function requestBlueprintCopy() {
-  // TODO COHERENT missing CopyBlueprint
-  // client.CopyBlueprint();
+  game.triggerKeyAction(game.keyActions.CubeBuildingCopy);
+  game.trigger('building-copy');
 }
 
 function requestBlueprintPaste() {
-  // TODO COHERENT missing PasteBlueprint
-  // client.PasteBlueprint();
+  game.triggerKeyAction(game.keyActions.CubeBuildingPaste);
+  game.trigger('building-paste');
 }
 
 function fireHandleBlueprints() {

@@ -8,10 +8,9 @@ import { utils } from '@csegames/camelot-unchained';
 import BuildingEventTopics from './BuildingEventTopics';
 
 function run(emitter: utils.EventEmitter, topic: string) {
-  // TODO COHERENT OnCopyBlueprint is missing
-  // client.OnCopyBlueprint(() => {
-  //   emitter.emit(BuildingEventTopics.handlesBlueprintCopy, {});
-  // });
+  game.on('building-copy', () => {
+    emitter.emit(BuildingEventTopics.handlesBlueprintCopy, {});
+  });
 }
 
 export default class BlueprintCopyListener {

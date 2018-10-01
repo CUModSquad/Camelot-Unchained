@@ -14,12 +14,6 @@ import HUDZOrder from '../HUDZOrder';
 const { Orientation } = utils;
 
 const hideClientControlledUI = () => {
-  // TODO COHERENT how to hide ui?
-  // client.HideUI('spellbook');
-  // client.HideUI('ability-builder');
-  // client.HideUI('inventory');
-  // client.HideUI('equippedgear');
-  // client.HideUI('plotcontrol');
   game.trigger('hudnav--navigate', 'lockui');
 };
 

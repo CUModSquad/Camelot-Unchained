@@ -6,7 +6,6 @@
 
 import * as React from 'react';
 
-// TODO COHERENT move this to library? should this be part of definitions.ts in library?
 enum plotPermissions {
   Self = 0,
   Group = 1 << 0,
