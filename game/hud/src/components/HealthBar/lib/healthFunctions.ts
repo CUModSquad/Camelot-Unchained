@@ -5,10 +5,10 @@
  *
  */
 
-import { PlayerState } from '@csegames/camelot-unchained';
 import { BodyParts } from 'lib/PlayerStatus';
+import { PlayerState } from 'components/HealthBar';
 
-export function getHealthPercent(playerState: PlayerState | GroupMemberState, bodyPart: BodyParts) {
+export function getHealthPercent(playerState: PlayerState, bodyPart: BodyParts) {
   if (!playerState || !playerState.health || !playerState.health[bodyPart]) {
     return 0;
   }
@@ -17,7 +17,7 @@ export function getHealthPercent(playerState: PlayerState | GroupMemberState, bo
   return (bodyPartHealth.current / bodyPartHealth.max) * 100;
 }
 
-export function getWoundsForBodyPart(playerState: PlayerState | GroupMemberState, bodyPart: BodyParts) {
+export function getWoundsForBodyPart(playerState: PlayerState, bodyPart: BodyParts) {
   if (!playerState || !playerState.health || !playerState.health[bodyPart]) {
     return 0;
   }
@@ -25,7 +25,7 @@ export function getWoundsForBodyPart(playerState: PlayerState | GroupMemberState
   return playerState.health[bodyPart].wounds;
 }
 
-export function getBloodPercent(playerState: PlayerState | GroupMemberState) {
+export function getBloodPercent(playerState: PlayerState) {
   if (!playerState || !playerState.blood) {
     return 0;
   }
@@ -33,7 +33,7 @@ export function getBloodPercent(playerState: PlayerState | GroupMemberState) {
   return (playerState.blood.current / playerState.blood.max) * 100;
 }
 
-export function getStaminaPercent(playerState: PlayerState | GroupMemberState) {
+export function getStaminaPercent(playerState: PlayerState) {
   if (!playerState || !playerState.stamina) {
     return 0;
   }
@@ -41,7 +41,7 @@ export function getStaminaPercent(playerState: PlayerState | GroupMemberState) {
   return (playerState.stamina.current / playerState.stamina.max) * 100;
 }
 
-export function getFaction(playerState: PlayerState | GroupMemberState) {
+export function getFaction(playerState: PlayerState) {
   if (!playerState || !playerState.faction) {
     return Faction.Factionless;
   }
@@ -49,6 +49,6 @@ export function getFaction(playerState: PlayerState | GroupMemberState) {
   return playerState.faction;
 }
 
-export function getBodyPartsCurrentHealth(playerState: PlayerState | GroupMemberState) {
+export function getBodyPartsCurrentHealth(playerState: PlayerState) {
   return playerState.health.map(bodypart => bodypart.current);
 }

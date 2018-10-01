@@ -3,13 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+import './constants';
 
 import { GameInterface } from './GameInterface';
 import { InternalGameInterfaceExt } from './InternalGameInterfaceExt';
 import { Engine } from './coherent';
 import initializeGame from './initializeGame';
 
-// Exports GameInterface + All interfaces defined for client models
+// Exports Constants + GameInterface + All interfaces defined for client models
 export * from './GameInterface';
 export * from './coherent';
 

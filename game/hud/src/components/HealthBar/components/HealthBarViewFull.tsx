@@ -7,7 +7,6 @@
 
 import * as React from 'react';
 import styled from 'react-emotion';
-import { PlayerState } from '@csegames/camelot-unchained';
 
 import { isEqualPlayerState } from 'lib/playerStateEqual';
 import { BodyParts } from 'lib/PlayerStatus';
@@ -17,6 +16,7 @@ import SmallBar from './SmallBar';
 import BigBar from './BigBar';
 import HealthSlideOut from './HealthSlideOut';
 import Status from './Status';
+import { PlayerState } from 'components/HealthBar';
 
 const Container = styled('div')`
   position: relative;
@@ -139,7 +139,7 @@ const StaminaBar = styled('div')`
 
 export interface HealthBarViewProps {
   shouldShake: boolean;
-  playerState: PlayerState | GroupMemberState;
+  playerState: PlayerState;
 }
 
 export interface HealthBarViewState {

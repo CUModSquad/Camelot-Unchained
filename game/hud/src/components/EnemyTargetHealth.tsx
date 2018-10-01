@@ -3,11 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
+import { EnemyTargetState } from '@csegames/camelot-unchained';
 import * as React from 'react';
 import * as _ from 'lodash';
 import styled from 'react-emotion';
-import { client, PlayerState } from '@csegames/camelot-unchained';
 
 import { isEqualPlayerState } from '../lib/playerStateEqual';
 import HealthBar from './HealthBar';
@@ -26,10 +25,11 @@ export interface PlayerHealthProps {
 }
 
 export interface PlayerHealthState {
-  playerState: PlayerState;
+  playerState: EnemyTargetState;
 }
 
 class PlayerHealth extends React.Component<PlayerHealthProps, PlayerHealthState> {
+  private eventEnemyTargetStateOnUpdatedHandle: EventHandle;
   constructor(props: PlayerHealthProps) {
     super(props);
     this.state = {
@@ -49,14 +49,20 @@ class PlayerHealth extends React.Component<PlayerHealthProps, PlayerHealthState>
   }
 
   public componentDidMount() {
-    client.OnEnemyTargetStateChanged(this.setPlayerState);
+    this.eventEnemyTargetStateOnUpdatedHandle = game.enemyTargetState.onUpdated(() => {
+      this.setPlayerState(game.enemyTargetState as EnemyTargetState);
+    });
+  }
+
+  public componentWillUnmount() {
+    this.eventEnemyTargetStateOnUpdatedHandle.clear();
   }
 
   public shouldComponentUpdate(nextProps: PlayerHealthProps, nextState: PlayerHealthState) {
     return !isEqualPlayerState(nextState.playerState, this.state.playerState);
   }
 
-  private setPlayerState = (playerState: PlayerState) => {
+  private setPlayerState = (playerState: EnemyTargetState) => {
     this.setState({ playerState });
   }
 
