@@ -8,7 +8,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import styled from 'react-emotion';
 
-import { client, webAPI } from '@csegames/camelot-unchained';
+import { webAPI } from '@csegames/camelot-unchained';
 import { GraphQL, GraphQLResult } from '@csegames/camelot-unchained/lib/graphql/react';
 
 
@@ -212,7 +212,17 @@ class InventoryBody extends React.Component<InventoryBodyComponentProps, Invento
     this.dropItemHandler = game.on(eventNames.onDropItem, (payload: DropItemPayload) =>
       base.dropItemRequest(payload.inventoryItem.item));
     window.addEventListener('resize', this.initializeInventory);
-    client.SendCommitItemRequest(this.handleCommitItemRequest);
+    const result = game.commitItemPlacement();
+    if (result.success) {
+      this.handleCommitItemRequest(
+        result.placement.itemInstanceID, // TODO COHERENT check this is correct item id
+        result.placement.position,
+        result.placement.rotation,
+        result.placement.actionID,
+      );
+    } else {
+      console.error('error committing item placement', result);
+    }
   }
 
   public componentDidUpdate(prevProps: InventoryBodyComponentProps, prevState: InventoryBodyState) {
@@ -277,10 +287,10 @@ class InventoryBody extends React.Component<InventoryBodyComponentProps, Invento
     try {
       const res = await webAPI.ItemAPI.PerformItemAction(
         webAPI.defaultConfig,
-        client.shardID,
-        client.characterID,
+        game.shardID,
+        game.selfPlayerState.characterID,
         itemId,
-        client.playerState.id,
+        game.selfPlayerState.entityID,
         actionId,
         { WorldPosition: position, Rotation: rotation },
       );
