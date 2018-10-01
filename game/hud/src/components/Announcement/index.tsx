@@ -7,16 +7,20 @@
 import * as React from 'react';
 import { CSSTransitionGroup } from 'react-transition-group';
 
-class AnnouncementProps {}
+interface AnnouncementProps {}
 
-class AnnouncementState {
-  public message: string = '';
+interface AnnouncementState {
+  message: string;
 }
 
 class Announcement extends React.Component<AnnouncementProps, AnnouncementState> {
 
   private eventOnAnnouncementHandle: EventHandle;
   private isUnMounting: boolean = false;
+
+  public state = {
+    message: '',
+  };
 
   public render() {
     const messageClassNames = 'message ' + (this.state.message.length < 20 ? 'large ' : '');

@@ -8,11 +8,10 @@
 /// <reference> ../coherent.d.ts
 import { PlotState_Update, Plot } from '../GameClientModels/Plot';
 
-const _plotState: Partial<Plot> = {
-  ...game.plot as Plot,
-};
-
 export function mockPlot() {
+  const _plotState: Partial<Plot> = {
+    ...game.plot as Plot,
+  };
   console.log('Running mock plot');
   engine.trigger(PlotState_Update, _plotState);
   _devGame.plot.buildingMode = window.BuildingMode.PlacingPhantom;

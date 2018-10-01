@@ -33,7 +33,7 @@ import PlayerSiegeHealth from './layoutItems/PlayerSiegeHealth';
 import EnemyTargetSiegeHealth from './layoutItems/EnemyTargetSiegeHealth';
 import FriendlyTargetSiegeHealth from './layoutItems/FriendlyTargetSiegeHealth';
 import GameMenu from './layoutItems/GameMenu';
-import Settings from './layoutItems/Settings';
+// import Settings from './layoutItems/Settings';
 import GameInfo from './layoutItems/GameInfo';
 import SkillQueue from './layoutItems/SkillQueue';
 
@@ -177,9 +177,9 @@ function initialState(): LayoutState {
     [
       'gameMenu', cloneDeep(GameMenu),
     ],
-    [
-      'settings', cloneDeep(Settings),
-    ],
+    // [
+    //   'settings', cloneDeep(Settings),
+    // ],
     [
       'skillqueue', cloneDeep(SkillQueue),
     ],
