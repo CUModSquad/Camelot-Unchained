@@ -6,14 +6,52 @@
  */
 
 /// <reference> ../coherent.d.ts
-import { PlotState_Update, Plot } from '../GameClientModels/Plot';
+import { PlotState_Update } from '../GameClientModels/Plot';
 
 export function mockPlot() {
-  const _plotState: Partial<Plot> = {
-    ...game.plot as Plot,
+  console.log('MOCK.plot', 'initialize');
+  _devGame.plot.setBuildingMode = (mode: BuildingMode) => {
+    _devGame.plot.buildingMode = mode;
+    engine.trigger(PlotState_Update, _devGame.plot);
+    _devGame.trigger('building-mode', { mode });
+    return { success: true };
   };
-  console.log('Running mock plot');
-  engine.trigger(PlotState_Update, _plotState);
-  _devGame.plot.buildingMode = window.BuildingMode.PlacingPhantom;
-  engine.trigger(PlotState_Update, game.plot);
+  _devGame.plot.countBlocks = () => 42;
+  _devGame.plot.getBlueprints = () => {
+    return {
+      success: true,
+      blueprints: [],
+    };
+  };
+  _devGame.plot.createBlueprintFromSelection = (name: string) => {
+    const result = _devGame.plot.getBlueprints();
+    if (result.success) {
+      const blueprint = {
+        id: result.blueprints.length,
+        icon: '',
+        tags: [],
+        name,
+      };
+      engine.trigger(PlotState_Update, _devGame.plot);
+      return {
+        success: true,
+        blueprint,
+      };
+    } else {
+      return {
+        success: false,
+        reason: '',
+      };
+    }
+  };
+  _devGame.on('_mock_.keyAction', (id: number) => {
+    if (id === _devGame.keyActions.UIToggleBuildingMode) {
+      if (_devGame.plot.buildingMode === window.BuildingMode.NotBuilding) {
+        _devGame.plot.setBuildingMode(window.BuildingMode.PlacingPhantom);
+      } else {
+        _devGame.plot.setBuildingMode(window.BuildingMode.NotBuilding);
+      }
+    }
+  });
+  engine.trigger(PlotState_Update, _devGame.plot);
 }

@@ -4,10 +4,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import { mockGame } from './mockGame';
 import { mockLoading } from './mockLoading';
 import { mockPlot } from './mockPlot';
+import { mockKeyActions } from './mockKeyActions';
 
 export function runMocks() {
+  mockGame();
   mockLoading();
   mockPlot();
+  mockKeyActions();
 }

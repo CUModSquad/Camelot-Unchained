@@ -157,7 +157,12 @@ function initDefault(): KeyActions {
   }, {
     // default any unassigned value as 0
     get: (obj, key) => {
-      return key in obj ? obj[key] : 0;
+      if (key in obj) {
+        return obj[key];
+      } else {
+        console.error('missing keyAction', key);
+        return 0;
+      }
     },
   }) as KeyActions;
 }

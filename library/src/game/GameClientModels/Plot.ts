@@ -139,36 +139,11 @@ function initDefault(): Plot {
     replaceShapes: noOpSuccess,
     replaceShapesInSelection: noOpSuccess,
 
-    countBlocks: () => 42,
+    countBlocks: noOp,
 
-    getBlueprints: () => {
-      return {
-        success: true,
-        blueprints: [],
-      };
-    },
+    getBlueprints: noOp,
     selectBlueprint: noOpSuccess,
-    createBlueprintFromSelection: (name: string) => {
-      const result = game.plot.getBlueprints();
-      if (result.success) {
-        const blueprint = {
-          id: result.blueprints.length,
-          icon: '',
-          tags: [],
-          name,
-        };
-        engine.trigger(PlotState_Update, game.plot);
-        return {
-          success: true,
-          blueprint,
-        };
-      } else {
-        return {
-          success: false,
-          reason: '',
-        };
-      }
-    },
+    createBlueprintFromSelection: noOp,
     deleteBlueprint: noOp,
 
     dropLight: noOp,
