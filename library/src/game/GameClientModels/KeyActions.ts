@@ -151,7 +151,7 @@ export const KeyActions_Update = 'keyActions.update';
 function initDefault(): KeyActions {
   return new Proxy({
     isReady: false,
-    name: KeyActions_Update,
+    _name: KeyActions_Update,
     onUpdated: createDefaultOnUpdated(KeyActions_Update),
     onReady: createDefaultOnReady(KeyActions_Update),
   }, {

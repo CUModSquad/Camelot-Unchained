@@ -46,7 +46,7 @@ function initDefault(): FriendlyTargetState {
     position: { x: 0, y: 0, z: 0 },
 
     isReady: false,
-    name: FriendlyTarget_Update,
+    _name: FriendlyTarget_Update,
     onUpdated: createDefaultOnUpdated(FriendlyTarget_Update),
     onReady: createDefaultOnReady(FriendlyTarget_Update),
   };

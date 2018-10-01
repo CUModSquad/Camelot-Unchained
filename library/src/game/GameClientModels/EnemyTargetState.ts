@@ -45,7 +45,7 @@ function initDefault(): EnemyTargetState {
     position: { x: 0, y: 0, z: 0 },
 
     isReady: false,
-    name: EnemyTarget_Update,
+    _name: EnemyTarget_Update,
     onUpdated: createDefaultOnUpdated(EnemyTarget_Update),
     onReady: createDefaultOnReady(EnemyTarget_Update),
   };

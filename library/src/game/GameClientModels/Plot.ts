@@ -152,7 +152,7 @@ function initDefault(): Plot {
 
     // Updatable
     isReady: false,
-    name: PlotState_Update,
+    _name: PlotState_Update,
     onUpdated: createDefaultOnUpdated(PlotState_Update),
     onReady: createDefaultOnReady(PlotState_Update),
   };
