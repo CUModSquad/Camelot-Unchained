@@ -9,8 +9,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import styled, { css } from 'react-emotion';
 
-// @ts-ignore
-import { client, webAPI, GameInterface } from '@csegames/camelot-unchained';
+import { webAPI, GameInterface } from '@csegames/camelot-unchained';
 import { TabPanel } from '@csegames/camelot-unchained/lib/components';
 import { GraphQL, GraphQLData } from '@csegames/camelot-unchained/lib/graphql/react';
 import { GraphQLQuery } from '@csegames/camelot-unchained/lib/graphql/query';
@@ -102,9 +101,9 @@ class DevUIButton extends React.PureComponent<Button> {
       <Button
           onClick={() => {
             if (this.props.command) {
-              client.SendSlashCommand(this.props.command);
+              game.sendSlashCommand(this.props.command);
             } else if (this.props.call) {
-              const fn = client[this.props.call];
+              const fn = game[this.props.call];
               if (this.props.params) {
                 fn(...this.props.params);
               } else {
@@ -436,7 +435,7 @@ class DevUI extends React.PureComponent<{}, ObjectMap<RootPage> | null> {
 
   public componentDidMount() {
     game.on('hudnav--navigate', this.onToggleUIVisibility);
-    client.OnUpdateDevUI(this.handleUpdateDevUI);
+    game.onUpdateDevUI(this.handleUpdateDevUI);
   }
 
   public componentDidCatch(error: any, info: any) {

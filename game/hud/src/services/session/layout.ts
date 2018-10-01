@@ -35,7 +35,7 @@ import FriendlyTargetSiegeHealth from './layoutItems/FriendlyTargetSiegeHealth';
 import GameMenu from './layoutItems/GameMenu';
 // import Settings from './layoutItems/Settings';
 import GameInfo from './layoutItems/GameInfo';
-import SkillQueue from './layoutItems/SkillQueue';
+// import SkillQueue from './layoutItems/SkillQueue';
 
 const localStorageKey = 'cse_hud_layout-state';
 const FORCE_RESET_CODE = '0.7.10'; // if the local storage value for the reset code doesn't match this, then force a reset
@@ -180,9 +180,9 @@ function initialState(): LayoutState {
     // [
     //   'settings', cloneDeep(Settings),
     // ],
-    [
-      'skillqueue', cloneDeep(SkillQueue),
-    ],
+    // [
+    //   'skillqueue', cloneDeep(SkillQueue),
+    // ],
     [
       'gameInfo', cloneDeep(GameInfo),
     ],

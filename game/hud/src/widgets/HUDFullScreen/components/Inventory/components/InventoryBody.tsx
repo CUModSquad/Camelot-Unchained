@@ -212,16 +212,18 @@ class InventoryBody extends React.Component<InventoryBodyComponentProps, Invento
     this.dropItemHandler = game.on(eventNames.onDropItem, (payload: DropItemPayload) =>
       base.dropItemRequest(payload.inventoryItem.item));
     window.addEventListener('resize', this.initializeInventory);
-    const result = game.commitItemPlacement();
-    if (result.success) {
-      this.handleCommitItemRequest(
-        result.placement.itemInstanceID, // TODO COHERENT check this is correct item id
-        result.placement.position,
-        result.placement.rotation,
-        result.placement.actionID,
-      );
-    } else {
-      console.error('error committing item placement', result);
+    try {
+      const result = game.commitItemPlacement();
+      if (result.success) {
+        this.handleCommitItemRequest(
+          result.placement.itemInstanceID, // TODO COHERENT check this is correct item id
+          result.placement.position,
+          result.placement.rotation,
+          result.placement.actionID,
+        );
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
 

@@ -24,7 +24,7 @@ import HUDDrag, { HUDDragState, HUDDragOptions } from '../HUDDrag';
 import Watermark from '../Watermark';
 import HUDFullScreen from '../../widgets/HUDFullScreen';
 import DevUI from '../DevUI';
-import SkillBar from '../SkillBar';
+// import SkillBar from '../SkillBar';
 import ScenarioPopup from '../ScenarioPopup';
 import ScenarioResults from '../ScenarioResults';
 
@@ -121,7 +121,7 @@ class HUD extends React.Component<HUDProps, HUDState> {
 
           <HUDFullScreen />
           <SkillBarContainer>
-            <SkillBar />
+            {/* <SkillBar /> */}
           </SkillBarContainer>
           <ContextMenu />
           <Tooltip />
