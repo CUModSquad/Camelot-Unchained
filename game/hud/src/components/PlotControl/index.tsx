@@ -5,7 +5,17 @@
  */
 
 import * as React from 'react';
-import { client, plotPermissions } from '@csegames/camelot-unchained';
+
+// TODO COHERENT move this to library? should this be part of definitions.ts in library?
+enum plotPermissions {
+  Self = 0,
+  Group = 1 << 0,
+  Friends = 1 << 1,
+  Guild = 1 << 2,
+  Realm = 1 << 3,
+  All = 1 << 4,
+  COUNT = 1 << 5,
+}
 
 interface PlotControlUIState {
   plotOwned: boolean;
@@ -23,20 +33,19 @@ interface PlotControlUIProps {}
 
 class PlotControlUI extends React.Component<PlotControlUIProps, PlotControlUIState> {
 
-  constructor(props: PlotControlUIProps) {
-    super(props);
-    this.state = {
-      plotOwned: false,
-      currentPermissions: 0,
-      charID: '',
-      entityID: '',
-      viewingQueue: false,
-      queue: [],
-      queueState: '',
-      numContributors: 0,
-      visible: false,
-    };
-  }
+  private eventPlotOnUpdatedHandle: EventHandle;
+
+  public state = {
+    plotOwned: false,
+    currentPermissions: 0,
+    charID: '',
+    entityID: '',
+    viewingQueue: false,
+    queue: [] as QueuedBlueprintMessage[],
+    queueState: '',
+    numContributors: 0,
+    visible: false,
+  };
 
   // Render the unit frame using character data-perm
   public render() {
@@ -66,11 +75,18 @@ class PlotControlUI extends React.Component<PlotControlUIProps, PlotControlUISta
     } else return null;
   }
 
-  public componentWillMount() {
-    client.OnPlotStatus(this.onPlotStatus);
-  }
-
   public componentDidMount() {
+    this.eventPlotOnUpdatedHandle = game.plot.onUpdated(() => {
+      this.setState((state, props) => {
+        return {
+          ...state,
+          plotOwned: game.plot.isOwner,
+          currentPermissions: game.plot.permissions,
+          charID: game.plot.ownerCharacterID,
+          entityID: game.plot.ownerEntityID,
+        };
+      });
+    });
     game.on('hudnav--navigate', (name: string) => {
       if (name === 'plotcontrol') {
         if (!this.state.visible) {
@@ -82,20 +98,12 @@ class PlotControlUI extends React.Component<PlotControlUIProps, PlotControlUISta
     });
   }
 
-  private closeWindow = () => {
-    game.trigger('hudnav--navigate', 'plotcontrol');
+  public componentWillUnmount() {
+    this.eventPlotOnUpdatedHandle.clear();
   }
 
-  private onPlotStatus = (plotOwned: boolean, currentPermissions: number, charID: string, entityID: string) => {
-    this.setState((state, props) => {
-      return {
-        ...state,
-        plotOwned,
-        currentPermissions,
-        charID,
-        entityID,
-      };
-    });
+  private closeWindow = () => {
+    game.trigger('hudnav--navigate', 'plotcontrol');
   }
 
   private toggleQueue = () => {
