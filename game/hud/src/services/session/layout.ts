@@ -23,7 +23,6 @@ import EnemyTarget from './layoutItems/EnemyTarget';
 import PlayerHealth from './layoutItems/PlayerHealth';
 import FriendlyTarget from './layoutItems/FriendlyTarget';
 import ErrorMessages from './layoutItems/ErrorMessages';
-import PlotControl from './layoutItems/PlotControl';
 import Progression from './layoutItems/Progression';
 // import RefillAmmo from './layoutItems/RefillAmmo';
 import Announcement from './layoutItems/Announcement';
@@ -150,9 +149,6 @@ function initialState(): LayoutState {
     // [
     //   'refillAmmo', cloneDeep(RefillAmmo),
     // ],
-    [
-      'plotControl', cloneDeep(PlotControl),
-    ],
     [
       'progression', cloneDeep(Progression),
     ],
