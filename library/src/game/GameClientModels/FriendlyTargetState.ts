@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { PlayerStateModel, defaultPlayerStateModel } from './_EntityState';
+import { PlayerStateModel, defaultPlayerStateModel, SiegeStateModel } from './_EntityState';
 import { Updatable, createDefaultOnUpdated, createDefaultOnReady } from './_Updatable';
 
 import engineInit from './_Init';
@@ -33,7 +33,7 @@ export interface FriendlyTargetPlayerStateModel extends PlayerStateModel {
 
 }
 
-export type FriendlyTargetState = FriendlyTargetPlayerStateModel & Updatable;
+export type FriendlyTargetState = (FriendlyTargetPlayerStateModel | SiegeStateModel) & Updatable;
 
 export const FriendlyTarget_Update = 'friendlyTargetPlayerState.update';
 

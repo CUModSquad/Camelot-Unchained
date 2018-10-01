@@ -7,15 +7,6 @@ import { registerSlashCommand } from '@csegames/camelot-unchained';
 import { parseArgs, systemMessage } from './utils';
 
 export default () => {
-  /**
-   * Set field of view
-   */
-  registerSlashCommand('fov', 'set your field of view, client accepts values from 20 -> 179.9', (params: string = '') => {
-    // const argv = parseArgs(params);
-    // const degrees = argv._.length > 0 ? argv._[0] : 120;
-    // TODO COHERENT FOV is missing
-    // client.FOV(degrees);
-  });
 
   /**
    * Drop a temporary light at the characters feet
@@ -124,10 +115,6 @@ export default () => {
   });
   registerSlashCommand('rotatez', 'rotate selected blocks 90 degrees around the z axis', () => {
     game.triggerKeyAction(game.keyActions.CubeRotateBlockZ);
-  });
-  registerSlashCommand('togglesnap', 'Toggle snap mode on or off', () => {
-    // TODO COHERENT SnapMode is missing
-    // client.SnapMode();
   });
   registerSlashCommand('loopability', 'Loops specified Ability at Interval', (params: string = '') => {
     if (params.length === 0) return;

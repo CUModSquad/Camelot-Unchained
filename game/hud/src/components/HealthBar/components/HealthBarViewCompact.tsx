@@ -19,13 +19,14 @@ import BloodBall from './BloodBall';
 import HealthSlideOut from './HealthSlideOut';
 import Status from './Status';
 import { PlayerState } from 'components/HealthBar';
+import { SelfPlayerState } from '@csegames/camelot-unchained';
 
 const Container = styled('div')`
   position: relative;
   height: 301px;
   width: 506px;
-  -webkit-animation: ${(props: any) => props.shouldShake ? 'shake-hard 0.15s forwards' : ''}
-  animation: ${(props: any) => props.shouldShake ? 'shake-hard 0.15s forwards' : ''}
+  -webkit-animation: ${(props: any) => props.shouldShake ? 'shake-hard 0.15s forwards' : ''};
+  animation: ${(props: any) => props.shouldShake ? 'shake-hard 0.15s forwards' : ''};
   filter: ${(props: any) => props.isAlive ? 'grayscale(0%)' : 'grayscale(100%)'};
   -webkit-filter: ${(props: any) => props.isAlive ? 'grayscale(0%)' : 'grayscale(100%)'};
 `;
@@ -133,7 +134,7 @@ class HealthBarView extends React.Component<HealthBarViewProps, HealthBarViewSta
           right={this.state.mouseOver ? -50 : -20}
           valueOpacity={this.state.mouseOver ? 1 : 0}
           height={208}
-          currentStamina={playerState.stamina.current}
+          currentStamina={(playerState as SelfPlayerState).stamina.current}
           bodyPartsCurrentHealth={getBodyPartsCurrentHealth(playerState)}
         />
         <HealthPillsContainer onMouseOver={this.handleMouseOver} onMouseLeave={this.handleMouseOut}>

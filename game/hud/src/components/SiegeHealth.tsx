@@ -194,9 +194,11 @@ export class SiegeHealth extends React.Component<SiegeHealthProps, SiegeHealthSt
 
     if (this.state.entity.type !== nextState.entity.type) return true;
 
-    switch (this.state.entity.type) {
+    const next: SelfPlayerState | FriendlyTargetState | EnemyTargetState = nextState.entity;
+
+    switch (next.type) {
       case 'player': {
-        const next: SelfPlayerState | FriendlyTargetState | EnemyTargetState = nextState.entity;
+        if (this.state.entity.type !== 'player') return true;
 
         const thisControlled = this.state.entity.controllingEntityState;
         const nextControlled = next.controllingEntityState;
@@ -214,10 +216,9 @@ export class SiegeHealth extends React.Component<SiegeHealthProps, SiegeHealthSt
         }
         return false;
       }
-      // TODO COHERENT how to handle seige targets?
-      // case 'siege': {
-      //   return isEqual(this.state.entity, nextState.entity) === false;
-      // }
+      case 'siege': {
+        return isEqual(this.state.entity, nextState.entity) === false;
+      }
     }
   }
 
@@ -237,16 +238,15 @@ export class SiegeHealth extends React.Component<SiegeHealthProps, SiegeHealthSt
           />
         );
       }
-      // TODO COHERENT how to handle seige targets?
-      // case 'siege': {
-      //   return (
-      //     <SiegeHealthBar
-      //       state={this.state.entity}
-      //       controlledBy={null}
-      //       showExit={false}
-      //     />
-      //   );
-      // }
+      case 'siege': {
+        return (
+          <SiegeHealthBar
+            state={this.state.entity}
+            controlledBy={null}
+            showExit={false}
+          />
+        );
+      }
     }
   }
 

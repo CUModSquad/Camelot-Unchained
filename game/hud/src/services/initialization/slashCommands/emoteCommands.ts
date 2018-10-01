@@ -5,7 +5,7 @@
  */
 // import { registerSlashCommand } from '@csegames/camelot-unchained';
 
-// TODO COHERENT emotes?
+// TODO COHERENT emotes will be keybinds, but they are currently missing
 
 export default () => {
   /**
