@@ -4,21 +4,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { core } from '@csegames/camelot-unchained';
 import * as React from 'react';
 import { CSSTransitionGroup } from 'react-transition-group';
+
+class AnnouncementProps {}
 
 class AnnouncementState {
   public message: string = '';
 }
 
-class AnnouncementProps {}
-
 class Announcement extends React.Component<AnnouncementProps, AnnouncementState> {
 
-  constructor(props: AnnouncementProps) {
-    super(props);
-  }
+  private eventOnAnnouncementHandle: EventHandle;
+  private isUnMounting: boolean = false;
 
   public render() {
     const messageClassNames = 'message ' + (this.state.message.length < 20 ? 'large ' : '');
@@ -39,18 +37,21 @@ class Announcement extends React.Component<AnnouncementProps, AnnouncementState>
     );
   }
 
-  public componentWillMount() {
-    game.on('handlesAnnouncements', this.onMessage);
+  public componentDidMount() {
+    this.eventOnAnnouncementHandle = game.onAnnouncement((message: string) => {
+      this.setState({ message });
+      setTimeout(() => {
+        if (!this.isUnMounting) {
+          this.setState({ message: '' });
+        }
+      }, 20000);
+    });
     this.setState({ message: '' });
   }
 
-  private onMessage = (eventData: any) => {
-    const announcement = eventData as core.Announcement;
-    if (announcement.type !== core.announcementType.POPUP) return;
-    this.setState({ message: announcement.message });
-    setTimeout(() => {
-      this.setState({ message: '' });
-    }, 20000);
+  public componentWillUnmount() {
+    this.isUnMounting = true;
+    this.eventOnAnnouncementHandle.clear();
   }
 }
 
