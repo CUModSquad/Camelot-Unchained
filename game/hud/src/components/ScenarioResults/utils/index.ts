@@ -64,13 +64,13 @@ export function getMainWinningTeam(winningTeams: TeamInterface[]) {
 export function teamIdIsMyFaction(teamID: string) {
   switch (teamID) {
     case 'Arthurian': {
-      return game.selfPlayerState.faction === window.Faction.Arthurian;
+      return game.selfPlayerState.faction === Faction.Arthurian;
     }
     case 'Tuatha': {
-      return game.selfPlayerState.faction === window.Faction.TDD;
+      return game.selfPlayerState.faction === Faction.TDD;
     }
     case 'Viking': {
-      return game.selfPlayerState.faction === window.Faction.Viking;
+      return game.selfPlayerState.faction === Faction.Viking;
     }
     default: {
       return false;

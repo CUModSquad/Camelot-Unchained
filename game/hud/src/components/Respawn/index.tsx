@@ -48,9 +48,9 @@ class Respawn extends React.Component<RespawnProps, RespawnState> {
   public componentDidMount() {
     this.eventHandles.push(game.selfPlayerState.onUpdated(() => {
       switch (game.selfPlayerState.faction) {
-        case window.Faction.Arthurian: this.faction = 'A'; break;
-        case window.Faction.TDD: this.faction = 'T'; break;
-        case window.Faction.Viking: this.faction = 'V'; break;
+        case Faction.Arthurian: this.faction = 'A'; break;
+        case Faction.TDD: this.faction = 'T'; break;
+        case Faction.Viking: this.faction = 'V'; break;
       }
     }));
   }
