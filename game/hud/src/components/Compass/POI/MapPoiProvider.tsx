@@ -67,7 +67,8 @@ interface MapPoiContainerState {
 
 class MapPoiContainer extends React.Component<MapPoiContainerProps, MapPoiContainerState> {
 
-  private eventSelfPlayerStateUpdatedHandle: EventHandle;
+  private eventHandles: EventHandle[] = [];
+  private timeouts: NodeJS.Timer[] = [];
 
   public state = {
     hover: false,
@@ -111,7 +112,7 @@ class MapPoiContainer extends React.Component<MapPoiContainerProps, MapPoiContai
   }
 
   public componentDidMount() {
-    this.eventSelfPlayerStateUpdatedHandle = game.selfPlayerState.onUpdated(this.onSelfPlayerStateUpdated);
+    this.eventHandles.push(game.selfPlayerState.onUpdated(this.onSelfPlayerStateUpdated));
   }
 
   public componentDidUpdate() {
@@ -122,7 +123,8 @@ class MapPoiContainer extends React.Component<MapPoiContainerProps, MapPoiContai
 
   public componentWillUnmount() {
     hideCompassTooltip(this.props.poi.id);
-    this.eventSelfPlayerStateUpdatedHandle.clear();
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
+    this.timeouts.forEach(timeout => clearTimeout(timeout));
   }
 
   private onSelfPlayerStateUpdated = () => {
@@ -170,7 +172,7 @@ class MapPoiContainer extends React.Component<MapPoiContainerProps, MapPoiContai
 
   private handleMouseLeave = () => {
     const hoverCount = this.state.hoverCount;
-    setTimeout(() => {
+    this.timeouts.push(setTimeout(() => {
       this.setState((prevState: MapPoiContainerState) => {
         if (hoverCount === prevState.hoverCount) {
           hideCompassTooltip(this.props.poi.id);
@@ -182,7 +184,7 @@ class MapPoiContainer extends React.Component<MapPoiContainerProps, MapPoiContai
           return null;
         }
       });
-    }, 1000);
+    }, 1000));
   }
 }
 

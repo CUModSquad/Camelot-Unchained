@@ -125,7 +125,7 @@ export interface State {
 type Coord = [number, number];
 
 export class GameMap extends React.Component<Props, State> {
-  private eventSelfPlayerStateOnUpdatedHandle: EventHandle;
+  private eventHandles: EventHandle[] = [];
   private mapRef: HTMLDivElement = null;
   private tooltipRef: HTMLDivElement = null;
   private map: ol.Map;
@@ -180,12 +180,12 @@ export class GameMap extends React.Component<Props, State> {
     this.initialized = true;
     this.zoneID = window['zoneID'];
     this.fetchMetaData();
-    this.eventSelfPlayerStateOnUpdatedHandle = game.selfPlayerState.onUpdated(() => {
+    this.eventHandles.push(game.selfPlayerState.onUpdated(() => {
       if (game.selfPlayerState.zoneID !== this.zoneID) {
         this.zoneID = game.selfPlayerState.zoneID;
         this.fetchMetaData();
       }
-    });
+    }));
   }
 
   public componentWillUnmount() {
@@ -200,7 +200,7 @@ export class GameMap extends React.Component<Props, State> {
     }
     this.initialized = false;
     game.off(this.navigationEventHandle);
-    this.eventSelfPlayerStateOnUpdatedHandle.clear();
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
   }
 
   public shouldComponentUpdate(nextProps: Props, nextState: State) {

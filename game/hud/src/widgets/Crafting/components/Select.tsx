@@ -77,7 +77,7 @@ class Select extends React.Component<SelectProps, SelectState> {
     if (!this.props.disabled) {
       this.showList(showList);
       // TODO COHERENT missing PLAY_UI_VOX_GENERICBUTTON sound event
-      // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_GENERICBUTTON);
+      // game.playGameSound(SoundEvent.PLAY_UI_VOX_GENERICBUTTON);
     }
     e.stopPropagation();
   }
@@ -88,7 +88,7 @@ class Select extends React.Component<SelectProps, SelectState> {
 
   private onItemSelect = (item: any, itemIndex: number) => {
     // TODO COHERENT missing PLAY_UI_VOX_GENERICBUTTON sound event
-    // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_GENERICBUTTON);
+    // game.playGameSound(SoundEvent.PLAY_UI_VOX_GENERICBUTTON);
     this.setState({
       selectedIndex: itemIndex,
       showList: false,

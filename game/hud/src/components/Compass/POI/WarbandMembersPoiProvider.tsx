@@ -75,6 +75,7 @@ interface MemberPoiContainerState {
 }
 
 class MemberPoiContainer extends React.Component<MemberPoiContainerProps, MemberPoiContainerState> {
+  private timeouts: NodeJS.Timer[] = [];
 
   public state = {
     hover: false,
@@ -129,6 +130,7 @@ class MemberPoiContainer extends React.Component<MemberPoiContainerProps, Member
 
   public componentWillUnmount() {
     hideCompassTooltip(this.props.poi.id);
+    this.timeouts.forEach(timeout => clearTimeout(timeout));
   }
 
 
@@ -159,7 +161,7 @@ class MemberPoiContainer extends React.Component<MemberPoiContainerProps, Member
 
   private handleMouseLeave = () => {
     const hoverCount = this.state.hoverCount;
-    setTimeout(() => {
+    this.timeouts.push(setTimeout(() => {
       this.setState((prevState: MemberPoiContainerState) => {
         if (hoverCount === prevState.hoverCount) {
           hideCompassTooltip(this.props.poi.id);
@@ -171,7 +173,7 @@ class MemberPoiContainer extends React.Component<MemberPoiContainerProps, Member
           return null;
         }
       });
-    }, 1000);
+    }, 1000));
   }
 }
 
@@ -191,11 +193,7 @@ export default class WarbandMembersPoiProvider extends React.Component<
     characterIdToIdMap: {},
     friendlyTarget: '',
   };
-
-  private eventUpdateHandle: EventHandle;
-  private eventJoinedHandle: EventHandle;
-  private eventRemovedHandle: EventHandle;
-  private eventFriendlyTargetStateUpdatedHandle: EventHandle;
+  private eventHandles: EventHandle[] = [];
 
   public render() {
     return (
@@ -213,17 +211,14 @@ export default class WarbandMembersPoiProvider extends React.Component<
   }
 
   public componentDidMount() {
-    this.eventUpdateHandle = game.on(hubEvents.memberUpdate, this.onWarbandMemberUpdated);
-    this.eventJoinedHandle = game.on(hubEvents.memberJoined, this.onWarbandMemberJoined);
-    this.eventRemovedHandle = game.on(hubEvents.memberRemoved, this.onWarbandMemberRemoved);
-    this.eventFriendlyTargetStateUpdatedHandle = game.friendlyTargetState.onUpdated(this.onFriendlyTargetStateUpdated);
+    this.eventHandles.push(game.on(hubEvents.memberUpdate, this.onWarbandMemberUpdated));
+    this.eventHandles.push(game.on(hubEvents.memberJoined, this.onWarbandMemberJoined));
+    this.eventHandles.push(game.on(hubEvents.memberRemoved, this.onWarbandMemberRemoved));
+    this.eventHandles.push(game.friendlyTargetState.onUpdated(this.onFriendlyTargetStateUpdated));
   }
 
   public componentWillUnmount() {
-    this.eventUpdateHandle.clear();
-    this.eventJoinedHandle.clear();
-    this.eventRemovedHandle.clear();
-    this.eventFriendlyTargetStateUpdatedHandle.clear();
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
   }
 
   public shouldComponentUpdate(
@@ -237,7 +232,7 @@ export default class WarbandMembersPoiProvider extends React.Component<
   }
 
   public onFriendlyTargetStateUpdated = () => {
-    if (game.friendlyTargetState.isActive) {
+    if (game.friendlyTargetState.type === 'player' && game.friendlyTargetState.isActive) {
       this.setState({
         friendlyTarget: game.friendlyTargetState.characterID,
       });

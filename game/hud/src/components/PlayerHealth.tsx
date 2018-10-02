@@ -12,7 +12,7 @@ import { isEqualPlayerState } from '../lib/playerStateEqual';
 import HealthBar from './HealthBar';
 import { showSelfContextMenu } from 'actions/contextMenu';
 import { setPlayerState } from 'actions/player';
-import { SelfPlayerState } from '@csegames/camelot-unchained';
+import { SelfPlayerState, DeepImmutableObject } from '@csegames/camelot-unchained';
 
 const Container = styled('div')`
   transform: scale(0.45);
@@ -26,11 +26,11 @@ export interface PlayerHealthProps {
 }
 
 export interface PlayerHealthState {
-  playerState: SelfPlayerState;
+  playerState: DeepImmutableObject<SelfPlayerState>;
 }
 
 class PlayerHealth extends React.Component<PlayerHealthProps, PlayerHealthState> {
-  private eventSelfPlayerStateOnUpdatedHandle: EventHandle;
+  private eventHandles: EventHandle[] = [];
   constructor(props: PlayerHealthProps) {
     super(props);
     this.state = {
@@ -49,20 +49,20 @@ class PlayerHealth extends React.Component<PlayerHealthProps, PlayerHealthState>
   }
 
   public componentDidMount() {
-    this.eventSelfPlayerStateOnUpdatedHandle = game.selfPlayerState.onUpdated(() => {
-      this.setPlayerState(game.selfPlayerState as SelfPlayerState);
-    });
+    this.eventHandles.push(game.selfPlayerState.onUpdated(() => {
+      this.setPlayerState(game.selfPlayerState);
+    }));
   }
 
   public componentWillUnmount() {
-    this.eventSelfPlayerStateOnUpdatedHandle.clear();
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
   }
 
   public shouldComponentUpdate(nextProps: PlayerHealthProps, nextState: PlayerHealthState) {
     return !isEqualPlayerState(nextState.playerState, this.state.playerState);
   }
 
-  private setPlayerState = (playerState: SelfPlayerState) => {
+  private setPlayerState = (playerState: DeepImmutableObject<SelfPlayerState>) => {
     setPlayerState(playerState);
     this.setState({ playerState });
   }

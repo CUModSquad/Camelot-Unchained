@@ -106,7 +106,7 @@ class ScenarioResultsContainer extends React.Component<ScenarioResultsContainerP
   private toggleVisibility = () => {
     if (!this.state.visible) {
     } else {
-      game.playGameSound(window.SoundEvent.PLAY_SCENARIO_END_MUSIC_CLOSEWINDOW);
+      game.playGameSound(SoundEvent.PLAY_SCENARIO_END_MUSIC_CLOSEWINDOW);
     }
     this.setState({ visible: !this.state.visible });
   }

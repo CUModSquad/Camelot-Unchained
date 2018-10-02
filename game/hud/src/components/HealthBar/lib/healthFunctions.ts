@@ -7,6 +7,7 @@
 
 import { BodyParts } from 'lib/PlayerStatus';
 import { PlayerState } from 'components/HealthBar';
+import { DeepImmutableObject, PlayerStateModel, SiegeStateModel } from '@csegames/camelot-unchained';
 
 export function getHealthPercent(playerState: PlayerState, bodyPart: BodyParts) {
   if (!playerState || !playerState.health || !playerState.health[bodyPart]) {
@@ -26,19 +27,35 @@ export function getWoundsForBodyPart(playerState: PlayerState, bodyPart: BodyPar
 }
 
 export function getBloodPercent(playerState: PlayerState) {
-  if (!playerState || !playerState.blood) {
+  if (isPlayer(playerState)) {
+    if (playerState) {
+      if (!playerState || !playerState.blood) {
+        return 0;
+      }
+    }
+    return (playerState.blood.current / playerState.blood.max) * 100;
+  } else {
     return 0;
   }
+}
 
-  return (playerState.blood.current / playerState.blood.max) * 100;
+export function getCurrentStamina(playerState: PlayerState) {
+  if (isPlayer(playerState)) {
+    return playerState.stamina.current;
+  } else {
+    return 0;
+  }
 }
 
 export function getStaminaPercent(playerState: PlayerState) {
-  if (!playerState || !playerState.stamina) {
+  if (isPlayer(playerState)) {
+    if (!playerState || !playerState.stamina) {
+      return 0;
+    }
+    return (playerState.stamina.current / playerState.stamina.max) * 100;
+  } else {
     return 0;
   }
-
-  return (playerState.stamina.current / playerState.stamina.max) * 100;
 }
 
 export function getFaction(playerState: PlayerState) {
@@ -50,5 +67,21 @@ export function getFaction(playerState: PlayerState) {
 }
 
 export function getBodyPartsCurrentHealth(playerState: PlayerState) {
-  return playerState.health.map(bodypart => bodypart.current);
+  if (isPlayer(playerState)) {
+    return playerState.health.map(bodypart => bodypart.current);
+  } else {
+    return [playerState.health.current];
+  }
+}
+
+export function isPlayer(
+  playerState: PlayerState,
+): playerState is (DeepImmutableObject<PlayerStateModel> | GroupMemberState) {
+  return playerState.type !== 'siege';
+}
+
+export function isSiege(
+  playerState: PlayerState,
+): playerState is (DeepImmutableObject<SiegeStateModel>) {
+  return playerState.type === 'siege';
 }

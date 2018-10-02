@@ -43,7 +43,7 @@ export interface ReleaseControlButtonState {
 
 class ReleaseControl extends React.Component<ReleaseControlButtonProps, ReleaseControlButtonState> {
 
-  private eventSelfPlayerStateOnUpdatedHandle: EventHandle;
+  private eventHandles: EventHandle[] = [];
 
   constructor(props: ReleaseControlButtonProps) {
     super(props);
@@ -63,15 +63,15 @@ class ReleaseControl extends React.Component<ReleaseControlButtonProps, ReleaseC
   }
 
   public componentDidMount() {
-    this.eventSelfPlayerStateOnUpdatedHandle = game.selfPlayerState.onUpdated(() => {
+    this.eventHandles.push(game.selfPlayerState.onUpdated(() => {
       if (game.selfPlayerState.controllingEntityState && game.selfPlayerState.controllingEntityState.type === 'siege') {
         this.setState({ visible: true });
       }
-    });
+    }));
   }
 
   public componentWillUnmount() {
-    this.eventSelfPlayerStateOnUpdatedHandle.clear();
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
   }
 
   private sendCommand = (): void => {

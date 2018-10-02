@@ -15,8 +15,8 @@ interface AnnouncementState {
 
 class Announcement extends React.Component<AnnouncementProps, AnnouncementState> {
 
-  private eventOnAnnouncementHandle: EventHandle;
-  private isUnMounting: boolean = false;
+  private eventHandles: EventHandle[] = [];
+  private timeouts: NodeJS.Timer[] = [];
 
   public state = {
     message: '',
@@ -42,20 +42,18 @@ class Announcement extends React.Component<AnnouncementProps, AnnouncementState>
   }
 
   public componentDidMount() {
-    this.eventOnAnnouncementHandle = game.onAnnouncement((message: string) => {
+    this.eventHandles.push(game.onAnnouncement((message: string) => {
       this.setState({ message });
-      setTimeout(() => {
-        if (!this.isUnMounting) {
-          this.setState({ message: '' });
-        }
-      }, 20000);
-    });
+      this.timeouts.push(setTimeout(() => {
+        this.setState({ message: '' });
+      }, 20000));
+    }));
     this.setState({ message: '' });
   }
 
   public componentWillUnmount() {
-    this.isUnMounting = true;
-    this.eventOnAnnouncementHandle.clear();
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
+    this.timeouts.forEach(timeout => clearTimeout(timeout));
   }
 }
 

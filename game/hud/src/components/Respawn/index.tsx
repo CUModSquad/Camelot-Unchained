@@ -15,7 +15,7 @@ export interface RespawnState {
 }
 
 class Respawn extends React.Component<RespawnProps, RespawnState> {
-  private eventSelfPlayerStateOnUpdatedHandle: EventHandle;
+  private eventHandles: EventHandle[] = [];
   public name: string = 'Respawn';
   public home: RespawnLocation = new RespawnLocation(-1, 0, 0);
   public faction: string = null;
@@ -46,17 +46,17 @@ class Respawn extends React.Component<RespawnProps, RespawnState> {
   }
 
   public componentDidMount() {
-    this.eventSelfPlayerStateOnUpdatedHandle = game.selfPlayerState.onUpdated(() => {
+    this.eventHandles.push(game.selfPlayerState.onUpdated(() => {
       switch (game.selfPlayerState.faction) {
         case window.Faction.Arthurian: this.faction = 'A'; break;
         case window.Faction.TDD: this.faction = 'T'; break;
         case window.Faction.Viking: this.faction = 'V'; break;
       }
-    });
+    }));
   }
 
   public componentWillUnmount() {
-    this.eventSelfPlayerStateOnUpdatedHandle.clear();
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
   }
 
   private renderButton = (location: RespawnLocation, label: string) => {

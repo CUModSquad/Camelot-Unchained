@@ -302,7 +302,7 @@ class App extends React.Component<AppProps, AppState> {
     props.dispatch(setMessage({ type: '', message: '' }));
 
     // TODO COHERENT missing PLAY_UI_VOX_GENERICBUTTON sound event
-    // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_GENERICBUTTON);
+    // game.playGameSound(SoundEvent.PLAY_UI_VOX_GENERICBUTTON);
 
     setVoxJob(type)
       .then((resonse: any) => {
@@ -321,37 +321,37 @@ class App extends React.Component<AppProps, AppState> {
     switch (type) {
       case 'grind': {
         // TODO COHERENT missing PLAY_UI_VOX_START_GRIND sound event
-        // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_START_GRIND);
+        // game.playGameSound(SoundEvent.PLAY_UI_VOX_START_GRIND);
         break;
       }
       case 'purify': {
         // TODO COHERENT missing PLAY_UI_VOX_START_PURIFY sound event
-        // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_START_PURIFY);
+        // game.playGameSound(SoundEvent.PLAY_UI_VOX_START_PURIFY);
         break;
       }
       case 'shape': {
         // TODO COHERENT missing PLAY_UI_VOX_START_SHAPE sound event
-        // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_START_SHAPE);
+        // game.playGameSound(SoundEvent.PLAY_UI_VOX_START_SHAPE);
         break;
       }
       case 'block': {
         // TODO COHERENT missing PLAY_UI_VOX_START_BLOCK sound event
-        // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_START_BLOCK);
+        // game.playGameSound(SoundEvent.PLAY_UI_VOX_START_BLOCK);
         break;
       }
       case 'make': {
         // TODO COHERENT missing PLAY_UI_VOX_START_MAKE sound event
-        // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_START_MAKE);
+        // game.playGameSound(SoundEvent.PLAY_UI_VOX_START_MAKE);
         break;
       }
       case 'repair': {
         // TODO COHERENT missing PLAY_UI_VOX_START_REPAIR sound event
-        // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_START_REPAIR);
+        // game.playGameSound(SoundEvent.PLAY_UI_VOX_START_REPAIR);
         break;
       }
       case 'salvage': {
         // TODO COHERENT missing PLAY_UI_VOX_START_SALVAGE sound event
-        // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_START_SALVAGE);
+        // game.playGameSound(SoundEvent.PLAY_UI_VOX_START_SALVAGE);
         break;
       }
     }
@@ -490,7 +490,7 @@ class App extends React.Component<AppProps, AppState> {
     const props = this.props;
     const type = props.job.type;
     // TODO COHERENT missing PLAY_UI_VOX_COLLECT sound event
-    // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_COLLECT);
+    // game.playGameSound(SoundEvent.PLAY_UI_VOX_COLLECT);
     this.api(collectVoxJob, 'Job Collected', () => {
       // automatally start same job type
       setVoxJob(type)
@@ -509,7 +509,7 @@ class App extends React.Component<AppProps, AppState> {
     if (!this.props.job || this.props.job.type === 'invalid') return;
 
     // TODO COHERENT missing PLAY_UI_VOX_CLEAR sound event
-    // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_CLEAR);
+    // game.playGameSound(SoundEvent.PLAY_UI_VOX_CLEAR);
     this.api(clearVoxJob, 'Job Cleared', () => {
       this.checkJobStatus();
       return clearJob();

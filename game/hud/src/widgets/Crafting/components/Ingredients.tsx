@@ -188,7 +188,7 @@ class Ingredients extends React.Component<IngredientsProps, IngredientsState> {
   private addIngredient = () => {
     const { selectedIngredient, qty } = this.state;
     // TODO COHERENT missing PLAY_UI_VOX_ADDINGREDIENT sound event
-    // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_ADDINGREDIENT);
+    // game.playGameSound(SoundEvent.PLAY_UI_VOX_ADDINGREDIENT);
     this.props.add(selectedIngredient, qty);
     this.setState({ selectedIngredient: null, qty: 1 });
   }
@@ -196,7 +196,7 @@ class Ingredients extends React.Component<IngredientsProps, IngredientsState> {
   private removeIngredient = (last: Ingredient) => {
     this.props.remove(last);
     // TODO COHERENT missing PLAY_UI_VOX_REMOVELAST sound event
-    // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_REMOVELAST);
+    // game.playGameSound(SoundEvent.PLAY_UI_VOX_REMOVELAST);
   }
 
   private select = (ingredient: Ingredient) => {

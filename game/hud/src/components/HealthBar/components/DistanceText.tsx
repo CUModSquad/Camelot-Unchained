@@ -8,7 +8,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import styled from 'react-emotion';
-import { utils, SelfPlayerState, EnemyTargetState, FriendlyTargetState } from '@csegames/camelot-unchained';
+import { utils } from '@csegames/camelot-unchained';
 import { PlayerState } from 'components/HealthBar';
 
 const Container = styled('div')`
@@ -34,9 +34,7 @@ export interface DistanceTextState {
 
 class DistanceText extends React.Component<DistanceTextProps, DistanceTextState> {
   private mounted: boolean;
-  private eventSelfPlayerStateOnUpdatedHandle: EventHandle;
-  private eventEnemyTargetStateOnUpdatedHandle: EventHandle;
-  private eventFriendlyTargetStateOnUpdatedHandle: EventHandle;
+  private eventHandles: EventHandle[] = [];
   constructor(props: DistanceTextProps) {
     super(props);
     this.state = {
@@ -66,30 +64,24 @@ class DistanceText extends React.Component<DistanceTextProps, DistanceTextState>
 
   public componentWillUnmount() {
     this.mounted = false;
-    this.eventSelfPlayerStateOnUpdatedHandle.clear();
-    if (this.eventEnemyTargetStateOnUpdatedHandle) {
-      this.eventEnemyTargetStateOnUpdatedHandle.clear();
-    }
-    if (this.eventFriendlyTargetStateOnUpdatedHandle) {
-      this.eventFriendlyTargetStateOnUpdatedHandle.clear();
-    }
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
   }
 
   private init = () => {
-    this.eventSelfPlayerStateOnUpdatedHandle = game.selfPlayerState.onUpdated(
-      () => this.setMyPosition(game.selfPlayerState as SelfPlayerState),
-    );
+    this.eventHandles.push(game.selfPlayerState.onUpdated(
+      () => this.setMyPosition(game.selfPlayerState),
+    ));
     switch (this.props.targetType) {
       case 'enemy': {
-        this.eventEnemyTargetStateOnUpdatedHandle = game.enemyTargetState.onUpdated(
-          () => this.setTheirPosition(game.enemyTargetState as EnemyTargetState),
-        );
+        this.eventHandles.push(game.enemyTargetState.onUpdated(
+          () => this.setTheirPosition(game.enemyTargetState),
+        ));
         break;
       }
       case 'friendly': {
-        this.eventFriendlyTargetStateOnUpdatedHandle = game.friendlyTargetState.onUpdated(
-          () => this.setTheirPosition(game.friendlyTargetState as FriendlyTargetState),
-        );
+        this.eventHandles.push(game.friendlyTargetState.onUpdated(
+          () => this.setTheirPosition(game.friendlyTargetState),
+        ));
         break;
       }
     }

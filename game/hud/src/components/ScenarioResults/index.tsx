@@ -28,7 +28,7 @@ export interface ScenarioResultsState {
 }
 
 class ScenarioResults extends React.Component<ScenarioResultsProps, ScenarioResultsState> {
-  private eventOnScenarioRoundEndedHandle: EventHandle;
+  private eventHandles: EventHandle[] = [];
   constructor(props: ScenarioResultsProps) {
     super(props);
     this.state = {
@@ -50,11 +50,11 @@ class ScenarioResults extends React.Component<ScenarioResultsProps, ScenarioResu
   }
 
   public componentDidMount() {
-    this.eventOnScenarioRoundEndedHandle = game.onScenarioRoundEnded(this.handleScenarioRoundEnded);
+    this.eventHandles.push(game.onScenarioRoundEnded(this.handleScenarioRoundEnded));
   }
 
   public componentWillUnmount() {
-    this.eventOnScenarioRoundEndedHandle.clear();
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
   }
 
   private handleScenarioRoundEnded = (scenarioID: string, roundID: string, scenarioEnded: boolean, didWin: boolean) => {

@@ -147,7 +147,7 @@ export interface SiegeHealthState {
 }
 
 export class SiegeHealth extends React.Component<SiegeHealthProps, SiegeHealthState> {
-  private eventHandle: EventHandle;
+  private eventHandles: EventHandle[] = [];
   constructor(props: SiegeHealthProps) {
     super(props);
     this.state = {
@@ -157,33 +157,33 @@ export class SiegeHealth extends React.Component<SiegeHealthProps, SiegeHealthSt
   public componentDidMount() {
     switch (this.props.for) {
       case HealthFor.Self:
-        this.eventHandle = game.selfPlayerState.onUpdated(() => {
+        this.eventHandles.push(game.selfPlayerState.onUpdated(() => {
           try {
             this.setState({ entity: game.selfPlayerState as SelfPlayerState });
           } catch (e) {}
-        });
+        }));
         break;
 
       case HealthFor.EnemyTarget:
-        this.eventHandle = game.enemyTargetState.onUpdated(() => {
+        this.eventHandles.push(game.enemyTargetState.onUpdated(() => {
           try {
             this.setState({ entity: game.enemyTargetState as EnemyTargetState });
           } catch (e) {}
-        });
+        }));
         break;
 
       case HealthFor.FriendlyTarget:
-        this.eventHandle = game.friendlyTargetState.onUpdated(() => {
+        this.eventHandles.push(game.friendlyTargetState.onUpdated(() => {
           try {
             this.setState({ entity: game.friendlyTargetState as FriendlyTargetState });
           } catch (e) {}
-        });
+        }));
         break;
     }
   }
 
   public componentWillUnmount() {
-    this.eventHandle.clear();
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
   }
 
   public shouldComponentUpdate(nextProps: SiegeHealthProps, nextState: SiegeHealthState) {

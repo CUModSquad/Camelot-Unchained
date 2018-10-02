@@ -3,10 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import { SelfPlayerState } from '@csegames/camelot-unchained';
+import { SelfPlayerState, DeepImmutableObject } from '@csegames/camelot-unchained';
 
 const stateKey = 'player-state';
-function getStateObject(): SelfPlayerState {
+function getStateObject(): DeepImmutableObject<SelfPlayerState> {
   if (!window[stateKey]) {
     window[stateKey] = {
       id: '',
@@ -15,7 +15,7 @@ function getStateObject(): SelfPlayerState {
   return window[stateKey];
 }
 
-export function setPlayerState(state: SelfPlayerState) {
+export function setPlayerState(state: DeepImmutableObject<SelfPlayerState>) {
   window[stateKey] = state;
 }
 

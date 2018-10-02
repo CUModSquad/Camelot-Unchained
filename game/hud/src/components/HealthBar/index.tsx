@@ -13,9 +13,9 @@ import HealthBarViewCompact from './components/HealthBarViewCompact';
 import HealthBarViewFull from './components/HealthBarViewFull';
 import HealthBarViewMini from './components/HealthBarViewMini';
 import DistanceText from './components/DistanceText';
-import { EnemyTargetState, SelfPlayerState, FriendlyTargetState } from '@csegames/camelot-unchained';
+import { PlayerStateModel, SiegeStateModel, DeepImmutableObject } from '@csegames/camelot-unchained';
 
-export type PlayerState = SelfPlayerState | FriendlyTargetState | EnemyTargetState | GroupMemberState;
+export type PlayerState = DeepImmutableObject<PlayerStateModel | SiegeStateModel> | GroupMemberState;
 
 const Container = styled('div')`
 `;

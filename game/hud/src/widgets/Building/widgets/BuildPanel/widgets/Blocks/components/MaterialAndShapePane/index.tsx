@@ -44,7 +44,7 @@ export interface MaterialAndShapePaneState {
 
 class MaterialAndShapePane extends React.Component<MaterialAndShapePaneProps, MaterialAndShapePaneState> {
 
-  private handlesBlockSelectListener: EventHandle;
+  private eventHandles: EventHandle[] = [];
 
   constructor(props: MaterialAndShapePaneProps) {
     super(props);
@@ -82,12 +82,11 @@ class MaterialAndShapePane extends React.Component<MaterialAndShapePaneProps, Ma
   }
 
   public componentDidMount() {
-    this.handlesBlockSelectListener =
-      game.on(building.BuildingEventTopics.handlesBlockSelect, this.blockSelectionListener);
+    this.eventHandles.push(game.on(building.BuildingEventTopics.handlesBlockSelect, this.blockSelectionListener));
   }
 
   public componentWillUnmount() {
-    game.off(this.handlesBlockSelectListener);
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
     game.trigger(DEACTIVATE_MATERIAL_SELECTOR, {});
   }
 

@@ -25,7 +25,7 @@ export const Button = (props: ButtonProps) => {
       onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
         if (!props.disableSound) {
           // TODO COHERENT missing PLAY_UI_VOX_GENERICBUTTON sound event
-          // game.playGameSound(window.SoundEvent.PLAY_UI_VOX_GENERICBUTTON);
+          // game.playGameSound(SoundEvent.PLAY_UI_VOX_GENERICBUTTON);
         }
         props.onClick(e);
       }}

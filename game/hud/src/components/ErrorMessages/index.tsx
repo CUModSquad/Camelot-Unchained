@@ -14,8 +14,8 @@ interface ErrorMessagesState {
 
 
 class ErrorMessages extends React.Component<ErrorMessagesProps, ErrorMessagesState> {
-  private eventOnCombatEventHandle: EventHandle;
-  private isUnMounting: boolean = false;
+  private eventHandles: EventHandle[] = [];
+  private timeouts: NodeJS.Timer[] = [];
 
   public state = {
     messages: [] as string[],
@@ -32,7 +32,7 @@ class ErrorMessages extends React.Component<ErrorMessagesProps, ErrorMessagesSta
   }
 
   public componentDidMount() {
-    this.eventOnCombatEventHandle = game.onCombatEvent((events: CombatEvent[]) => {
+    this.eventHandles.push(game.onCombatEvent((events: CombatEvent[]) => {
       const messages = events.reduce((errors: string[], event) => {
         if (event.errors) {
           return errors.concat(event.errors.map(item => item.msg));
@@ -42,25 +42,23 @@ class ErrorMessages extends React.Component<ErrorMessagesProps, ErrorMessagesSta
       this.setState((prevState: ErrorMessagesState) => ({
         messages: messages.concat(prevState.messages),
       }));
-      setTimeout(() => {
-        if (!this.isUnMounting) {
-          this.setState((prevState: ErrorMessagesState) => {
-            const nextMessages = [].concat(prevState.messages);
-            for (let i = 0; i < messages.length; i++) {
-              nextMessages.pop();
-            }
-            return {
-              messages: nextMessages,
-            };
-          });
-        }
-      }, 3000);
-    });
+      this.timeouts.push(setTimeout(() => {
+        this.setState((prevState: ErrorMessagesState) => {
+          const nextMessages = [].concat(prevState.messages);
+          for (let i = 0; i < messages.length; i++) {
+            nextMessages.pop();
+          }
+          return {
+            messages: nextMessages,
+          };
+        });
+      }, 3000));
+    }));
   }
 
   public componentWillUnmount() {
-    this.isUnMounting = true;
-    this.eventOnCombatEventHandle.clear();
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
+    this.timeouts.forEach(timeout => clearTimeout(timeout));
   }
 }
 

@@ -10,7 +10,7 @@ import styled from 'react-emotion';
 
 import { isEqualPlayerState } from 'lib/playerStateEqual';
 import { BodyParts } from 'lib/PlayerStatus';
-import { getBloodPercent, getStaminaPercent, getFaction, getBodyPartsCurrentHealth } from '../lib/healthFunctions';
+import { getBloodPercent, getStaminaPercent, getFaction, getBodyPartsCurrentHealth, getCurrentStamina } from '../lib/healthFunctions';
 import ClassIndicator from './ClassIndicator';
 import SmallBar from './SmallBar';
 import BigBar from './BigBar';
@@ -178,7 +178,7 @@ class HealthBarView extends React.Component<HealthBarViewProps, HealthBarViewSta
             valueOpacity={this.state.mouseOver ? 1 : 0}
             right={this.state.mouseOver ? 70 : 100}
             height={208}
-            currentStamina={(playerState as SelfPlayerState).stamina.current}
+            currentStamina={getCurrentStamina(playerState)}
             bodyPartsCurrentHealth={getBodyPartsCurrentHealth(playerState)}
           />
           <HealthPillsContainer onMouseOver={this.handleMouseOver} onMouseLeave={this.handleMouseOut}>

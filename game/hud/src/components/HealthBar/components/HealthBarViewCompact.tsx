@@ -19,7 +19,6 @@ import BloodBall from './BloodBall';
 import HealthSlideOut from './HealthSlideOut';
 import Status from './Status';
 import { PlayerState } from 'components/HealthBar';
-import { SelfPlayerState } from '@csegames/camelot-unchained';
 
 const Container = styled('div')`
   position: relative;
@@ -134,7 +133,7 @@ class HealthBarView extends React.Component<HealthBarViewProps, HealthBarViewSta
           right={this.state.mouseOver ? -50 : -20}
           valueOpacity={this.state.mouseOver ? 1 : 0}
           height={208}
-          currentStamina={(playerState as SelfPlayerState).stamina.current}
+          currentStamina={playerState.stamina.current}
           bodyPartsCurrentHealth={getBodyPartsCurrentHealth(playerState)}
         />
         <HealthPillsContainer onMouseOver={this.handleMouseOver} onMouseLeave={this.handleMouseOut}>

@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { EnemyTargetState, FriendlyTargetState, SelfPlayerState } from '@csegames/camelot-unchained';
+import { EnemyTargetState, FriendlyTargetState, SelfPlayerState, DeepImmutableObject } from '@csegames/camelot-unchained';
 
 import { getPlayerEntityID } from './player';
 
@@ -55,7 +55,7 @@ export function offHideContextMenu(handle: number) {
 // SPECIFIC CONTEXT MENUS
 
 export function showFriendlyTargetContextMenu(
-  state: EnemyTargetState | FriendlyTargetState | SelfPlayerState | GroupMemberState,
+  state: DeepImmutableObject<EnemyTargetState | FriendlyTargetState | SelfPlayerState> | GroupMemberState,
   event: MouseEvent,
 ) {
   // is friendly target self?
@@ -68,14 +68,14 @@ export function showFriendlyTargetContextMenu(
 }
 
 export function showSelfContextMenu(
-  state: EnemyTargetState | FriendlyTargetState | SelfPlayerState | GroupMemberState,
+  state: DeepImmutableObject<EnemyTargetState | FriendlyTargetState | SelfPlayerState> | GroupMemberState,
   event: MouseEvent,
 ) {
   showContextMenu(getSelfMenuItems(state), event);
 }
 
 export function showEnemyTargetContextMenu(
-  state: EnemyTargetState | FriendlyTargetState | SelfPlayerState | GroupMemberState,
+  state: DeepImmutableObject<EnemyTargetState | FriendlyTargetState | SelfPlayerState> | GroupMemberState,
   event: MouseEvent,
 ) {
   showContextMenu(getEnemyTargetMenuItems(state), event);
@@ -83,7 +83,9 @@ export function showEnemyTargetContextMenu(
 
 // CONTEXT MENU GENERATION
 
-export function getSelfMenuItems(state: EnemyTargetState | FriendlyTargetState | SelfPlayerState | GroupMemberState) {
+export function getSelfMenuItems(
+  state: DeepImmutableObject<EnemyTargetState | FriendlyTargetState | SelfPlayerState> | GroupMemberState,
+) {
   const items: MenuItem[] = [
   ];
 
@@ -98,7 +100,7 @@ export function getSelfMenuItems(state: EnemyTargetState | FriendlyTargetState |
 }
 
 export function getFriendlyTargetMenuItems(
-  state: EnemyTargetState | FriendlyTargetState | SelfPlayerState | GroupMemberState,
+  state: DeepImmutableObject<EnemyTargetState | FriendlyTargetState | SelfPlayerState> | GroupMemberState,
 ) {
   const id = (state as GroupMemberState).id || (state as SelfPlayerState).entityID;
   const items: MenuItem[] = [
@@ -133,7 +135,9 @@ export function getFriendlyTargetMenuItems(
   return items;
 }
 
-export function getEnemyTargetMenuItems(state: EnemyTargetState | FriendlyTargetState | SelfPlayerState | GroupMemberState) {
+export function getEnemyTargetMenuItems(
+  state: DeepImmutableObject<EnemyTargetState | FriendlyTargetState | SelfPlayerState> | GroupMemberState,
+) {
   const items: MenuItem[] = [
   ];
   return items;

@@ -82,7 +82,7 @@ export interface HUDState extends HUDContextState {
 }
 
 class HUD extends React.Component<HUDProps, HUDState> {
-  private handleSelfPlayerStateUpdatedHandle: EventHandle;
+  private eventHandles: EventHandle[] = [];
 
   constructor(props: HUDProps) {
     super(props);
@@ -148,11 +148,11 @@ class HUD extends React.Component<HUDProps, HUDState> {
     this.props.dispatch(initializeInvites());
     this.initGraphQLContext();
 
-    this.handleSelfPlayerStateUpdatedHandle = game.selfPlayerState.onUpdated(this.handleSelfPlayerStateUpdated);
+    this.eventHandles.push(game.selfPlayerState.onUpdated(this.handleSelfPlayerStateUpdated));
   }
 
   public componentWillUnmount() {
-    this.handleSelfPlayerStateUpdatedHandle.clear();
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
   }
 
   public componentWillReceiveProps(props: HUDProps) {

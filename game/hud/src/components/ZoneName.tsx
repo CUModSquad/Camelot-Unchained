@@ -42,8 +42,8 @@ export interface ZoneNameState {
 }
 
 export class ZoneName extends React.Component<{}, ZoneNameState> {
-  private isUnMounting: boolean = false;
-  private eventSelfPlayerStateOnUpdatedHandle: EventHandle;
+  private mounted: boolean = true;
+  private eventHandles: EventHandle[] = [];
 
   constructor(props: {}) {
     super(props);
@@ -56,7 +56,7 @@ export class ZoneName extends React.Component<{}, ZoneNameState> {
   public componentDidMount() {
     // initializing shardID when component mounts because client.shardID gives me random number onCharacterZoneChanged
     const { shardID } = game;
-    this.eventSelfPlayerStateOnUpdatedHandle = game.selfPlayerState.onUpdated(() => {
+    this.eventHandles.push(game.selfPlayerState.onUpdated(() => {
       if (this.state.zoneID !== game.selfPlayerState.zoneID) {
         this.setState({
           zoneID: game.selfPlayerState.zoneID,
@@ -71,19 +71,19 @@ export class ZoneName extends React.Component<{}, ZoneNameState> {
           const data = JSON.parse(res.data);
           data.forEach((zone: any) => {
             if (zone.ID === game.selfPlayerState.zoneID) {
-              if (!this.isUnMounting) {
+              if (this.mounted) {
                 this.setState({ name: zone.Name });
               }
             }
           });
         });
       }
-    });
+    }));
   }
 
   public componentWillUnmount() {
-    this.isUnMounting = true;
-    this.eventSelfPlayerStateOnUpdatedHandle.clear();
+    this.mounted = false;
+    this.eventHandles.forEach(eventHandle => eventHandle.clear());
   }
 
   public render() {
