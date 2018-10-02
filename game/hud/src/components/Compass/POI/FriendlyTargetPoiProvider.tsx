@@ -6,7 +6,7 @@
 
 import * as React from 'react';
 import styled from 'react-emotion';
-import { FriendlyTargetState } from '@csegames/camelot-unchained';
+import { FriendlyTargetState, DeepImmutableObject } from '@csegames/camelot-unchained';
 import {
   CompassPOIProviderProps,
   CompassPOI,
@@ -226,7 +226,7 @@ export default class FriendlyTargetPoiProvider extends React.Component<
 
   private onSelfPlayerStateUpdated = () => {
     if (game.friendlyTargetState.isAlive) {
-      const poi = this.getFriendlyTargetPOI(game.friendlyTargetState as FriendlyTargetState);
+      const poi = this.getFriendlyTargetPOI(game.friendlyTargetState);
       if (poi.data.id && poi.data.id !== this.state.playerId) {
         if (!this.props.compass.hasPOI('friendly', `friendly-${poi.data.id}`)) {
           this.props.compass.removePOIByType('friendly');
@@ -252,7 +252,9 @@ export default class FriendlyTargetPoiProvider extends React.Component<
     });
   }
 
-  private getFriendlyTargetPOI = (state: FriendlyTargetState): CompassPOIPartial<FriendlyTargetData> => {
+  private getFriendlyTargetPOI = (
+    state: DeepImmutableObject<FriendlyTargetState>,
+  ): CompassPOIPartial<FriendlyTargetData> => {
     return withCompassPOIPartialDefaults({
       id: `friendly-${state.type === 'siege' ? state.entityID : state.characterID}`,
       type: 'friendly',
@@ -263,7 +265,9 @@ export default class FriendlyTargetPoiProvider extends React.Component<
     });
   }
 
-  private getFriendlyTargetData = (state: FriendlyTargetState): FriendlyTargetData => {
+  private getFriendlyTargetData = (
+    state: DeepImmutableObject<FriendlyTargetState>,
+  ): FriendlyTargetData => {
     return {
       id: state.type === 'siege' ? state.entityID : state.characterID,
       name: state.name,
