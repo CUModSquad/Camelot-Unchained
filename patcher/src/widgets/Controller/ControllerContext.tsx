@@ -324,7 +324,7 @@ export class ControllerContextProvider extends React.Component<Props, ContextSta
 
   private getServers = (graphql: GraphQLResult<ControllerContextQuery>,
                         characters: {[id: string]: webAPI.SimpleCharacter}) => {
-    const servers: {[id: string]: PatcherServer} = {};
+    const servers: {[id: string]: PatcherServer} = { ...this.state.servers };
     graphql.data.connectedServices.servers.forEach((server) => {
       servers[server.name] = webAPIServerToPatcherServer(gqlServerModelToServerModel(server));
     });
