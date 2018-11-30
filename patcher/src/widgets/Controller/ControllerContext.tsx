@@ -19,6 +19,7 @@ import {
   ControllerContextSubscription,
   ServerUpdateType,
   PatcherAlert,
+  ServerStatus,
 } from 'gql/interfaces';
 
 export interface ControllerContextQuery {
@@ -102,7 +103,7 @@ export function webAPIServerToPatcherServer(server: webAPI.ServerModel): Patcher
 
   return utils.merge({
     name: server.name,
-    available: server.playerMaximum > 0,
+    available: (server.status as any) === ServerStatus.Online,
     type: ServerType.CUGAME,
     channelStatus: channel ? channel.channelStatus : ChannelStatus.NotInstalled,
     apiHost: server.apiHost,
@@ -196,7 +197,9 @@ const subscription = gql`
 `;
 
 export class ControllerContextProvider extends React.Component<Props, ContextState> {
+  private graphql: GraphQLResult<ControllerContextQuery>;
   private channelUpdateInterval: number;
+  private queryRefetchInterval: number;
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -236,7 +239,15 @@ export class ControllerContextProvider extends React.Component<Props, ContextSta
   }
 
   public componentWillUnmount() {
-    window.clearInterval(this.channelUpdateInterval);
+    if (this.channelUpdateInterval) {
+      window.clearInterval(this.channelUpdateInterval);
+      this.channelUpdateInterval = null;
+    }
+
+    if (this.queryRefetchInterval) {
+      window.clearInterval(this.queryRefetchInterval);
+      this.queryRefetchInterval = null;
+    }
   }
 
   private getConfig = () => {
@@ -259,6 +270,11 @@ export class ControllerContextProvider extends React.Component<Props, ContextSta
   }
 
   private handleQueryResult = (graphql: GraphQLResult<ControllerContextQuery>) => {
+    if (!this.queryRefetchInterval) {
+      this.graphql = graphql;
+      this.queryRefetchInterval = window.setInterval(this.graphql.refetch, 5000);
+    }
+
     if (!graphql.data) return graphql;
     const characters = this.getCharacters(graphql);
     const servers = this.getServers(graphql, characters);
