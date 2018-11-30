@@ -1,0 +1,25 @@
+import { EventMap } from '../../utils/eventMapper';
+import { SignalRHub } from '../SignalRHub';
+export declare const PATCHER_EVENTS_SERVERUPDATED = "patcher/serverUpdated";
+export declare const PATCHER_EVENTS_SERVERUNAVAILABLE = "patcher/serverUnavailable";
+export declare const PATCHER_EVENTS_ALERT = "patcher/alert";
+export declare const PATCHER_EVENTS_CHARACTERREMOVED = "patcher/characterRemoved";
+export declare const PATCHER_EVENTS_CHARACTERUPDATED = "patcher/characterUpdated";
+export declare const PATCHER_LIFETIME_EVENT_STARTING = "patcher/starting";
+export declare const PATCHER_LIFETIME_EVENT_CONNECTIONSLOW = "patcher/connectionslow";
+export declare const PATCHER_LIFETIME_EVENT_RECONNECTING = "patcher/reconnecting";
+export declare const PATCHER_LIFETIME_EVENT_RECONNECTED = "patcher/reconnected";
+export declare const PATCHER_LIFETIME_EVENT_CONNECTING = "patcher/connecting";
+export declare const PATCHER_LIFETIME_EVENT_CONNECTED = "patcher/connected";
+export declare const PATCHER_LIFETIME_EVENT_DISCONNECTED = "patcher/disconnected";
+export declare const PATCHER_LIFETIME_EVENT_IDENTIFIED = "patcher/identified";
+export declare const PATCHER_LIFETIME_EVENT_STATECHANGED = "patcher/statechanged";
+export declare const genericPatcherEventsMap: EventMap[];
+export declare const patcherEventsMap: EventMap[];
+export declare function getPatcherEventName(apiHostName: string, eventName: string): string;
+export declare function createPatcherHub(opts?: {
+    hostName?: string;
+    isMainPatcherHub?: boolean;
+}): SignalRHub;
+export declare const patcherHub: SignalRHub;
+export default patcherHub;

@@ -1,0 +1,23 @@
+export declare enum resourceTypes {
+    BLOOD = 0,
+    STAMINA = 1,
+    ELIXIR_1 = 2,
+    ELIXIR_2 = 3,
+    ELIXIR_END = 4,
+    BASIC_ARROW = 5,
+    BLACK_ARROW = 6,
+    FLIGHT_ARROW = 7,
+    BLUNT_ARROW = 8,
+    BROADHEAD_ARROW = 9,
+    BARBED_ERROR = 10,
+    LEAFBLADE_ARROW = 11,
+    SERRATED_ARROW = 12,
+    NOTCHED_ARROW = 13,
+    CRESCENT_ARROW = 14,
+    LIGHT_ARROW = 15,
+    DART_POINT_ARROW = 16,
+    FORKED_ARROW = 17,
+    HEAVY_WAR_ARROW = 18,
+    ARROW_END = 19,
+    DOODAD = 20
+}

@@ -1,0 +1,19 @@
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+/// <reference types="react" />
+declare class CombatLogParser {
+    static LINK: number;
+    static MARKDOWN: number;
+    static COLOR: number;
+    static BLINK: number;
+    static HIGHLIGHT: number;
+    _key: number;
+    parseText(text: string): JSX.Element[];
+    parseAction(text: string): JSX.Element[];
+    isAction(text: string): boolean;
+    parse(text: string): JSX.Element[];
+}
+export default CombatLogParser;

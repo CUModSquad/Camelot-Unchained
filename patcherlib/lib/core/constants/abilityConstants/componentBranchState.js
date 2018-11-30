@@ -1,0 +1,15 @@
+"use strict";
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http//mozilla.org/MPL/2.0/.
+ */
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var componentBranchState;
+(function (componentBranchState) {
+  componentBranchState[componentBranchState["Disabled"] = 0] = "Disabled";
+  componentBranchState[componentBranchState["Open"] = 1] = "Open";
+  componentBranchState[componentBranchState["Slotted"] = 2] = "Slotted";
+})(componentBranchState = exports.componentBranchState || (exports.componentBranchState = {}));
+exports.default = componentBranchState;
