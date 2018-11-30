@@ -107,7 +107,7 @@ class ControllerDisplayView extends React.Component<Props, ControllerDisplayView
           <Login onLogin={this.props.onLogin} />
           {/* <Alerts alerts={alertArray} /> */}
           {/* <PatcherError errors={errors} onClear={this.props.onClearError}/> */}
-          <VersionNumber>v0.1.6</VersionNumber>
+          <VersionNumber>v0.1.7</VersionNumber>
         </Container>
       );
     }
