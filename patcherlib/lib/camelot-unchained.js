@@ -12063,6 +12063,14 @@ var PatchPermissions;
     PatchPermissions["Beta2"] = "Beta2";
     PatchPermissions["Beta3"] = "Beta3";
 })(PatchPermissions = exports.PatchPermissions || (exports.PatchPermissions = {}));
+/** ServerLib.GraphQL.ServerUpdateType */
+var ServerUpdateType;
+(function (ServerUpdateType) {
+    ServerUpdateType["None"] = "None";
+    ServerUpdateType["Updated"] = "Updated";
+    ServerUpdateType["UpdatedAll"] = "UpdatedAll";
+    ServerUpdateType["UnavailableAll"] = "UnavailableAll";
+})(ServerUpdateType = exports.ServerUpdateType || (exports.ServerUpdateType = {}));
 /** ServerLib.GraphQL.Models.SecureTradeUpdateCategory */
 var SecureTradeUpdateCategory;
 (function (SecureTradeUpdateCategory) {
@@ -12071,6 +12079,13 @@ var SecureTradeUpdateCategory;
     SecureTradeUpdateCategory["StateUpdate"] = "StateUpdate";
     SecureTradeUpdateCategory["ItemUpdate"] = "ItemUpdate";
 })(SecureTradeUpdateCategory = exports.SecureTradeUpdateCategory || (exports.SecureTradeUpdateCategory = {}));
+/** ServerLib.ApiModels.PatcherCharacterUpdateType */
+var PatcherCharacterUpdateType;
+(function (PatcherCharacterUpdateType) {
+    PatcherCharacterUpdateType["None"] = "None";
+    PatcherCharacterUpdateType["Updated"] = "Updated";
+    PatcherCharacterUpdateType["Removed"] = "Removed";
+})(PatcherCharacterUpdateType = exports.PatcherCharacterUpdateType || (exports.PatcherCharacterUpdateType = {}));
 /** CSEUtilsNET.ChannelID */
 var ChannelID;
 (function (ChannelID) {

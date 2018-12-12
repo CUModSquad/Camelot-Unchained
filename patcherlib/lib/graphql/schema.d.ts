@@ -65,11 +65,24 @@ export interface IInteractiveAlert {
     targetID: CharacterID | null;
     when: number | null;
 }
+/** ServerLib.GraphQL.IServerUpdate */
+export interface IServerUpdate {
+    type: ServerUpdateType | null;
+}
 /** ServerLib.GraphQL.Models.ISecureTradeUpdate */
 export interface ISecureTradeUpdate {
     category: SecureTradeUpdateCategory | null;
     targetID: CharacterID | null;
     tradeID: SecureTradeInstanceID | null;
+}
+/** ServerLib.ApiModels.IPatcherCharacterUpdate */
+export interface IPatcherCharacterUpdate {
+    type: PatcherCharacterUpdateType | null;
+    shard: ShardID | null;
+}
+/** ServerLib.ApiModels.IPatcherAlertUpdate */
+export interface IPatcherAlertUpdate {
+    alert: PatcherAlert | null;
 }
 /** The root query object. */
 export interface CUQuery {
@@ -82,7 +95,7 @@ export interface CUQuery {
     motd: (MessageOfTheDay | null)[] | null /** Gets a list of Message of the Days */;
     patchNotes: (PatchNote | null)[] | null /** Gets patch notes */;
     patchNote: PatchNote | null /** Gets a single patch note */;
-    patcherAlerts: (PatchNote | null)[] | null /** Gets patcher alerts */;
+    patcherAlerts: (PatcherAlert | null)[] | null /** Gets patcher alerts */;
     patcherHero: (PatcherHero | null)[] | null /** Gets Patcher Hero content */;
     scenariosummary: ScenarioSummaryDBModel | null /** retrieve information about a scenario */;
     substances: (SubstanceDefRef | null)[] | null /** list all available substances */;
@@ -108,6 +121,7 @@ export interface CUQuery {
     world: WorldData | null /** Information about the current game world */;
     crafting: CraftingRecipes | null /** Information about crafting recipes, nearby vox status, and potential interactions with the current vox job. */;
     channels: (Channel | null)[] | null /** List all channels. */;
+    shardCharacters: (SimpleCharacter | null)[] | null /** Gets all the characters from the requested shard for the account. */;
 }
 /** ServerLib.GraphQL.ConnectedServices */
 export interface ConnectedServices {
@@ -284,6 +298,14 @@ export interface PatchNote {
     jSONContent: string | null /** JSON data of HTML Content for the patch note. */;
     title: string | null;
     patchNumber: string | null;
+    id: string | null;
+    utcDisplayStart: Date | null;
+    utcDisplayEnd: Date | null;
+    utcCreated: Date | null;
+}
+/** CU.Databases.Models.Content.PatcherAlert */
+export interface PatcherAlert {
+    message: string | null /** HTML Content for the patcher alert. */;
     id: string | null;
     utcDisplayStart: Date | null;
     utcDisplayEnd: Date | null;
@@ -841,10 +863,10 @@ export interface PlayerCount {
 }
 /** ServerLib.Status.Status */
 export interface Status {
-    statuses: (StatusDef | null)[] | null /** Mapping of all numeric status IDs to StatusDefs */;
+    statuses: (StatusDef_Deprecated | null)[] | null /** Mapping of all numeric status IDs to StatusDefs */;
 }
-/** World.StatusDef */
-export interface StatusDef {
+/** World.StatusDef_Deprecated */
+export interface StatusDef_Deprecated {
     description: string | null;
     hidden: boolean | null;
     iconURL: string | null;
@@ -1403,12 +1425,26 @@ export interface Channel {
     description: string | null;
     permissions: PatchPermissions | null;
 }
+/** ServerLib.ApiModels.SimpleCharacter */
+export interface SimpleCharacter {
+    archetype: Archetype | null;
+    faction: Faction | null;
+    gender: Gender | null;
+    id: CharacterID | null;
+    lastLogin: Date | null;
+    name: string | null;
+    race: Race | null;
+    shardID: ShardID | null;
+}
 /** The root subscriptions object. */
 export interface CUSubscription {
+    serverUpdates: IServerUpdate | null /** Subscription for updates to servers */;
     myInventoryItems: Item | null /** Real-time updates for inventory items */;
     passiveAlerts: PassiveAlert | null /** Alerts that notify players something happened but do not need to be reacted to. */;
     interactiveAlerts: IInteractiveAlert | null /** Alerts */;
     secureTradeUpdates: ISecureTradeUpdate | null /** Updates to a secure trade */;
+    shardCharacterUpdates: IPatcherCharacterUpdate | null /** Subscription for simple updates to characters on a shard */;
+    patcherAlerts: IPatcherAlertUpdate | null /** Gets updates for patcher alerts */;
 }
 /** CU.Permissions.PermissionInfo */
 export interface PermissionInfo {
@@ -1485,14 +1521,6 @@ export interface CharacterStatProgressionDBModel {
 export interface SkillPartProgressionDBModel {
     level: number | null;
     progressionPoints: number | null;
-}
-/** CU.Databases.Models.Content.PatcherAlert */
-export interface PatcherAlert {
-    message: string | null /** HTML Content for the patcher alert. */;
-    id: string | null;
-    utcDisplayStart: Date | null;
-    utcDisplayEnd: Date | null;
-    utcCreated: Date | null;
 }
 /** CU.Databases.Models.Progression.Logs.ScenarioSummaryDBModel+TeamOutcomeScenario */
 export interface TeamOutcomeScenario {
@@ -1575,6 +1603,20 @@ export interface ClassTrait {
     exclusives: ExclusiveTraitsInfo | null /** THIS CURRENTLY RETURNS NULL. List of exclusive groups. An exclusive group describes traits that can only be picked up to a certain amount of points. */;
     specifier: string | null /** Specifies the defining type based on category */;
 }
+/** ServerLib.GraphQL.ServerUpdated */
+export interface ServerUpdated extends IServerUpdate {
+    type: ServerUpdateType | null;
+    server: ServerModel | null;
+}
+/** ServerLib.GraphQL.ServerUpdatedAll */
+export interface ServerUpdatedAll extends IServerUpdate {
+    type: ServerUpdateType | null;
+    server: ServerModel | null;
+}
+/** ServerLib.GraphQL.ServerUnavailableAllUpdate */
+export interface ServerUnavailableAllUpdate extends IServerUpdate {
+    type: ServerUpdateType | null;
+}
 /** ServerLib.GraphQL.SG1Member */
 export interface SG1Member extends Character {
     name: string | null;
@@ -1635,6 +1677,22 @@ export interface SecureTradeItemUpdate extends ISecureTradeUpdate {
     targetID: CharacterID | null;
     tradeID: SecureTradeInstanceID | null;
     otherEntityItems: (Item | null)[] | null;
+}
+/** ServerLib.ApiModels.CharacterUpdate */
+export interface CharacterUpdate extends IPatcherCharacterUpdate {
+    type: PatcherCharacterUpdateType | null;
+    shard: ShardID | null;
+    character: SimpleCharacter | null;
+}
+/** ServerLib.ApiModels.CharacterRemovedUpdate */
+export interface CharacterRemovedUpdate extends IPatcherCharacterUpdate {
+    type: PatcherCharacterUpdateType | null;
+    shard: ShardID | null;
+    characterID: CharacterID | null;
+}
+/** ServerLib.ApiModels.PatcherAlertUpdate */
+export interface PatcherAlertUpdate extends IPatcherAlertUpdate {
+    alert: PatcherAlert | null;
 }
 export interface InviteinviteArgs {
     shard: number | null /** shard id. (required) */;
@@ -1698,6 +1756,9 @@ export interface SkillskillArgs {
     id: number | null /** ID of the skill. */;
     shard: number | null /** Shard ID to look for the skill. */;
 }
+export interface ShardCharactersshardCharactersArgs {
+    onShard: number | null /** If you want to request for a specific shard, use this parameter. Otherwise, will fetch characters on all shards. */;
+}
 export interface PlayerCountsplayerCountsArgs {
     server: string | null /** Server name (default: Hatchery) */;
     from: string | null /** Time from which to get metrics. See http://graphite-api.readthedocs.io/en/latest/api.html#from-until for more info. (default: -1h) */;
@@ -1758,6 +1819,12 @@ export interface RealmSummaryrealmSummaryArgs {
 }
 export interface PossibleIngredientspossibleIngredientsArgs {
     slot: string | null /** The slot to get ingredients for. (required) - Valid values: Invalid, PrimaryIngredient, SecondaryIngredient1, SecondaryIngredient2, SecondaryIngredient3, SecondaryIngredient4, Alloy, WeaponBlade, WeaponHandle, NonRecipe */;
+}
+export interface ShardCharacterUpdatesshardCharacterUpdatesArgs {
+    onShard: number | null /** Shard ID of the server you'd like to subscribe to for character updates */;
+}
+export interface PatcherAlertspatcherAlertsArgs {
+    onShard: number | null /** Shard ID of the server you'd like to subscribe to for character updates */;
 }
 /** AccessType */
 export declare enum AccessType {
@@ -2076,12 +2143,25 @@ export declare enum PatchPermissions {
     Beta2 = "Beta2",
     Beta3 = "Beta3"
 }
+/** ServerLib.GraphQL.ServerUpdateType */
+export declare enum ServerUpdateType {
+    None = "None",
+    Updated = "Updated",
+    UpdatedAll = "UpdatedAll",
+    UnavailableAll = "UnavailableAll"
+}
 /** ServerLib.GraphQL.Models.SecureTradeUpdateCategory */
 export declare enum SecureTradeUpdateCategory {
     None = "None",
     Complete = "Complete",
     StateUpdate = "StateUpdate",
     ItemUpdate = "ItemUpdate"
+}
+/** ServerLib.ApiModels.PatcherCharacterUpdateType */
+export declare enum PatcherCharacterUpdateType {
+    None = "None",
+    Updated = "Updated",
+    Removed = "Removed"
 }
 /** CSEUtilsNET.ChannelID */
 export declare enum ChannelID {
