@@ -89,7 +89,7 @@ export class Scenario extends React.PureComponent<ScenarioProps, ScenarioState> 
     let status;
     let needed;
     if (needed = scenarioIsAvailable(scenario)) {
-      status = `PLAYERS NEEDED TO START NEXT GAME:\n`
+      status = `PLAYERS ${scenario.gamesInProgress ? `ARE STILL NEEDED FOR THIS` : `NEEDED TO START NEXT`} GAME:\n`
         + `${needed.tdd} TDD / ${needed.viking} VKK / ${needed.arthurian} ART`;
     } else {
       status = 'Scenario Not Available';
