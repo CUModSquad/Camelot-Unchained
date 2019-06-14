@@ -55,6 +55,8 @@ export interface State {
 }
 
 class NumberWheelInput extends React.Component<Props, State> {
+  private inputRef: HTMLInputElement = null;
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -71,6 +73,8 @@ class NumberWheelInput extends React.Component<Props, State> {
         inputClassName={InputStyle}
         value={`${this.props.prevValueDecorator || ''}${this.state.tempValue}${this.props.trailValueDecorator || ''}`}
         onChange={this.onInputChange}
+        onFocus={() => this.placeCursor() }
+        getRef={r => this.inputRef = r}
       />
     );
   }
@@ -80,29 +84,60 @@ class NumberWheelInput extends React.Component<Props, State> {
     if (prevProps.value !== this.props.value && this.props.value !== this.state.tempValue) {
       this.setState({ tempValue: this.props.value });
     }
+    this.placeCursor();
+  }
+
+  private placeCursor = () => {
+    const valueLength = this.inputRef.value.length;
+    const cursorPos = this.inputRef.selectionStart;
+    if (this.props.trailValueDecorator && (cursorPos > valueLength - this.props.trailValueDecorator.length)) {
+      const newPos = valueLength - this.props.trailValueDecorator.length;
+      this.inputRef.setSelectionRange(newPos, newPos);
+    } else if (this.props.prevValueDecorator && (cursorPos < this.props.prevValueDecorator.length)) {
+      const newPos = this.props.prevValueDecorator.length;
+      this.inputRef.setSelectionRange(newPos, newPos);
+    }
   }
 
   private onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let inputValue = e.target.value;
+    // get start and end of the number to remove the decorators
+    const start = this.props.prevValueDecorator ? this.props.prevValueDecorator.length : 0;
+    const end = this.props.trailValueDecorator
+      ? - this.props.trailValueDecorator.length
+      : e.target.value.length;
 
-    if (this.props.prevValueDecorator) {
-      // Remove prevalue decorator before turning value into number
-      inputValue = inputValue.replace(this.props.prevValueDecorator, '');
-    }
-
-    const newVal = Number(inputValue);
-    if (typeof newVal === 'number') {
+    const newVal = Number(e.target.value.slice(start, end));
+    const validationMessage = this.validateInput(newVal);
+    if (validationMessage === 'ok') {
       this.setState({ tempValue: newVal });
       this.onChange(newVal);
+    } else {
+      const { left, top } = e.target.getBoundingClientRect();
+      game.trigger(
+        'show-action-alert',
+        validationMessage,
+        { clientX: left - validationMessage.length, clientY: top - 8 },
+        { color: 'red' },
+      );
+      this.setState({ tempValue: this.props.value });
     }
   }
 
-  private onChange = (newVal: number) => {
-    if (newVal <= this.props.maxValue && newVal >= this.props.minValue) {
-      this.props.onChange(newVal);
-    } else {
-      this.setState({ tempValue: this.props.value });
+  private validateInput = (value: number): string => {
+    if (value > this.props.maxValue) {
+      return (`Maximum: ${this.props.maxValue}`);
     }
+    if (value < this.props.minValue) {
+      return (`Minimum: ${this.props.minValue}`);
+    }
+    if (isNaN(value)) {
+      return ('No number');
+    }
+    return 'ok';
+  }
+
+  private onChange = (newVal: number) => {
+    this.props.onChange(newVal);
   }
 }
 

@@ -8,12 +8,12 @@ import * as React from 'react';
 import { styled } from '@csegames/linaria/react';
 import { isEqual } from 'lodash';
 
-const fadeTime = 1000;
+const fadeTime = 2000;
 
 const FadeAlertItem = styled.div`
   position: fixed;
   color: #FFFFFF;
-  font-weight: medium;
+  font-weight: bold;
   font-size: 15px;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000 !important;
   z-index: 9999;
@@ -40,6 +40,7 @@ export interface State {
   alertMessage: string;
   clientX: number;
   clientY: number;
+  messageStyles: React.CSSProperties;
 }
 
 export class ActionAlert extends React.Component<Props, State> {
@@ -51,13 +52,18 @@ export class ActionAlert extends React.Component<Props, State> {
       alertMessage: '',
       clientX: 0,
       clientY: 0,
+      messageStyles: null,
     };
   }
 
   public render() {
-    const { alertMessage, clientX, clientY } = this.state;
+    const { alertMessage, clientX, clientY, messageStyles } = this.state;
     return alertMessage ? (
-      <FadeAlertItem style={{ top: `${clientY}px`, left: `${clientX}px`  }}>{alertMessage}</FadeAlertItem>
+      <FadeAlertItem
+        style={{ top: `${clientY}px`, left: `${clientX}px`, ...messageStyles }}
+      >
+        {alertMessage}
+      </FadeAlertItem>
     ) : null;
   }
 
@@ -80,11 +86,14 @@ export class ActionAlert extends React.Component<Props, State> {
     }
   }
 
-  private handleShowAlert = (alertMessage: string, mousePos: { clientX: number, clientY: number }) => {
-    this.setState({ alertMessage, clientX: mousePos.clientX, clientY: mousePos.clientY });
+  private handleShowAlert = (
+    alertMessage: string,
+    mousePos: { clientX: number, clientY: number },
+    messageStyles?: React.CSSProperties,
+  ) => {
+    this.setState({ alertMessage, clientX: mousePos.clientX, clientY: mousePos.clientY, messageStyles });
     this.removeTimer = window.setTimeout(() =>
-      this.setState({ alertMessage: '', clientX: 0, clientY: 0 }),
+      this.setState({ alertMessage: '', clientX: 0, clientY: 0, messageStyles: null }),
     fadeTime);
   }
 }
-

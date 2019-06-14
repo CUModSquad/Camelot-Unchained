@@ -14,6 +14,8 @@ import { getJobContext } from 'fullscreen/Crafting/lib/utils';
 import { TextInput } from 'shared/TextInput';
 import { MediaBreakpoints } from 'fullscreen/Crafting/lib/MediaBreakpoints';
 
+const NAME_LENGTH_MAX = 28;
+
 const Container = styled.div`
   width: 144px;
   height: 144px;
@@ -97,8 +99,15 @@ class CustomName extends React.Component<Props, State> {
   }
 
   private onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ value: e.target.value });
-    this.onCustomNameChange(e.target.value);
+    if (e.target.value.length > NAME_LENGTH_MAX) {
+      const { left, top } = e.target.getBoundingClientRect();
+      game.trigger('show-action-alert', 'Name is too long', { clientX: left - 4, clientY: top - 4 }, { color: 'red' });
+    }
+    const newVal = e.target.value.length > NAME_LENGTH_MAX
+      ? e.target.value.slice(0, NAME_LENGTH_MAX)
+      : e.target.value;
+    this.setState({ value: newVal });
+    this.onCustomNameChange(newVal);
   }
 
   private onCustomNameChange = (customName: string) => {
