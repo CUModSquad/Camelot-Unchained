@@ -3,14 +3,16 @@ const NAME = 'hud';
 // helper function to generate scripts for each target
 function generateForTargets(callback) {
   const targets = [
-    { name: 'fledgling', id: 30, },
     { name: 'hatchery', id: 4, },
-    { name: 'wyrmling', id: 10, },
-    { name: 'wyrmlingPrep', id: 11, },
+    { name: 'cube', id: 27, },
+    { name: 'wolfhere', id: 1100, },
+    { name: 'hawking',  id: 1200, },
     { name: 'nuada', id: 1300, },
     { name: 'nuadaPrep', id: 1400, },
-    { name: 'wolfhere', id: 1100, },
-    { name: 'cube', id: 27, },
+    { name: 'wyrmling', id: 1500, },
+    { name: 'wyrmlingPrep', id: 1600, },
+    { name: 'fledgling', id: 1700, },
+    { name: 'fledglingPrep', id: 1800, },
   ];
   return generateFor(targets, callback);
 }
