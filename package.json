@@ -25,7 +25,7 @@
     "tslint": "^5.1.0"
   },
   "devDependencies": {
-    "lerna": "^3.3.2",
+    "lerna": "^3.18.2",
     "tslint": "^5.1.0"
   },
   "workspaces": [
