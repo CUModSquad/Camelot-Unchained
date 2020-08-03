@@ -141,7 +141,6 @@ export function AbilityCreation(props: Props) {
   return !isEmpty(abilityBuilderContext.abilityNetworks) ? (
     <Container>
       <AbilityNetworkTemplate
-        selectedType={state.selectedType}
         componentCategories={getComponentCategorySelectors()}
         onCreateAbility={state.isModifying ? onModifyAbility : onCreateAbility}
       />

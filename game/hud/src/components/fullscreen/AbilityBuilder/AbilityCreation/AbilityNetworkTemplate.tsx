@@ -40,7 +40,6 @@ export interface SelectedComponentMap {
 }
 
 export interface ComponentProps {
-  selectedType: AbilityType;
   componentCategories: ComponentCategorySelector[];
   onCreateAbility: (type: AbilityType, abilityComponents: string[], icon: string, name: string, description: string) => void;
 }
@@ -51,13 +50,6 @@ export interface InjectedProps {
 
 export type Props = ComponentProps & InjectedProps;
 
-export interface State {
-  name: string;
-  nameHasBeenEdited: boolean;
-  description: string;
-  selectedIcon: string | null;
-  selectedComponentMap: SelectedComponentMap;
-}
 
 // tslint:disable-next-line:function-name
 export function AbilityNetworkTemplate(props: ComponentProps) {
@@ -66,6 +58,7 @@ export function AbilityNetworkTemplate(props: ComponentProps) {
   const [selectedComponentMap, setSelectedComponentMap] =
     useState<{ [categoryID: string]: string | string[] }>(getDefaultSelectedComponentMap());
   const [nameHasBeenEdited, setNameHasBeenEdited] = useState(false);
+  const [iconHasBeenEditted, setIconHasBeenEdited] = useState(false);
 
   useEffect(() => {
     if (state.name === '') {
@@ -187,11 +180,12 @@ export function AbilityNetworkTemplate(props: ComponentProps) {
       }
     }
 
-    if (nameHasBeenEdited) {
-      setSelectedComponentMap(selectedComponents);
-    } else {
-      setSelectedComponentMap(selectedComponents);
+    setSelectedComponentMap(selectedComponents);
+    if (!nameHasBeenEdited) {
       dispatch({ type: 'set-name', name: getRandomAbilityName(selectedComponents) });
+    }
+    if (!iconHasBeenEditted) {
+      dispatch({ type: 'set-icon', icon: componentIDToComponent[componentID].display.iconURL });
     }
   }
 
@@ -201,6 +195,7 @@ export function AbilityNetworkTemplate(props: ComponentProps) {
 
   function onSelectedIconChange(icon: string) {
     dispatch({ type: 'set-icon', icon });
+    setIconHasBeenEdited(true);
   }
 
   function onNameChange(name: string) {

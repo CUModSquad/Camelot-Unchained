@@ -473,12 +473,12 @@ export class FilterDropdown extends React.Component<Props, State> {
   }
 
   private hideDropdown = () => {
+    window.removeEventListener('mousedown', this.onMouseDownHide);
     this.setState({ shouldShow: false });
   }
 
   private onMouseDownHide = () => {
     if (!this.mouseOver) {
-      window.removeEventListener('mousedown', this.onMouseDownHide);
       this.hideDropdown();
     }
   }
